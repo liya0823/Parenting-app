@@ -196,7 +196,7 @@ const Player: React.FC<PlayerProps> = ({ title, audioSrc, imageSrc, onClose, onP
             onClick={handleRestart}
           />
           <Image
-            src="/shuffle.png"
+            src="/Shuffle.png"
             alt="隨機播放"
             width={35}
             height={35}

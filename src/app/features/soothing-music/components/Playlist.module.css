@@ -344,60 +344,60 @@ margin-right: -10px;
 }
 
 .toggleContainer {
-    width: 350px;
-    height: 45px;
-    background: #FEF7EC;
-    border-radius: 50px;
-    display: flex;
-    position: absolute;
-    top: 70px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1001;
-    box-shadow: 0 3px 4px rgba(200, 169, 154, 0.511);
+  width: 350px;
+  height: 45px;
+  background: #FEF7EC;
+  border-radius: 50px;
+  display: flex;
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1001;
+  box-shadow: 0 3px 4px rgba(200, 169, 154, 0.511);
 }
 
 .toggleContainer::before {
-    content: '';
-    position: absolute;
-    width: 50%;
-    height: 100%;
-    background: #CCEAEC;
-    border-radius: 50px;
-    transition: transform 0.3s ease;
-    transform: translateX(0%);
+  content: '';
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  background: #CCEAEC;
+  border-radius: 50px;
+  transition: transform 0.3s ease;
+  transform: translateX(0%);
 }
 
 .toggleContainer[data-mode="manual"]::before {
-    transform: translateX(100%);
+  transform: translateX(100%);
 }
 
 .toggleContainer::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #C8A99A;
-    z-index: 1;
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #C8A99A;
+  z-index: 1;
 }
 
 .toggleButton {
-    width: 50%;
-    height: 100%;
-    border: none;
-    background: none;
-    font-size: 16px;
-    font-weight: bold;
-    color: #C8A99A;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    z-index: 2;
-    position: relative;
+  width: 50%;
+  height: 100%;
+  border: none;
+  background: none;
+  font-size: 16px;
+  font-weight: bold;
+  color: #C8A99A;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 2;
+  position: relative;
 }
 
 .toggleButton.active {
-    color: white;
+  color: white;
 }
 
 /* 小屏幕適配 - 保持比例 */

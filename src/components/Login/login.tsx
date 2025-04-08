@@ -80,7 +80,7 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
               />
               <Image 
-                src="/mail.png" 
+                src="/Mail.png" 
                 alt="mail" 
                 width={15} 
                 height={15} 
@@ -105,7 +105,7 @@ export default function Login() {
                 className={styles.hideButton}
               >
                 <Image 
-                  src={showPassword ? "/show.png" : "/hide.png"}
+                  src={showPassword ? "/Show.png" : "/Hide.png"}
                   alt="toggle" 
                   width={15}
                   height={15}

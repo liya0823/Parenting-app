@@ -611,7 +611,7 @@ export default function FriendlyNursingMap() {
               />
               <button className={styles.searchIcon}>
                 <Image
-                  src="/search.png"
+                  src="/Search.png"
                   alt="Search"
                   width={25}
                   height={25}
@@ -636,7 +636,7 @@ export default function FriendlyNursingMap() {
           googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}
           loadingElement={<div>Loading Google Maps...</div>}
           onLoad={() => console.log('Google Maps Script loaded successfully')}
-          onError={(error) => console.error('Error loading Google Maps:', error)}
+          onError={(error: Error) => console.error('Error loading Google Maps:', error)}
         >
           <GoogleMap
             mapContainerStyle={{

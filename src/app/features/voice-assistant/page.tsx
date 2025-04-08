@@ -341,8 +341,8 @@ export default function VoiceAssistantPage() {
           <div className={styles.logoWrapper}>
             <span className={styles.anxinwei}>安心餵</span>
             <Image 
-              src="/Line.png"
-              alt="Line"
+              src="/line.png"
+              alt="line"
               width={40}
               height={40}
               style={{ height: 'auto', cursor: 'pointer' }}
@@ -449,7 +449,7 @@ export default function VoiceAssistantPage() {
             />
             <button className={styles.voiceButton}>
               <Image 
-                src="/mic.png"
+                src="/Mic.png"
                 alt="Voice"
                 width={25}
                 height={25}
@@ -460,7 +460,7 @@ export default function VoiceAssistantPage() {
               onClick={handleSendMessage}
             >
               <Image 
-                src="/sent.png"
+                src="/Sent.png"
                 alt="Send"
                 width={30}
                 height={30}
