@@ -1,0 +1,354 @@
+.container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;
+  -webkit-overflow-scrolling: none;
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+  z-index: 9999;
+}
+
+.phoneContainer {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: #FEF7EC;
+  font-family: 'Inter', sans-serif;
+  touch-action: none;
+  -webkit-overflow-scrolling: none;
+  overscroll-behavior: none;
+}
+
+.userIcon {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  cursor: pointer;
+  margin-right: -10px;
+}
+
+.statusBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 44px;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  z-index: 1000;
+  color: white;
+}
+
+.statusIcons {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+}
+
+.backIcon {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+.mainContent {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding-bottom: 100px;
+}
+
+.backgroundImage {
+  object-fit: cover !important;
+  z-index: 0;
+}
+
+.animalImage {
+  object-fit: contain !important;
+  padding: 15% !important;
+  opacity: 1 !important;
+  max-width: 70% !important;
+  max-height: 70% !important;
+  margin: auto !important;
+}
+
+.restartButton {
+  position: absolute;
+  top: 64%;
+  right:-46%;
+  transform: translate(-200px, -50%);
+  z-index: 1000;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.restartButton:hover {
+  transform: scale(1.1);
+}
+
+.shuffleButton {
+  position: absolute;
+  top: 64%;
+  right: -17%;
+  transform: translate(-400px, -50%);
+  z-index: 1000;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.shuffleButton:hover {
+  transform: scale(1.1);
+}
+
+.playerControls {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 120px;
+  position: relative;
+}
+
+.playButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.2s;
+  z-index: 1;
+}
+
+.playButton:hover {
+  transform: scale(1.1);
+}
+
+.playButton:active {
+  transform: scale(0.95);
+}
+
+.navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 65px;
+  background: #ffffff;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 2;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.navButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  transition: all 0.3s ease;
+  gap: 2px;
+  width: 25%;
+  height: 100%;
+}
+
+.navButton img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  margin-bottom: -2px;
+  transition: filter 0.3s ease;
+}
+
+.navText {
+  font-size: 12px;
+  font-weight: 700;
+  color: #CCEAEC;
+  transition: color 0.3s ease;
+  margin-top: 0;
+}
+
+.activeNav {
+  background: none;
+}
+
+.activeNav .navText {
+  color: #FACFC5;
+}
+
+.activeNav img {
+  filter: brightness(0) saturate(100%) invert(83%) sepia(16%) saturate(1095%) hue-rotate(310deg) brightness(102%) contrast(96%);
+}
+
+.highlightBox {
+  position: absolute;
+  bottom: 0;
+  left: 25%;
+  width: 25%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  z-index: -1;
+}
+
+.navItem {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25%;
+  height: 100%;
+}
+
+.anxinwei {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #ffffff;
+  font-size: 18px;
+  font-style: bold;
+  font-weight: 800;
+  z-index: 1001;
+  top: 20px;
+}
+
+.songTitle {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #ffffff;
+  font-size: 32px;
+  font-weight: 800;
+  z-index: 1001;
+  top: 70px;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 375px) {
+  .container {
+    padding: 0;
+  }
+
+  .phoneContainer {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .userIcon {
+    right: 15px;
+    top: 12px;
+    margin-right: -8px;
+  }
+
+  .statusBar {
+    height: 40px;
+    padding: 10px 20px;
+  }
+
+  .icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .backIcon {
+    top: 12px;
+    left: 8px;
+  }
+
+  .mainContent {
+    padding-bottom: 80px;
+  }
+
+  .animalImage {
+    padding: 12% !important;
+    max-width: 65% !important;
+    max-height: 65% !important;
+  }
+
+  .restartButton {
+    top: 62%;
+    right: -42%;
+    transform: translate(-180px, -50%);
+    width: 35px;
+    height: 35px;
+  }
+
+  .shuffleButton {
+    top: 62%;
+    right: -12%;
+    transform: translate(-360px, -50%);
+    width: 30px;
+    height: 30px;
+  }
+
+  .playerControls {
+    gap: 8px;
+    margin-bottom: 100px;
+  }
+
+  .playButton img {
+    width: 110px;
+    height: 110px;
+  }
+
+  .navbar {
+    height: 60px;
+  }
+
+  .navButton {
+    padding: 3px;
+    gap: 1px;
+  }
+
+  .navButton img {
+    width: 38px;
+    height: 38px;
+    margin-bottom: -1px;
+  }
+
+  .navText {
+    font-size: 11px;
+  }
+
+  .anxinwei {
+    font-size: 18px;
+    top: 15px;
+  }
+
+  .songTitle {
+    font-size: 30px;
+    top: 65px;
+  }
+}
+
+/* 移除不支持的:global(body)选择器 */

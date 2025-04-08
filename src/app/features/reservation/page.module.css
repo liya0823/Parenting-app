@@ -1,0 +1,360 @@
+.phoneContainer {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: #ffffff;
+  font-family: 'Inter', sans-serif;
+}
+
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 100px;
+}
+
+.container::-webkit-scrollbar {
+  display: none;
+}
+
+.storeImageSection {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 210px;
+  z-index: 1;
+}
+
+.storeImage {
+  width: 100%;
+  height: 210px;
+  object-fit: cover;
+}
+
+.backButton {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: none;
+  border: none;
+  padding: 0px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.storeHeader {
+  padding: 20px;
+  border-bottom: 1px solid #EAEAEA;
+  background: white;
+  position: relative;
+  z-index: 2;
+}
+
+.storeInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.storeName {
+  font-size: 24px;
+  font-weight: 700;
+  color: #FACFC5;
+  margin: 0;
+}
+
+.storeAddress {
+  font-size: 16px;
+  color: #666;
+  margin: 0;
+  font-weight: bold;
+}
+
+.storeActions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 32px;
+  margin-top: 16px;
+  padding: 0;
+}
+
+.actionItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.actionItem:hover {
+  opacity: 0.8;
+}
+
+.actionText {
+  font-size: 14px;
+  color: #7C695B;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.actionText:hover {
+  text-decoration: underline;
+}
+
+.formSection {
+  flex: 1;
+  padding: 20px;
+  background: white;
+  position: relative;
+  z-index: 2;
+  margin-bottom: 20px;
+}
+
+.formTitle {
+  font-size: 18px;
+  font-weight: bold;
+  color: #7C695B;
+  margin: 0 0 20px 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formGroup label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.peopleOptions {
+  display: flex;
+  gap: 10px;
+}
+
+.selectWrapper {
+  flex: 1;
+  position: relative;
+}
+
+.selectArrow {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.peopleSelect {
+  width: 100%;
+  height: 45px;
+  padding: 0 40px 0 15px;
+  border: 2px solid #FACFC5;
+  border-radius: 15px;
+  background: white;
+  color: #333;
+  font-size: 15px;
+  font-weight: bold;
+  appearance: none;
+  cursor: pointer;
+}
+
+.dateInput {
+  width: 100%;
+  height: 45px;
+  padding: 0 15px;
+  border: 2px solid #FACFC5;
+  border-radius: 15px;
+  font-size: 16px;
+  color: #333;
+  font-weight: bold;
+  cursor: pointer;
+  position: relative;
+}
+
+.dateInput::-webkit-calendar-picker-indicator {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  filter: invert(71%) sepia(11%) saturate(458%) hue-rotate(338deg) brightness(92%) contrast(87%);
+  padding: 0;
+  position: absolute;
+  right: 20px;
+  transform: scale(1.5);
+}
+
+.dateInput::-webkit-calendar-picker {
+  width: 350px !important;
+  height: 350px !important;
+  max-width: none !important;
+  max-height: none !important;
+  transform: scale(1.2);
+  transform-origin: top center;
+}
+
+.dateInput::-webkit-datetime-edit {
+  font-size: 16px;
+  padding: 0;
+  width: calc(100% - 40px);
+}
+
+.dateInput::-webkit-datetime-edit-fields-wrapper {
+  padding: 0;
+}
+
+.dateInput::-webkit-datetime-edit-text {
+  padding: 0;
+  color: #333;
+}
+
+.dateInput::-webkit-datetime-edit-month-field,
+.dateInput::-webkit-datetime-edit-day-field,
+.dateInput::-webkit-datetime-edit-year-field {
+  padding: 0;
+  color: #333;
+}
+
+.dateInput::-webkit-inner-spin-button {
+  display: none;
+}
+
+.timeTabs {
+  display: flex;
+  position: relative;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #FACFC5;
+}
+
+.timeTab {
+  flex: 1;
+  padding: 8px 0;
+  border: none;
+  background: none;
+  color: #FACFC5;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  position: relative;
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+.timeTab:hover {
+  opacity: 0.8;
+}
+
+.timeTab.active {
+  color: #FACFC5;
+  background: none;
+  opacity: 1;
+}
+
+.timeTab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #FACFC5;
+}
+
+.timeSlots {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.timeSlot {
+  height: 40px;
+  border: 2px solid #FACFC5;
+  border-radius: 10px;
+  background: white;
+  color: #666;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timeSlot.active {
+  background: #CCEAEC;
+  border-color: #CCEAEC;
+  color: white;
+}
+
+.submitButton {
+  margin-top: 10px;
+  height: 50px;
+  border: none;
+  border-radius: 50px;
+  background: #CCEAEC;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
+.submitButton:active {
+  background: #FACFC5;
+}
+
+.restaurantInfo {
+  margin-top: 20px;
+  padding-top: 0;
+  border-top: none;
+}
+
+.infoTitle {
+  font-size: 18px;
+  font-weight: bold;
+  color: #7C695B;
+  margin: 0 0 20px 0;
+}
+
+.infoItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 15px 0;
+  border-bottom: none;
+}
+
+.infoLabel {
+  color: #7C695B;
+  font-size: 14px;
+  font-weight: bold;
+  min-width: 70px;
+}
+
+.infoText {
+  color: #333;
+  font-size: 14px;
+  flex: 1;
+} 

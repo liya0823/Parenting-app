@@ -1,0 +1,477 @@
+.phoneContainer {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: #FFFFFF;
+  font-family: 'Inter', sans-serif;
+}
+
+.anxinwei {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #CCEAEC;
+  font-size: 18px;
+  font-style: bold ;
+  font-weight: 800;
+  z-index: 5;
+  top: 20px;
+}
+
+.tutorial {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #CCEAEC;
+  font-size: 18px;
+  font-style: bold;
+  font-weight: 800;
+  z-index: 5;
+  top: 20px;
+}
+
+.userIcon {
+  position: absolute;
+  right: 20px;
+  top: 15px;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  z-index: 5;
+  margin-right: -10px;
+}
+
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+
+.tabContainer {
+  display: flex;
+  justify-content: center;
+  padding: 15px 0;
+  background: white;
+  position: absolute;
+  top: 70px;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+}
+
+.tab {
+  font-size: 16px;
+  color: #666;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px 0;
+  position: relative;
+  width: 50%;
+  text-align: center;
+}
+
+.activeTab {
+  color: #7C695B;
+  font-weight: bold;
+}
+
+.activeTab::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 167.5px;
+  height: 5px;
+  background-color: #CCEAEC;
+  border-radius: 2.5px;
+  transition: all 0.3s ease;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+  padding-top: 180px;
+  padding-bottom: 165px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.content::-webkit-scrollbar {
+  display: none;
+}
+
+.topOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 90px;
+  background: white;
+  z-index: 1;
+}
+
+.videoSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 10px;
+  gap: 20px;
+}
+
+.videoWrapper {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.videoTitle {
+  color: #7C695B;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 12px 0;
+  text-align: left;
+  padding-left: 10px;
+}
+
+.videoContainer {
+  width: 100%;
+  border-radius: 15px;
+  overflow: hidden;
+  background: #F5F5F5;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+  min-height: 280px;
+  position: relative;
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  min-height: 280px;
+  object-fit: cover;
+  background: #E5E5E5;
+  display: block;
+}
+
+.faqSection {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 0 10px;
+}
+
+.faqCategory {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.categoryHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.categoryIcon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.categoryTitle {
+  color: #C8A99A;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.faqItem {
+  background: #FEF7EC;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(200, 169, 154, 0.2);
+}
+
+.faqItem h3 {
+  color: #7C695B;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.faqItem p {
+  color: #9B8579;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.faqItem ul {
+  color: #9B8579;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.faqItem li {
+  margin-bottom: 4px;
+}
+
+.navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 65px;
+  background: #FFFFFF;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 2;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.navButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  transition: all 0.3s ease;
+  gap: 2px;
+  width: 25%;
+  height: 100%;
+}
+
+.navButton img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  margin-bottom: -2px;
+  transition: filter 0.3s ease;
+}
+
+.navText {
+  font-size: 12px;
+  font-weight: 700;
+  color: #CCEAEC;
+  transition: color 0.3s ease;
+  margin-top: 0;
+}
+
+.activeNav {
+  background: none; /* 移除底色 */
+}
+
+.activeNav .navText {
+  color: #FACFC5; /* 改成粉色，不使用白色 */
+}
+
+.activeNav img {
+  filter: brightness(0) saturate(100%) invert(83%) sepia(16%) saturate(1095%) hue-rotate(310deg) brightness(102%) contrast(96%);
+}
+
+.searchContainer {
+  width: 100%;
+  padding: 0px 5px;
+  margin-bottom: 5px;
+  position: relative;
+  top: -25px;
+}
+
+.searchInput {
+  width: 100%;
+  height: 45px;
+  padding: 0 15px 0 40px;
+  border: none;
+  border-radius: 25px;
+  background: #FEF7EC;
+  color: #7C695B;
+  font-size: 16px;
+  box-shadow: 0 2px 4px rgba(200, 169, 154, 0.2);
+}
+
+.searchInput::placeholder {
+  color: #C8A99A;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: #C8A99A;
+}
+
+/* iPhone 8 適配 (375x667) - 保持比例 */
+@media screen and (max-width: 375px) and (max-height: 667px) {
+  .anxinwei {
+    font-size: 16px;
+    top: 15px;
+  }
+  
+  .tutorial {
+    font-size: 16px;
+    top: 15px;
+  }
+  
+  .userIcon {
+    right: 15px;
+    top: 12px;
+    margin-right: -8px;
+  }
+  
+  .tabContainer {
+    padding: 12px 0;
+    top: 60px;
+  }
+  
+  .tab {
+    font-size: 14px;
+    padding: 4px 0;
+  }
+  
+  .activeTab::after {
+    bottom: -3px;
+    width: 140px;
+    height: 4px;
+    border-radius: 2px;
+  }
+  
+  .content {
+    padding: 15px;
+    padding-top: 150px;
+    padding-bottom: 120px;
+  }
+  
+  .topOverlay {
+    height: 75px;
+  }
+  
+  .videoSection {
+    padding: 8px;
+    gap: 15px;
+  }
+  
+  .videoTitle {
+    font-size: 15px;
+    margin: 10px 0;
+    padding-left: 8px;
+  }
+  
+  .videoContainer {
+    border-radius: 12px;
+    margin-bottom: 8px;
+    min-height: 220px;
+  }
+  
+  .video {
+    min-height: 220px;
+  }
+  
+  .faqSection {
+    gap: 12px;
+    padding: 0 8px;
+  }
+  
+  .faqCategory {
+    gap: 12px;
+  }
+  
+  .categoryHeader {
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  
+  .categoryIcon {
+    width: 25px;
+    height: 25px;
+  }
+  
+  .categoryTitle {
+    font-size: 16px;
+  }
+  
+  .faqItem {
+    border-radius: 10px;
+    padding: 14px;
+  }
+  
+  .faqItem h3 {
+    font-size: 15px;
+    margin: 0 0 6px 0;
+  }
+  
+  .faqItem p {
+    font-size: 13px;
+  }
+  
+  .faqItem ul {
+    font-size: 13px;
+    padding-left: 18px;
+  }
+  
+  .faqItem li {
+    margin-bottom: 3px;
+  }
+  
+  .navbar {
+    height: 55px;
+  }
+  
+  .navButton {
+    padding: 3px;
+    gap: 1px;
+  }
+  
+  .navButton img {
+    width: 35px;
+    height: 35px;
+    margin-bottom: -1px;
+  }
+  
+  .navText {
+    font-size: 11px;
+  }
+  
+  .searchContainer {
+    padding: 0px 4px;
+    margin-bottom: 4px;
+    top: -20px;
+  }
+  
+  .searchInput {
+    height: 40px;
+    padding: 0 12px 0 35px;
+    border-radius: 20px;
+    font-size: 14px;
+  }
+  
+  .searchIcon {
+    left: 15px;
+    width: 18px;
+    height: 18px;
+  }
+}

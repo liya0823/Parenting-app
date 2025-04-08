@@ -1,0 +1,236 @@
+.phoneContainer {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: #FEF7EC;
+  font-family: 'Inter', sans-serif;
+}
+
+
+@media (max-width: 390px) {
+    .container {
+        padding: 0;
+    }
+
+    .phoneContainer {
+        width: 100vw;
+        height: 100vh;
+    }
+    
+    .headerMask,
+    .bottomMask,
+    .navbar {
+        width: 100vw;
+    }
+}
+
+.backIcon {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1000;
+  cursor: pointer;
+}
+  
+  .userIcon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    cursor: pointer;
+    margin-right: -10px;
+    position: fixed;
+  }
+
+.mainContent {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.imageContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.animalImage {
+  width: 250px;
+  height: 250px;
+  object-fit: contain;
+  margin-bottom: 0px;
+  animation: wobble 2s ease-in-out infinite;
+}
+
+/* 當音樂播放時的動畫 */
+.playing .animalImage {
+  animation: playStart 0.5s ease-out, wobble 2s ease-in-out infinite 0.5s;
+}
+
+@keyframes playStart {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-40px) rotate(0deg);
+  }
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
+@keyframes wobble {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-10deg);
+  }
+  75% {
+    transform: rotate(10deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.title {
+  font-size: 24px;
+  color: #333;
+  margin: 0;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  margin-bottom: 70px;
+}
+
+.controlButton {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.controlButton:hover {
+  transform: scale(1.1);
+}
+
+.playButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.2s;
+  z-index: 1;
+}
+
+.playButton:hover {
+  transform: scale(1.1);
+}
+
+.playButton:active {
+  transform: scale(0.95);
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 65px;
+  background-color: #FEF7EC;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 2;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.navButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  transition: all 0.3s ease;
+  gap: 2px;
+  width: 25%;
+  height: 100%;
+}
+
+.navButton img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  margin-bottom: -2px;
+  transition: filter 0.3s ease;
+}
+
+.navText {
+  font-size: 12px;
+  font-weight: 700;
+  color: #CCEAEC;
+  transition: color 0.3s ease;
+  margin-top: 0;
+}
+
+.activeNav {
+  background: none; /* 移除底色 */
+}
+
+.activeNav .navText {
+  color: #FACFC5; /* 改成粉色，不使用白色 */
+}
+
+.activeNav img {
+  filter: brightness(0) saturate(100%) invert(83%) sepia(16%) saturate(1095%) hue-rotate(310deg) brightness(102%) contrast(96%);
+}
+.anxinwei {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #CCEAEC;
+  font-size: 18px;
+  font-style: bold;
+  font-weight: 800;
+  z-index: 1001;
+  top: 20px;
+}
+
+.animalTitle {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #FACFC5;
+  font-size: 32px;
+  font-weight: 800;
+  z-index: 1001;
+  top: 60px;
+  text-align: center;
+}

@@ -1,0 +1,345 @@
+.phoneContainer {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: #ffffff;
+  font-family: 'Inter', sans-serif;
+}
+  
+  .container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  
+  .backIcon {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    cursor: pointer;
+  }
+  .header {
+    padding: 30px 0;
+    text-align: center;
+  }
+  
+  .header h1 {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #CCEAEC;
+    font-size: 20px;
+    font-style: bold;
+    font-weight: 800;
+    z-index: 1001;
+    top: 20px;
+  }
+  
+.content {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Hide default details marker */
+.content details > summary {
+  list-style: none;
+}
+
+.content details > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Style for today's card */
+.todayCard {
+  width: 358px;
+  height: 200px;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 3px 4px rgba(200, 169, 154, 0.511);
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.todayHeader {
+  background-color: #CCEAEC;
+  height: 45px;
+  padding: 12px 16px;
+  color: white;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.todayContent {
+  padding: 16px;
+  position: relative;
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+.timeSection {
+  margin-top: 5px;
+}
+
+.locationSection {
+  margin-top: 15px;
+}
+
+.equipmentSection {
+  margin-top: 15px;
+}
+
+/* Style for month buttons */
+.monthButton {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  width: 358px;
+  text-align: left;
+  font-size: 18px;
+  color: #7A5C52;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 3px 4px rgba(200, 169, 154, 0.511);
+}
+
+.monthGroup {
+  margin-bottom: 24px;
+}
+
+.monthGroup:last-child {
+  margin-bottom: 0;
+}
+
+/* Navigation buttons */
+.navigationButton {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.infoButton {
+  position: absolute;
+  right: 20px;
+  top: 90px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.iconSpacing {
+  margin-right:50px;
+  margin-top: 15px;
+}
+
+.textStyle {
+  transform: translateY(-8px);
+  display: inline-block;
+  position: relative;
+  top: 2px;
+}
+
+.timeIcon, .locationIcon, .equipmentIcon {
+  margin-right: 30px;
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  width: 40px;
+  justify-content: center;
+}
+
+.textWrapper {
+  display: flex;
+  align-items: center;
+  color: #7A5C52;
+}
+
+.contentRow {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.timeIcon, .locationIcon, .equipmentIcon {
+  display: block;
+}
+
+.expandedRecords {
+  background: white;
+  border-radius: 16px;
+  width: 358px;
+  padding: 20px;
+  box-shadow: 0 3px 4px rgba(200, 169, 154, 0.511);
+  margin-top: 12px;
+}
+
+.recordItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 0;
+  border-bottom: 1px solid #E5E5E5;
+  color: #7A5C52;
+  font-size: 18px;
+}
+
+.recordItem:last-child {
+  border-bottom: none;
+}
+
+.recordDate {
+  font-size: 20px;
+  color: #7A5C52;
+  margin-right: 15px;
+}
+
+.recordInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 80px;
+}
+
+.recordLocation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 30px;
+}
+
+.recordPeople {
+  margin-left: auto;
+}
+
+/* iPhone 8 適配 (375x667) - 保持比例 */
+@media screen and (max-width: 375px) and (max-height: 667px) {
+  .backIcon {
+    top: 8px;
+    left: 8px;
+  }
+  
+  .header {
+    padding: 25px 0;
+  }
+  
+  .header h1 {
+    font-size: 18px;
+    top: 15px;
+  }
+  
+  .content {
+    margin-top: 15px;
+  }
+  
+  .todayCard {
+    width: 320px;
+    height: 180px;
+    margin-bottom: 20px;
+  }
+  
+  .todayHeader {
+    height: 40px;
+    padding: 10px 14px;
+    font-size: 18px;
+  }
+  
+  .todayContent {
+    padding: 14px;
+    font-size: 16px;
+  }
+  
+  .timeSection {
+    margin-top: 4px;
+  }
+  
+  .locationSection {
+    margin-top: 12px;
+  }
+  
+  .equipmentSection {
+    margin-top: 12px;
+  }
+  
+  .monthButton {
+    padding: 14px;
+    width: 320px;
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+  
+  .monthGroup {
+    margin-bottom: 20px;
+  }
+  
+  .navigationButton {
+    right: 15px;
+    top: 15px;
+  }
+  
+  .infoButton {
+    right: 15px;
+    top: 80px;
+  }
+  
+  .iconSpacing {
+    margin-right: 40px;
+    margin-top: 12px;
+  }
+  
+  .timeIcon, .locationIcon, .equipmentIcon {
+    margin-right: 25px;
+  }
+  
+  .iconWrapper {
+    width: 35px;
+  }
+  
+  .contentRow {
+    gap: 12px;
+  }
+  
+  .expandedRecords {
+    width: 320px;
+    padding: 16px;
+    margin-top: 10px;
+  }
+  
+  .recordItem {
+    padding: 12px 0;
+    font-size: 16px;
+  }
+  
+  .recordDate {
+    font-size: 18px;
+    margin-right: 12px;
+  }
+  
+  .recordInfo {
+    gap: 8px;
+    min-width: 70px;
+  }
+  
+  .recordLocation {
+    gap: 6px;
+    margin-left: 25px;
+  }
+} 

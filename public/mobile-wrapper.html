@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>安心餵 - 您的哺育小助手</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            position: fixed;
+        }
+        
+        #app-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        iframe {
+            border: none;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="app-container">
+        <iframe id="content-frame" src="/welcome"></iframe>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 獲取URL中的path參數
+            const urlParams = new URLSearchParams(window.location.search);
+            const path = urlParams.get('path');
+            
+            const iframe = document.getElementById('content-frame');
+            
+            // 如果有指定path參數，則設置iframe的src
+            if (path) {
+                iframe.src = path;
+            }
+            
+            // 防止頁面滾動
+            document.body.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+            }, { passive: false });
+            
+            // 阻止雙指縮放
+            document.addEventListener('gesturestart', function(e) {
+                e.preventDefault();
+            });
+        });
+    </script>
+</body>
+</html> 

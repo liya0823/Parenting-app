@@ -1,0 +1,287 @@
+.phoneContainer {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: #ffffff;
+  font-family: 'Inter', sans-serif;
+}
+
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 100px;
+}
+
+.container::-webkit-scrollbar {
+  display: none;
+}
+
+.header {
+  padding: 20px;
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 35px;
+  border-bottom: 1px solid #EAEAEA;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #CCEAEC;
+  flex: 1;
+  margin-top: 15px;
+}
+
+.bookingInfo {
+  margin: 20px 20px 10px 20px;
+  padding: 0;
+  background: white;
+}
+
+.storeName {
+  font-size: 18px;
+  font-weight: bold;
+  color: #7C695B;
+  margin: 0 0 25px 0;
+}
+
+.bookingDetails {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  color: #7C695B;
+  font-size: 15px;
+  margin-bottom: 15px;
+}
+
+.bookingIcon {
+  width: 25px;
+  height: 25px;
+  opacity: 0.8;
+}
+
+.formSection {
+  margin: 0 20px;
+  padding-top: 15px;
+  border-top: 1px solid #EAEAEA;
+  margin-bottom: 20px;
+}
+
+.formTitle {
+  font-size: 18px;
+  font-weight: bold;
+  color: #7C695B;
+  margin: 0 0 20px 0;
+}
+
+.formGroup {
+  margin-bottom: 10px;
+}
+
+.label {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  color: #7C695B;
+  margin-bottom: 8px;
+}
+
+.input {
+  width: 100%;
+  height: 45px;
+  padding: 0 15px;
+  border: 2px solid #FACFC5;
+  border-radius: 15px;
+  font-size: 16px;
+  color: #333;
+  outline: none;
+}
+
+.input:focus {
+  border-color: #FACFC5;
+  background-color: white;
+}
+
+.phoneInput {
+  display: flex;
+  gap: 10px;
+}
+
+.phonePrefix {
+  width: 80px;
+  height: 45px;
+  padding: 0 15px;
+  border: 2px solid #FACFC5;
+  border-radius: 15px;
+  font-size: 16px;
+  color: #333;
+  background: #F5F5F5;
+  text-align: center;
+  outline: none;
+}
+
+.phonePrefix:focus {
+  border-color: #FACFC5;
+  background-color: #F5F5F5;
+}
+
+.phoneNumber {
+  flex: 1;
+}
+
+.textarea {
+  width: 100%;
+  height: 100px;
+  padding: 15px;
+  border: 2px solid #FACFC5;
+  border-radius: 15px;
+  font-size: 16px;
+  color: #333;
+  resize: none;
+  outline: none;
+}
+
+.textarea:focus {
+  border-color: #FACFC5;
+  background-color: white;
+}
+
+.submitButton {
+  margin-top: 30px;
+  height: 50px;
+  border: none;
+  border-radius: 50px;
+  background: #CCEAEC;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.submitButton:active {
+  background: #FACFC5;
+}
+
+/* iPhone 8 適配 (375x667) - 保持比例 */
+@media screen and (max-width: 375px) and (max-height: 667px) {
+  .container {
+    padding-bottom: 80px;
+  }
+
+  .header {
+    padding: 10px;
+    gap: 25px;
+  }
+
+  .backButton {
+    margin-top: 10px;
+  }
+
+  .title {
+    font-size: 16px;
+    margin-top: 10px;
+    margin-left: 20px;
+  }
+
+  .bookingInfo {
+    margin: 15px 15px 8px 15px;
+  }
+
+  .storeName {
+    font-size: 16px;
+    margin: 0 0 20px 0;
+  }
+
+  .bookingDetails {
+    gap: 10px;
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .bookingIcon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .formSection {
+    margin: 0 15px;
+    padding-top: 12px;
+    margin-bottom: 15px;
+  }
+
+  .formTitle {
+    font-size: 16px;
+    margin: 0 0 15px 0;
+  }
+
+  .formGroup {
+    margin-bottom: 8px;
+  }
+
+  .label {
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .input {
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 12px;
+    font-size: 14px;
+  }
+
+  .phoneInput {
+    gap: 8px;
+  }
+
+  .phonePrefix {
+    width: 70px;
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 12px;
+    font-size: 14px;
+  }
+
+  .textarea {
+    height: 90px;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 14px;
+  }
+
+  .submitButton {
+    margin-top: 25px;
+    height: 45px;
+    border-radius: 45px;
+    font-size: 15px;
+    margin-bottom: 15px;
+  }
+} 

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>安心餵 - 聊天</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #FACFC5;
+      font-family: Arial, sans-serif;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+    
+    .phone-container {
+      width: 100%;
+      max-width: 500px;
+      height: 100vh;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    
+    .header {
+      padding: 15px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .logo {
+      width: 120px;
+      margin: 0 auto;
+      display: block;
+    }
+    
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .message {
+      max-width: 85%;
+      padding: 15px 20px;
+      border-radius: 18px;
+      font-size: 16px;
+      line-height: 1.5;
+      word-wrap: break-word;
+    }
+    
+    .assistant-message {
+      background-color: #FEF7EC;
+      color: #7C695B;
+      align-self: flex-start;
+    }
+    
+    .user-message {
+      background-color: #C8A99A;
+      color: white;
+      align-self: flex-end;
+      text-align: right;
+    }
+    
+    .input-area {
+      padding: 15px;
+      background-color: #FACFC5;
+      display: flex;
+      gap: 10px;
+      position: relative;
+    }
+    
+    .input {
+      flex: 1;
+      border: none;
+      border-radius: 20px;
+      padding: 12px 15px;
+      font-size: 16px;
+      background-color: #FEF7EC;
+      color: #7C695B;
+    }
+    
+    .send-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #C8A99A;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .loading {
+      display: flex;
+      gap: 4px;
+    }
+    
+    .loading span {
+      width: 8px;
+      height: 8px;
+      background-color: #7C695B;
+      border-radius: 50%;
+      animation: bounce 1.5s infinite;
+    }
+    
+    .loading span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    
+    .loading span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+    
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-container">
+    <div class="header">
+      <img src="/logo-02.png" alt="Logo" class="logo">
+    </div>
+    
+    <div class="chat-container" id="chat-container">
+      <div class="message assistant-message">
+        您好！我是安心餵智能助手，可以回答您關於餵養、照顧嬰兒的問題。
+      </div>
+    </div>
+    
+    <div class="input-area">
+      <input type="text" class="input" id="user-input" placeholder="輸入您的問題..." autocomplete="off">
+      <button class="send-btn" id="send-btn">→</button>
+    </div>
+  </div>
+  
+  <script>
+    // 簡單的聊天功能
+    document.addEventListener('DOMContentLoaded', function() {
+      const chatContainer = document.getElementById('chat-container');
+      const userInput = document.getElementById('user-input');
+      const sendBtn = document.getElementById('send-btn');
+      
+      // 預設回應
+      const responses = [
+        "哺乳時間通常每次約需20-30分鐘，新生兒可能需要每2-3小時餵一次。",
+        "母乳餵養時，建議採取舒適的姿勢，確保寶寶嘴巴能夠完全包住乳頭和部分乳暈。",
+        "給寶寶添加輔食可以從6個月左右開始，先從單一食材的糊狀食物開始。",
+        "新生兒每天大約需要睡16-17小時，分散在一天中進行。",
+        "寶寶哭鬧時，可能是因為餓了、尿布需要更換、太冷或太熱、需要安撫或者不舒服。"
+      ];
+      
+      // 發送消息的功能
+      function sendMessage() {
+        const message = userInput.value.trim();
+        if (message === '') return;
+        
+        // 添加用戶消息
+        addMessage(message, 'user');
+        userInput.value = '';
+        
+        // 顯示加載中
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'message assistant-message loading';
+        loadingDiv.innerHTML = '<span></span><span></span><span></span>';
+        chatContainer.appendChild(loadingDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        
+        // 模擬回复延遲
+        setTimeout(() => {
+          chatContainer.removeChild(loadingDiv);
+          // 隨機選擇一個回答
+          const response = responses[Math.floor(Math.random() * responses.length)];
+          addMessage(response, 'assistant');
+        }, 1500);
+      }
+      
+      // 添加消息到聊天區域
+      function addMessage(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}-message`;
+        messageDiv.textContent = text;
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+      
+      // 點擊發送按鈕
+      sendBtn.addEventListener('click', sendMessage);
+      
+      // 按Enter鍵發送
+      userInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          sendMessage();
+        }
+      });
+      
+      // 自動聚焦輸入框
+      userInput.focus();
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+

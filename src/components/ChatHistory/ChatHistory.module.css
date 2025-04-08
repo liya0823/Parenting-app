@@ -1,0 +1,107 @@
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);  /* 半透明黑色背景 */
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 90;
+}
+
+.drawer {
+  position: absolute;
+  top: 0;  /* 從頂部開始 */
+  left: -100%;  /* 初始位置在左側外面 */
+  width: 80%;  /* 寬度設為 80% */
+  height: 100%;
+  background: white;
+  transition: left 0.3s ease;  /* 改為左右滑動 */
+  z-index: 100;
+}
+
+.open {
+  left: 0;  /* 滑入時移動到左側 */
+}
+
+.overlayOpen {
+  opacity: 1;
+  visibility: visible;
+}
+
+.header {
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  border-radius: 20px 20px 0 0;  /* 上方圓角 */
+}
+
+.header h2 {
+  margin: 0;
+  color: #7C695B;
+  font-size: 18px;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #7C695B;
+  cursor: pointer;
+  padding: 0 10px;
+}
+
+.content {
+  padding: 15px;
+  overflow-y: auto;
+  height: calc(100% - 52px);
+  background: white;
+  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+}
+
+/* Chrome, Safari and Opera */
+.content::-webkit-scrollbar {
+  display: none;
+}
+
+.dayGroup {
+  margin-bottom: 30px;
+}
+
+.date {
+  color: #C8A99A;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.historyItem {
+  background: #FEF7EC;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.historyItem:hover {
+  background: #faebd7;
+  transform: translateX(5px);
+}
+
+.message {
+  color: #7C695B;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.time {
+  color: #C8A99A;
+  font-size: 12px;
+  text-align: right;
+} 

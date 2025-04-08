@@ -1,0 +1,543 @@
+.phoneContainer {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: #FFFFFF;
+  font-family: 'Inter', sans-serif;
+}
+
+
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 65px;
+  background: #ffffff;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 2;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.navButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  transition: all 0.3s ease;
+  gap: 2px;
+  width: 25%;
+  height: 100%;
+}
+
+.navButton img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  margin-bottom: -2px;
+  transition: filter 0.3s ease;
+}
+
+.navText {
+  font-size: 12px;
+  font-weight: 700;
+  color: #CCEAEC;
+  transition: color 0.3s ease;
+  margin-top: 0;
+}
+
+.activeNav {
+  background: none; /* 移除底色 */
+}
+
+.activeNav .navText {
+  color: #FACFC5; /* 改成粉色，不使用白色 */
+}
+
+.activeNav img {
+  filter: brightness(0) saturate(100%) invert(83%) sepia(16%) saturate(1095%) hue-rotate(310deg) brightness(102%) contrast(96%);
+}
+
+
+.infoWindow {
+  width: 260px !important;
+  height: 220px !important;
+  padding: 8px !important;
+  padding-top: 18px !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 4px rgba(200, 169, 154, 0.5) !important;
+  font-family: 'Inter', sans-serif !important;
+  position: relative !important;
+  background: white !important;
+  box-sizing: border-box !important;
+  max-width: none !important;
+}
+
+.infoHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+  margin-top: 15px;
+}
+
+.storeInfo {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.storeLogo {
+  width: 55px;
+  height: 55px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.storeDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-width: 150px;
+}
+
+.storeName {
+  color: #C8A99A;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.storeRating {
+  width: 90px;
+  height: auto;
+}
+
+.navigationSection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  margin-right: -6px;
+}
+
+.navigationButton {
+  width: 95px;
+  height: 47px;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  margin-right: -5px;
+  margin-top: -15px;
+}
+
+.distance {
+  color: #C8A99A;
+  font-size: 10px;
+  font-weight: 400;
+  margin: -3px 0 0 0;
+}
+
+.storeImage {
+  width: 560px !important;
+  height: 180px !important;
+  object-fit: cover !important;
+  border-radius: 8px !important;
+  margin: 15px 0 !important;
+}
+
+.facilities {
+  margin-bottom: 15px;
+}
+
+.facilityIcon {
+  width: 35px;
+  height: 35px;
+  object-fit: contain;
+}
+
+.reserveButton {
+  position: absolute;
+  bottom: 15px;
+  right: 10px;
+  width: 95px;
+  height: 45px;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.phoneLink {
+  color: #C8A99A;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.phoneLink:hover {
+  color: #7C695B;
+}
+
+.infoLinks {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.linkButton {
+  padding: 8px 12px;
+  background: #FEF7EC;
+  border-radius: 6px;
+  color: #7C695B;
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  flex: 1;
+  text-align: center;
+}
+
+.linkButton:hover {
+  background: #FACFC5;
+  color: white;
+}
+
+.header {
+  position: absolute;
+  top: 38px;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  padding: 0 20px;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  left: 0;
+  right: 0;
+  height: 60px;
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 350px;
+  margin: 0 auto;
+  gap: 8px;
+  padding-right: 3px;
+}
+
+.searchBar {
+  position: relative;
+  width: 300px;
+  height: 45px;
+  margin-left: -5px;
+}
+
+.searchBar input {
+  width: 100%;
+  height: 100%;
+  padding: 0 50px 0 20px;
+  border: 2.5px solid #CFE6EE;
+  border-radius: 50px;
+  font-size: 14px;
+  color: #CFE6EE;
+  background: #FFFFFF;
+  outline: none;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.3);
+  transition: box-shadow 0.3s ease;
+}
+
+.searchBar input:focus {
+  border-color: #CFE6EE;
+}
+
+.searchBar input::placeholder {
+  color: #CFE6EE;
+}
+
+.searchIcon {
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.searchIcon img {
+  filter: brightness(0) saturate(100%) invert(89%) sepia(8%) saturate(1014%) hue-rotate(165deg) brightness(95%) contrast(89%);
+}
+
+.userIcon {
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mapContainer {
+  width: 100%;
+  height: calc(100% - 60px);
+  padding-top: 120px;
+}
+
+.markerShadow {
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.824));
+}
+
+.markerLabel {
+  margin-top: -50px;
+  white-space: nowrap;
+  font-weight: 600;
+  text-shadow: 
+    -1px -1px 0 #fff,  
+    1px -1px 0 #fff,
+    -1px 1px 0 #fff,
+    1px 1px 0 #fff;
+}
+
+.userLocationLabel {
+  margin-top: -35px;
+  white-space: nowrap;
+  font-weight: 500;
+  text-shadow: 
+    -1px -1px 0 #fff,  
+    1px -1px 0 #fff,
+    -1px 1px 0 #fff,
+    1px 1px 0 #fff;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.modalContent {
+  width: 350px;
+  height: 430px;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 2px 4px rgba(200, 169, 154, 0.5);
+  font-family: 'Inter, sans-serif';
+  position: relative;
+  background: white;
+  box-sizing: border-box;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes locationPulse {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.userLocationMarker {
+  animation: locationPulse 3s linear infinite;
+}
+
+.rotatingMarker {
+  animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.userLocationPulse {
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+/* iPhone 8 適配 (375x667) - 保持比例 */
+@media screen and (max-width: 375px) and (max-height: 667px) {
+  .navbar {
+    height: 55px;
+  }
+  
+  .navButton {
+    padding: 3px;
+    gap: 1px;
+  }
+  
+  .navButton img {
+    width: 35px;
+    height: 35px;
+    margin-bottom: -1px;
+  }
+  
+  .navText {
+    font-size: 11px;
+  }
+  
+  .infoWindow {
+  width: 250px !important;
+  height: 200px !important;
+  padding: 5px !important;
+  padding-top: 10px !important;
+  border-radius: 8px !important;
+  }
+  .storeInfo {
+    gap: 8px;
+  }
+  
+  .storeLogo {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .storeDetails {
+    gap: 3px;
+    max-width: 120px;
+  }
+  
+  .storeName {
+    font-size: 17px;
+  }
+  
+  .storeRating {
+    width: 75px;
+  }
+  
+ 
+  
+  .storeImage {
+    width: 320px !important;
+    height: 120px !important;
+    border-radius: 6px !important;
+    margin: 10px 0 !important;
+  }
+  
+  .facilities {
+    margin-bottom: 10px;
+  }
+  
+  .facilityIcon {
+    width: 30px;
+    height: 30px;
+  }
+  
+
+  
+  .header {
+    top: 30px;
+    padding: 0 15px;
+  }
+  
+  .header::before {
+    top: -30px;
+    height: 45px;
+  }
+  
+  .headerContent {
+    max-width: 300px;
+    gap: 6px;
+    padding-right: 2px;
+  }
+  
+  .searchBar {
+    width: 280px;
+    height: 40px;
+  }
+  
+  .searchBar input {
+    padding: 0 40px 0 15px;
+    border: 2px solid #CFE6EE;
+    border-radius: 40px;
+    font-size: 13px;
+  }
+  
+  .searchIcon {
+    right: 12px;
+  }
+  
+  .userIcon {
+    right: 15px;
+    top: 12px;
+    margin-right: -15px;
+  }
+  
+  .mapContainer {
+    height: calc(100% - 50px);
+    padding-top: 100px;
+  }
+  
+  .markerLabel {
+    margin-top: -40px;
+    font-size: 12px;
+  }
+  
+  .userLocationLabel {
+    margin-top: -30px;
+    font-size: 11px;
+  }
+  
+  .modalContent {
+    width: 300px;
+    height: 380px;
+    padding: 15px;
+    border-radius: 15px;
+  }
+} 

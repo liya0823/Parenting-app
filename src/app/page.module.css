@@ -1,0 +1,30 @@
+.container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: white;
+}
+
+.page {
+  width: 390px;
+  height: 844px;
+  position: relative;
+  background: white;
+  overflow: hidden;
+}
+
+/* 只保留 splash 到 welcome 的淡入動畫 */
+.simpleFadeIn {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+} 
