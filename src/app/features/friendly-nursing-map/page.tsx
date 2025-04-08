@@ -500,7 +500,7 @@ export default function FriendlyNursingMap() {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [markers, setMarkers] = useState<google.maps.marker.AdvancedMarkerElement[]>([]);
+  const [markers, setMarkers] = useState<any[]>([]);
 
   // 當選擇新的店家時重置圖片索引
   useEffect(() => {
@@ -604,42 +604,32 @@ export default function FriendlyNursingMap() {
 
   // 當地圖和標記都準備好時，添加標記
   useEffect(() => {
-    if (map && isLoaded && typeof window !== 'undefined') {
-      const { AdvancedMarkerElement } = google.maps.marker;
-      if (!AdvancedMarkerElement) return;
+    if (!map || !isLoaded || typeof window === 'undefined' || !window.google) return;
 
+    try {
       // 清除舊的標記
       markers.forEach(marker => {
-        const element = marker.element;
-        if (element && element.parentNode) {
-          element.parentNode.removeChild(element);
+        if (marker && marker.setMap) {
+          marker.setMap(null);
         }
       });
       
       // 添加新的標記
       const newMarkers = nearbyStores.map(store => {
-        const markerContent = document.createElement('div');
-        markerContent.className = styles.markerContainer;
-        
-        const icon = document.createElement('img');
-        icon.src = '/10.png';
-        icon.style.width = '89px';
-        icon.style.height = '60px';
-        
-        const label = document.createElement('div');
-        label.textContent = store.name;
-        label.style.color = '#7C695B';
-        label.style.fontSize = '15px';
-        label.style.fontFamily = 'Inter';
-        label.className = styles.markerLabel;
-        
-        markerContent.appendChild(icon);
-        markerContent.appendChild(label);
-
-        const marker = new AdvancedMarkerElement({
+        const marker = new google.maps.Marker({
           position: { lat: store.lat, lng: store.lng },
-          content: markerContent,
-          map
+          map,
+          icon: {
+            url: '/10.png',
+            scaledSize: new google.maps.Size(89, 60),
+          },
+          label: {
+            text: store.name,
+            color: '#7C695B',
+            fontSize: '15px',
+            fontFamily: 'Inter',
+            className: styles.markerLabel
+          }
         });
 
         marker.addListener('click', () => setSelectedStore(store));
@@ -647,20 +637,19 @@ export default function FriendlyNursingMap() {
       });
 
       // 添加用戶位置標記
-      const userMarkerContent = document.createElement('div');
-      const userIcon = document.createElement('img');
-      userIcon.src = '/11.png';
-      userIcon.style.width = '50px';
-      userIcon.style.height = '50px';
-      userMarkerContent.appendChild(userIcon);
-
-      const userMarker = new AdvancedMarkerElement({
+      const userMarker = new google.maps.Marker({
         position: center,
-        content: userMarkerContent,
-        map
+        map,
+        icon: {
+          url: '/11.png',
+          scaledSize: new google.maps.Size(50, 50),
+          anchor: new google.maps.Point(25, 25),
+        }
       });
 
       setMarkers([...newMarkers, userMarker]);
+    } catch (error) {
+      console.error('Error creating markers:', error);
     }
   }, [map, isLoaded, nearbyStores, center]);
 
