@@ -438,26 +438,39 @@ const CustomMarker = ({ position, onClick, name }: {
   position: google.maps.LatLngLiteral, 
   onClick: () => void,
   name: string 
-}) => (
-  <MarkerF
-    position={position}
-    onClick={onClick}
-    icon={{
-      url: '/10.png',
-      scaledSize: new window.google.maps.Size(89, 60),  // 保持 148:100 的比例，但整體縮小
-    }}
-    options={{
-      optimized: false
-    }}
-    label={{
-      text: name,
-      color: '#7C695B',
-      fontSize: '15px',
-      fontFamily: 'Inter',
-      className: styles.markerLabel
-    }}
-  />
-);
+}) => {
+  if (typeof window === 'undefined') return null;
+  
+  const { AdvancedMarkerElement } = google.maps.marker;
+  if (!AdvancedMarkerElement) return null;
+
+  const markerContent = document.createElement('div');
+  markerContent.className = styles.markerContainer;
+  
+  const icon = document.createElement('img');
+  icon.src = '/10.png';
+  icon.style.width = '89px';
+  icon.style.height = '60px';
+  
+  const label = document.createElement('div');
+  label.textContent = name;
+  label.style.color = '#7C695B';
+  label.style.fontSize = '15px';
+  label.style.fontFamily = 'Inter';
+  label.className = styles.markerLabel;
+  
+  markerContent.appendChild(icon);
+  markerContent.appendChild(label);
+
+  const marker = new AdvancedMarkerElement({
+    position,
+    content: markerContent,
+  });
+
+  marker.addListener('click', onClick);
+  
+  return marker;
+};
 
 // 計算兩點之間的距離（使用 Haversine 公式）
 const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
@@ -486,6 +499,8 @@ export default function FriendlyNursingMap() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
+  const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [markers, setMarkers] = useState<google.maps.marker.AdvancedMarkerElement[]>([]);
 
   // 當選擇新的店家時重置圖片索引
   useEffect(() => {
@@ -583,9 +598,71 @@ export default function FriendlyNursingMap() {
   };
 
   const onMapLoad = useCallback((map: google.maps.Map) => {
-    console.log('Map Component Loaded...');
+    setMap(map);
     setIsLoaded(true);
   }, []);
+
+  // 當地圖和標記都準備好時，添加標記
+  useEffect(() => {
+    if (map && isLoaded && typeof window !== 'undefined') {
+      const { AdvancedMarkerElement } = google.maps.marker;
+      if (!AdvancedMarkerElement) return;
+
+      // 清除舊的標記
+      markers.forEach(marker => {
+        const element = marker.element;
+        if (element && element.parentNode) {
+          element.parentNode.removeChild(element);
+        }
+      });
+      
+      // 添加新的標記
+      const newMarkers = nearbyStores.map(store => {
+        const markerContent = document.createElement('div');
+        markerContent.className = styles.markerContainer;
+        
+        const icon = document.createElement('img');
+        icon.src = '/10.png';
+        icon.style.width = '89px';
+        icon.style.height = '60px';
+        
+        const label = document.createElement('div');
+        label.textContent = store.name;
+        label.style.color = '#7C695B';
+        label.style.fontSize = '15px';
+        label.style.fontFamily = 'Inter';
+        label.className = styles.markerLabel;
+        
+        markerContent.appendChild(icon);
+        markerContent.appendChild(label);
+
+        const marker = new AdvancedMarkerElement({
+          position: { lat: store.lat, lng: store.lng },
+          content: markerContent,
+          map
+        });
+
+        marker.addListener('click', () => setSelectedStore(store));
+        return marker;
+      });
+
+      // 添加用戶位置標記
+      const userMarkerContent = document.createElement('div');
+      const userIcon = document.createElement('img');
+      userIcon.src = '/11.png';
+      userIcon.style.width = '50px';
+      userIcon.style.height = '50px';
+      userMarkerContent.appendChild(userIcon);
+
+      const userMarker = new AdvancedMarkerElement({
+        position: center,
+        content: userMarkerContent,
+        map
+      });
+
+      setMarkers([...newMarkers, userMarker]);
+    }
+  }, [map, isLoaded, nearbyStores, center]);
 
   const mapOptions = {
     disableDefaultUI: true,  // 隱藏所有預設控制項
@@ -655,32 +732,7 @@ export default function FriendlyNursingMap() {
                 gestureHandling: 'greedy'
               }}
               onLoad={onMapLoad}
-            >
-              {isLoaded && (
-                <>
-                  {nearbyStores.map(store => (
-                    <CustomMarker
-                      key={store.id}
-                      position={{ lat: store.lat, lng: store.lng }}
-                      onClick={() => setSelectedStore(store)}
-                      name={store.name}
-                    />
-                  ))}
-
-                  <MarkerF
-                    position={center}
-                    icon={{
-                      url: '/11.png',
-                      scaledSize: new window.google.maps.Size(50, 50),
-                      anchor: new window.google.maps.Point(25, 25),
-                    }}
-                    options={{
-                      optimized: false
-                    }}
-                  />
-                </>
-              )}
-            </GoogleMap>
+            />
           </LoadScript>
         </div>
 
