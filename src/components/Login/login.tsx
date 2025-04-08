@@ -148,7 +148,7 @@ export default function Login() {
                 onClick={() => handleSocialClick(btn.url)}
               >
                 <Image 
-                  src={`/${btn.id === 'button4' ? 'Button4' : btn.id}.png`}
+                  src={`/${btn.id.replace('button', 'Button')}.png`}
                   alt="Social Login"
                   width={45}
                   height={45}
