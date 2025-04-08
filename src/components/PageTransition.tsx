@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense, ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import styles from '../styles/transitions.module.css';
 
@@ -35,4 +35,14 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
   );
 };
 
-export default PageTransition; 
+interface PageWrapperProps {
+  children: ReactNode;
+}
+
+export default function PageWrapper({ children }: PageWrapperProps) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      {children}
+    </Suspense>
+  );
+} 

@@ -4,8 +4,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import styles from './page.module.css';
+import PageWrapper from '../../../../components/PageTransition';
 
-export default function SuccessPage() {
+function SuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [showSuccess, setShowSuccess] = useState(true);
@@ -128,5 +129,13 @@ export default function SuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <PageWrapper>
+      <SuccessContent />
+    </PageWrapper>
   );
 } 

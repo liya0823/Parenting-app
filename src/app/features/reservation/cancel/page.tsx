@@ -3,8 +3,9 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import styles from './page.module.css';
+import PageWrapper from '../../../../components/PageTransition';
 
-export default function CancelPage() {
+function CancelContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -84,5 +85,13 @@ export default function CancelPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CancelPage() {
+  return (
+    <PageWrapper>
+      <CancelContent />
+    </PageWrapper>
   );
 } 

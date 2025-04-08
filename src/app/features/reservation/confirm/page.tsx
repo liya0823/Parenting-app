@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import styles from './page.module.css';
+import PageWrapper from '../../../../components/PageTransition';
 
-export default function ConfirmPage() {
+function ConfirmContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
@@ -177,5 +178,13 @@ export default function ConfirmPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ConfirmPage() {
+  return (
+    <PageWrapper>
+      <ConfirmContent />
+    </PageWrapper>
   );
 } 

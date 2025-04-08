@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import styles from './page.module.css';
+import PageWrapper from '../../../components/PageTransition';
 
-export default function ReservationPage() {
+function ReservationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const storeName = searchParams?.get('storeName') || '';
@@ -301,5 +302,13 @@ export default function ReservationPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ReservationPage() {
+  return (
+    <PageWrapper>
+      <ReservationContent />
+    </PageWrapper>
   );
 } 
