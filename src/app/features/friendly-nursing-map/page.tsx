@@ -655,11 +655,21 @@ export default function FriendlyNursingMap() {
 
   const mapOptions = {
     disableDefaultUI: true,  // 隱藏所有預設控制項
-    zoomControl: true,      // 隱藏縮放控制
+    zoomControl: true,      // 顯示縮放控制
     mapTypeControl: false,   // 隱藏地圖類型切換
     streetViewControl: false, // 隱藏街景
     fullscreenControl: false, // 隱藏全螢幕按鈕
-    gestureHandling: 'greedy'
+    gestureHandling: 'cooperative', // 更好的手機觸控支援
+    scrollwheel: true,      // 允許滾動縮放
+    draggable: true,        // 允許拖動
+    keyboardShortcuts: false, // 禁用鍵盤快捷鍵
+    styles: [
+      {
+        featureType: 'poi',
+        elementType: 'labels',
+        stylers: [{ visibility: 'off' }]
+      }
+    ]
   };
 
   return (
@@ -713,24 +723,7 @@ export default function FriendlyNursingMap() {
               }}
               center={center}
               zoom={15}
-              options={{
-                disableDefaultUI: true,
-                zoomControl: true,
-                mapTypeControl: false,
-                streetViewControl: false,
-                fullscreenControl: false,
-                gestureHandling: 'cooperative',
-                scrollwheel: true,
-                draggable: true,
-                keyboardShortcuts: false,
-                styles: [
-                  {
-                    featureType: 'poi',
-                    elementType: 'labels',
-                    stylers: [{ visibility: 'off' }]
-                  }
-                ]
-              }}
+              options={mapOptions}
               onLoad={onMapLoad}
             />
           </LoadScript>
