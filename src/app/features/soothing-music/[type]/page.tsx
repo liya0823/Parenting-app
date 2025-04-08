@@ -6,7 +6,7 @@ import Player from '../components/Player/Player';
 import AnimationPlayer from '../components/AnimationPlayer/AnimationPlayer';
 import Image from 'next/image';
 import styles from './page.module.css';
-import NotificationAudio from '../components/NotificationAudio';
+import { NotificationAudio } from '../components/NotificationAudio';
 
 // 定義音樂列表
 const naturalMusicList = [
@@ -161,6 +161,8 @@ export default function MusicTypePage({ params }: { params: { type: string } }) 
   const [showNotification, setShowNotification] = useState(autoplay);
   const [fadeOut, setFadeOut] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const mainAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [isNotificationPlayed, setIsNotificationPlayed] = useState(false);
 
   // 判斷是否為動畫音樂
   const isAnimationMusic = ['dog', 'sheep', 'elephant', 'rattle', 'cat', 'duck', 'bear', 'frog'].includes(params.type);
@@ -168,6 +170,57 @@ export default function MusicTypePage({ params }: { params: { type: string } }) 
   // 根據當前音樂類型選擇對應的列表
   const currentList = isAnimationMusic ? animationMusicList : naturalMusicList;
   const currentIndex = currentList.findIndex(music => music.type === params.type);
+
+  // 獲取對應的提示窗文案
+  const getNotificationMessage = () => {
+    // 如果是自動播放模式，根據音樂類型返回對應的提示窗文案
+    if (autoplay) {
+      // 檢查是否有對應的提示窗文案
+      if (params.type in notificationMessages) {
+        return notificationMessages[params.type as keyof typeof notificationMessages];
+      }
+    }
+    // 默認提示窗文案
+    return notificationMessages.default;
+  };
+
+  const notificationMessage = getNotificationMessage();
+
+  // 處理提示音結束後的邏輯
+  const handleNotificationEnded = () => {
+    console.log('提示音播放結束，開始播放主音樂');
+    setIsNotificationPlayed(true);
+    
+    // 延遲關閉提示窗
+    setTimeout(() => {
+      setShowNotification(false);
+    }, 1000);
+    
+    // 開始播放主音樂
+    if (mainAudioRef.current) {
+      mainAudioRef.current.play().catch(error => {
+        console.error('播放主音樂失敗:', error);
+      });
+    }
+  };
+
+  // 初始化主音樂
+  useEffect(() => {
+    if (autoplay) {
+      const musicData = getMusicData();
+      mainAudioRef.current = new Audio(musicData.audioSrc);
+      
+      // 設置主音樂為暫停狀態，等待提示音結束後再播放
+      mainAudioRef.current.pause();
+      
+      return () => {
+        if (mainAudioRef.current) {
+          mainAudioRef.current.pause();
+          mainAudioRef.current = null;
+        }
+      };
+    }
+  }, [autoplay]);
 
   const handlePrevious = () => {
     const prevIndex = currentIndex > 0 ? currentIndex - 1 : currentList.length - 1;
@@ -192,21 +245,6 @@ export default function MusicTypePage({ params }: { params: { type: string } }) 
   };
 
   const musicData = getMusicData();
-
-  // 獲取對應的提示窗文案
-  const getNotificationMessage = () => {
-    // 如果是自動播放模式，根據音樂類型返回對應的提示窗文案
-    if (autoplay) {
-      // 檢查是否有對應的提示窗文案
-      if (params.type in notificationMessages) {
-        return notificationMessages[params.type as keyof typeof notificationMessages];
-      }
-    }
-    // 默認提示窗文案
-    return notificationMessages.default;
-  };
-
-  const notificationMessage = getNotificationMessage();
 
   const handleBack = () => {
     setFadeOut(true);
@@ -235,11 +273,9 @@ export default function MusicTypePage({ params }: { params: { type: string } }) 
           </div>
           <NotificationAudio
             sound={notificationMessage.sound}
-            onEnded={() => {
-              setTimeout(() => {
-                setShowNotification(false);
-              }, 1000);
-            }}
+            onEnded={handleNotificationEnded}
+            isModalVisible={showNotification}
+            isPageReady={true}
           />
         </div>
       )}
@@ -247,22 +283,22 @@ export default function MusicTypePage({ params }: { params: { type: string } }) 
       {/* 根據類型返回不同的播放器 */}
       {isAnimationMusic ? (
         <AnimationPlayer
-          title={musicData.title}
           audioSrc={musicData.audioSrc}
           imageSrc={musicData.imageSrc}
-          onClose={handleBack}
+          title={musicData.title}
           onPrevious={handlePrevious}
           onNext={handleNext}
+          onClose={handleBack}
           type={params.type}
         />
       ) : (
         <Player
-          title={musicData.title}
           audioSrc={musicData.audioSrc}
           imageSrc={musicData.imageSrc}
-          onClose={handleBack}
+          title={musicData.title}
           onPrevious={handlePrevious}
           onNext={handleNext}
+          onClose={handleBack}
           type={params.type}
         />
       )}
