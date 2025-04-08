@@ -704,6 +704,7 @@ export default function FriendlyNursingMap() {
             loadingElement={<div>Loading Google Maps...</div>}
             onLoad={() => console.log('Google Maps Script loaded successfully')}
             onError={(error: Error) => console.error('Error loading Google Maps:', error)}
+            libraries={['places']}
           >
             <GoogleMap
               mapContainerStyle={{
@@ -718,7 +719,17 @@ export default function FriendlyNursingMap() {
                 mapTypeControl: false,
                 streetViewControl: false,
                 fullscreenControl: false,
-                gestureHandling: 'greedy'
+                gestureHandling: 'cooperative',
+                scrollwheel: true,
+                draggable: true,
+                keyboardShortcuts: false,
+                styles: [
+                  {
+                    featureType: 'poi',
+                    elementType: 'labels',
+                    stylers: [{ visibility: 'off' }]
+                  }
+                ]
               }}
               onLoad={onMapLoad}
             />
