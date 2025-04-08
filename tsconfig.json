@@ -1,10 +1,15 @@
 {
-  "compilerOptions": {
+"compilerOptions": {
     "target": "es5",
     "lib": [
       "dom",
       "dom.iterable",
       "esnext"
+    ],
+    "types": [
+      "googlemaps",
+      "google-map-react",
+      "estree"
     ],
     "allowJs": true,
     "skipLibCheck": true,
