@@ -41,7 +41,7 @@
     top: 20px;
   }
 
-.userIcon {
+  .userIcon {
     position: absolute;
     right: 20px;
     top: 15px;
@@ -49,9 +49,8 @@
     height: 40px;
     cursor: pointer;
     z-index: 5;
-margin-right: -10px;
-      }
-
+    margin-right: -10px;
+}
 
 .scrollableContent {
     position: absolute;
@@ -398,6 +397,18 @@ margin-right: -10px;
 
 .toggleButton.active {
   color: white;
+}
+
+.tutorial {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #CCEAEC;
+  font-size: 18px;
+  font-style: bold;
+  font-weight: 800;
+  z-index: 5;
+  top: 20px;
 }
 
 /* 小屏幕適配 - 保持比例 */
