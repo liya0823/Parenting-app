@@ -305,9 +305,11 @@
 }
 
 .mapContainer {
+  flex: 1;
   width: 100%;
-  height: calc(100% - 60px);
-  padding-top: 120px;
+  height: calc(100% - 130px);
+  position: relative;
+  z-index: 1;
 }
 
 .markerShadow {

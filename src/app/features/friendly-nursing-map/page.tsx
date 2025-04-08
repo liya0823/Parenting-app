@@ -632,55 +632,57 @@ export default function FriendlyNursingMap() {
         </div>
 
         {/* Google Maps */}
-        <LoadScript 
-          googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}
-          loadingElement={<div>Loading Google Maps...</div>}
-          onLoad={() => console.log('Google Maps Script loaded successfully')}
-          onError={(error: Error) => console.error('Error loading Google Maps:', error)}
-        >
-          <GoogleMap
-            mapContainerStyle={{
-              width: '100%',
-              height: '100%'
-            }}
-            center={center}
-            zoom={15}
-            options={{
-              disableDefaultUI: true,
-              zoomControl: true,
-              mapTypeControl: false,
-              streetViewControl: false,
-              fullscreenControl: false,
-              gestureHandling: 'greedy'
-            }}
-            onLoad={onMapLoad}
+        <div className={styles.mapContainer}>
+          <LoadScript 
+            googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}
+            loadingElement={<div>Loading Google Maps...</div>}
+            onLoad={() => console.log('Google Maps Script loaded successfully')}
+            onError={(error: Error) => console.error('Error loading Google Maps:', error)}
           >
-            {isLoaded && (
-              <>
-                {nearbyStores.map(store => (
-                  <CustomMarker
-                    key={store.id}
-                    position={{ lat: store.lat, lng: store.lng }}
-                    onClick={() => setSelectedStore(store)}
-                    name={store.name}
-                  />
-                ))}
+            <GoogleMap
+              mapContainerStyle={{
+                width: '100%',
+                height: '100%'
+              }}
+              center={center}
+              zoom={15}
+              options={{
+                disableDefaultUI: true,
+                zoomControl: true,
+                mapTypeControl: false,
+                streetViewControl: false,
+                fullscreenControl: false,
+                gestureHandling: 'greedy'
+              }}
+              onLoad={onMapLoad}
+            >
+              {isLoaded && (
+                <>
+                  {nearbyStores.map(store => (
+                    <CustomMarker
+                      key={store.id}
+                      position={{ lat: store.lat, lng: store.lng }}
+                      onClick={() => setSelectedStore(store)}
+                      name={store.name}
+                    />
+                  ))}
 
-                <MarkerF
-                  position={center}
-                  icon={{
-                    url: '/11.png',
-                    scaledSize: new window.google.maps.Size(50, 50),
-                    anchor: new window.google.maps.Point(25, 25),
-                  }}
-                  options={{
-                    optimized: false
-                  }}
-                />
-              </>
-            )}
-          </GoogleMap>
-        </LoadScript>
+                  <MarkerF
+                    position={center}
+                    icon={{
+                      url: '/11.png',
+                      scaledSize: new window.google.maps.Size(50, 50),
+                      anchor: new window.google.maps.Point(25, 25),
+                    }}
+                    options={{
+                      optimized: false
+                    }}
+                  />
+                </>
+              )}
+            </GoogleMap>
+          </LoadScript>
+        </div>
 
         {selectedStore && (
           <div 
