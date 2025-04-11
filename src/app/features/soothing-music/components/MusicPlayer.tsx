@@ -32,9 +32,18 @@ const MusicPlayer = () => {
   // 播放哭聲偵測中的聲音
   useEffect(() => {
     let audio: HTMLAudioElement | null = null;
+    let audioContext: AudioContext | null = null;
     
     const playAudio = async () => {
       try {
+        // 創建音頻上下文
+        audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        
+        // 確保音頻上下文已經啟動
+        if (audioContext.state === 'suspended') {
+          await audioContext.resume();
+        }
+        
         // 創建音頻元素
         audio = new Audio('/audio/哭聲偵測中.mp3');
         
@@ -43,34 +52,43 @@ const MusicPlayer = () => {
           if (!audio) return reject('Audio element not created');
           
           audio.addEventListener('canplaythrough', resolve);
-          audio.addEventListener('error', reject);
+          audio.addEventListener('error', (e) => {
+            console.error('音頻加載錯誤:', e);
+            reject(e);
+          });
           
           // 設置音頻屬性
           audio.volume = 1.0;
           audio.preload = 'auto';
         });
         
-        // 創建新的音頻上下文
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        // 創建音頻源並連接
         const source = audioContext.createMediaElementSource(audio);
         source.connect(audioContext.destination);
         
         // 嘗試播放
-        const playPromise = audio.play();
-        
-        if (playPromise !== undefined) {
-          playPromise.catch(error => {
-            console.error('播放聲音失敗:', error);
-            // 如果自動播放失敗，添加點擊事件監聽器
-            const playOnClick = () => {
-              audio?.play().catch(console.error);
+        try {
+          await audio.play();
+          console.log('音頻開始播放');
+        } catch (error) {
+          console.error('播放失敗:', error);
+          // 如果自動播放失敗，添加點擊事件監聽器
+          const playOnClick = async () => {
+            try {
+              if (audioContext?.state === 'suspended') {
+                await audioContext.resume();
+              }
+              await audio?.play();
+              console.log('點擊後音頻開始播放');
               document.removeEventListener('click', playOnClick);
-            };
-            document.addEventListener('click', playOnClick);
-          });
+            } catch (e) {
+              console.error('點擊播放失敗:', e);
+            }
+          };
+          document.addEventListener('click', playOnClick);
         }
       } catch (error) {
-        console.error('音頻加載或播放失敗:', error);
+        console.error('音頻初始化失敗:', error);
       }
     };
     
@@ -82,6 +100,10 @@ const MusicPlayer = () => {
         audio.pause();
         audio.currentTime = 0;
         audio = null;
+      }
+      if (audioContext) {
+        audioContext.close();
+        audioContext = null;
       }
     };
   }, []);
