@@ -43,18 +43,27 @@ const MusicPlayer = () => {
     
     // 嘗試播放
     const playSound = () => {
+      // 使用 Promise 處理播放
       const playPromise = audioElement.play();
       
       if (playPromise !== undefined) {
-        playPromise.catch(error => {
-          console.error('自動播放失敗:', error);
-          // 如果自動播放失敗，添加點擊事件監聽器
-          const playOnClick = () => {
-            audioElement.play().catch(console.error);
-            document.removeEventListener('click', playOnClick);
-          };
-          document.addEventListener('click', playOnClick);
-        });
+        playPromise
+          .then(() => {
+            console.log('音頻開始播放');
+          })
+          .catch(error => {
+            console.error('自動播放失敗:', error);
+            // 如果自動播放失敗，添加點擊事件監聽器
+            const playOnClick = () => {
+              audioElement.play()
+                .then(() => {
+                  console.log('點擊後音頻開始播放');
+                  document.removeEventListener('click', playOnClick);
+                })
+                .catch(console.error);
+            };
+            document.addEventListener('click', playOnClick);
+          });
       }
     };
     
