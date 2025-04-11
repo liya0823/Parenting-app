@@ -31,98 +31,34 @@ const MusicPlayer = () => {
 
   // 播放哭聲偵測中的聲音
   useEffect(() => {
-    let audio: HTMLAudioElement | null = null;
-    let audioContext: AudioContext | null = null;
+    const audio = new Audio('/audio/哭聲偵測中.mp3');
+    audio.volume = 1.0;
     
-    const playAudio = async () => {
-      try {
-        console.log('開始初始化音頻...');
-        
-        // 創建音頻上下文
-        audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-        console.log('音頻上下文創建成功，當前狀態:', audioContext.state);
-        
-        // 確保音頻上下文已經啟動
-        if (audioContext.state === 'suspended') {
-          console.log('嘗試恢復音頻上下文...');
-          await audioContext.resume();
-          console.log('音頻上下文已恢復，當前狀態:', audioContext.state);
-        }
-        
-        // 創建音頻元素
-        const audioPath = '/audio/哭聲偵測中.mp3';
-        console.log('嘗試加載音頻文件:', audioPath);
-        audio = new Audio(audioPath);
-        
-        // 等待音頻加載完成
-        await new Promise((resolve, reject) => {
-          if (!audio) return reject('Audio element not created');
-          
-          audio.addEventListener('canplaythrough', () => {
-            console.log('音頻文件加載完成');
-            resolve(null);
-          });
-          
-          audio.addEventListener('error', (e) => {
-            console.error('音頻加載錯誤:', e);
-            reject(e);
-          });
-          
-          // 設置音頻屬性
-          audio.volume = 1.0;
-          audio.preload = 'auto';
-        });
-        
-        // 創建音頻源並連接
-        console.log('創建音頻源...');
-        const source = audioContext.createMediaElementSource(audio);
-        source.connect(audioContext.destination);
-        console.log('音頻源創建並連接成功');
-        
-        // 嘗試播放
-        try {
-          console.log('嘗試播放音頻...');
-          await audio.play();
-          console.log('音頻開始播放');
-        } catch (error) {
-          console.error('播放失敗:', error);
-          // 如果自動播放失敗，添加點擊事件監聽器
-          const playOnClick = async () => {
-            try {
-              console.log('點擊事件觸發，嘗試播放...');
-              if (audioContext?.state === 'suspended') {
-                console.log('音頻上下文暫停，嘗試恢復...');
-                await audioContext.resume();
-                console.log('音頻上下文已恢復');
-              }
-              await audio?.play();
-              console.log('點擊後音頻開始播放');
-              document.removeEventListener('click', playOnClick);
-            } catch (e) {
-              console.error('點擊播放失敗:', e);
-            }
-          };
-          document.addEventListener('click', playOnClick);
-        }
-      } catch (error) {
-        console.error('音頻初始化失敗:', error);
-      }
+    // 立即嘗試播放
+    const playSound = () => {
+      audio.play().catch(error => {
+        console.error('自動播放失敗:', error);
+        // 如果自動播放失敗，添加點擊事件監聽器
+        const playOnClick = () => {
+          audio.play().catch(console.error);
+          document.removeEventListener('click', playOnClick);
+        };
+        document.addEventListener('click', playOnClick);
+      });
     };
+
+    // 確保音頻已加載
+    audio.addEventListener('canplaythrough', playSound, { once: true });
     
-    playAudio();
-    
+    // 如果音頻已經可以播放，立即播放
+    if (audio.readyState >= 3) {
+      playSound();
+    }
+
     // 組件卸載時清理
     return () => {
-      console.log('組件卸載，清理音頻資源...');
-      if (audio) {
-        audio.pause();
-        audio.currentTime = 0;
-        audio = null;
-      }
-      if (audioContext) {
-        audioContext.close();
-        audioContext = null;
-      }
+      audio.pause();
+      audio.currentTime = 0;
     };
   }, []);
 
