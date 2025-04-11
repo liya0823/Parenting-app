@@ -620,21 +620,26 @@ export default function FriendlyNursingMap() {
         const bufferLength = analyser.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);
         
+        // 設一個直觀的音量閾值，寶寶哭聲通常在 80-120 之間
+        const volumeThreshold = 90;
+        
         const checkVolume = () => {
           if (!audioContext) return;
           
           analyser.getByteFrequencyData(dataArray);
           const average = dataArray.reduce((a, b) => a + b) / bufferLength;
-          const normalizedVolume = average / 128;
           
-          if (normalizedVolume > 0.7) {
+          // 輸出音量數據，方便調試
+          console.log("Volume average:", average);
+          
+          if (average > volumeThreshold) {
             // 如果聲音超過閾值且尚未開始計時
             if (soundStartTimeRef.current === null) {
               soundStartTimeRef.current = Date.now();
               
-              // 設置 5 秒後檢查是否仍然超過閾值
+              // 設置 3 秒後檢查是否仍然超過閾值
               soundDetectionTimeoutRef.current = setTimeout(() => {
-                // 如果 5 秒後仍然在檢測中，則觸發提示
+                // 如果 3 秒後仍然在檢測中，則觸發提示
                 if (soundStartTimeRef.current !== null) {
                   setShowSoundAlert(true);
                   // 顯示提示後，延遲 2 秒跳轉到舒緩音樂頁面
@@ -647,7 +652,7 @@ export default function FriendlyNursingMap() {
                   // 重置檢測狀態
                   soundStartTimeRef.current = null;
                 }
-              }, 5000);
+              }, 3000); // 改為 3 秒
             }
           } else {
             // 如果聲音低於閾值，重置計時器
