@@ -50,6 +50,11 @@ const MusicPlayer = () => {
           audio.preload = 'auto';
         });
         
+        // 創建新的音頻上下文
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const source = audioContext.createMediaElementSource(audio);
+        source.connect(audioContext.destination);
+        
         // 嘗試播放
         const playPromise = audio.play();
         
