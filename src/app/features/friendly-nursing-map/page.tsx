@@ -493,6 +493,8 @@ export default function FriendlyNursingMap() {
   const animationFrameRef = useRef<number>();
   const lastTriggerTimeRef = useRef<number>(0);
   const alertTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const soundStartTimeRef = useRef<number | null>(null);
+  const soundDetectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // 當選擇新的店家時重置圖片索引
   useEffect(() => {
@@ -626,13 +628,36 @@ export default function FriendlyNursingMap() {
           const normalizedVolume = average / 128;
           
           if (normalizedVolume > 0.7) {
-            setShowSoundAlert(true);
-            // 顯示提示後，延遲 2 秒跳轉到舒緩音樂頁面
-            setTimeout(() => {
-              router.push('/features/soothing-music');
-            }, 2000);
-            // 5 秒後隱藏提示
-            setTimeout(() => setShowSoundAlert(false), 5000);
+            // 如果聲音超過閾值且尚未開始計時
+            if (soundStartTimeRef.current === null) {
+              soundStartTimeRef.current = Date.now();
+              
+              // 設置 5 秒後檢查是否仍然超過閾值
+              soundDetectionTimeoutRef.current = setTimeout(() => {
+                // 如果 5 秒後仍然在檢測中，則觸發提示
+                if (soundStartTimeRef.current !== null) {
+                  setShowSoundAlert(true);
+                  // 顯示提示後，延遲 2 秒跳轉到舒緩音樂頁面
+                  setTimeout(() => {
+                    router.push('/features/soothing-music');
+                  }, 2000);
+                  // 5 秒後隱藏提示
+                  setTimeout(() => setShowSoundAlert(false), 5000);
+                  
+                  // 重置檢測狀態
+                  soundStartTimeRef.current = null;
+                }
+              }, 5000);
+            }
+          } else {
+            // 如果聲音低於閾值，重置計時器
+            if (soundStartTimeRef.current !== null) {
+              soundStartTimeRef.current = null;
+              if (soundDetectionTimeoutRef.current) {
+                clearTimeout(soundDetectionTimeoutRef.current);
+                soundDetectionTimeoutRef.current = null;
+              }
+            }
           }
           
           requestAnimationFrame(checkVolume);
@@ -643,6 +668,10 @@ export default function FriendlyNursingMap() {
         return () => {
           stream.getTracks().forEach(track => track.stop());
           audioContext.close();
+          // 清理計時器
+          if (soundDetectionTimeoutRef.current) {
+            clearTimeout(soundDetectionTimeoutRef.current);
+          }
         };
       } catch (error) {
         console.error('Error accessing microphone:', error);
