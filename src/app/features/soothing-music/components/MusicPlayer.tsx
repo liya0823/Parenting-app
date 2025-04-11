@@ -31,34 +31,46 @@ const MusicPlayer = () => {
 
   // 播放哭聲偵測中的聲音
   useEffect(() => {
-    const audio = new Audio('/audio/哭聲偵測中.mp3');
-    audio.volume = 1.0;
+    // 創建一個隱藏的 audio 元素
+    const audioElement = document.createElement('audio');
+    audioElement.src = '/audio/哭聲偵測中.mp3';
+    audioElement.volume = 1.0;
+    audioElement.autoplay = true;
+    audioElement.loop = false;
     
-    // 立即嘗試播放
+    // 添加到 DOM 中
+    document.body.appendChild(audioElement);
+    
+    // 嘗試播放
     const playSound = () => {
-      audio.play().catch(error => {
-        console.error('自動播放失敗:', error);
-        // 如果自動播放失敗，添加點擊事件監聽器
-        const playOnClick = () => {
-          audio.play().catch(console.error);
-          document.removeEventListener('click', playOnClick);
-        };
-        document.addEventListener('click', playOnClick);
-      });
+      const playPromise = audioElement.play();
+      
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.error('自動播放失敗:', error);
+          // 如果自動播放失敗，添加點擊事件監聽器
+          const playOnClick = () => {
+            audioElement.play().catch(console.error);
+            document.removeEventListener('click', playOnClick);
+          };
+          document.addEventListener('click', playOnClick);
+        });
+      }
     };
-
+    
     // 確保音頻已加載
-    audio.addEventListener('canplaythrough', playSound, { once: true });
+    audioElement.addEventListener('canplaythrough', playSound, { once: true });
     
     // 如果音頻已經可以播放，立即播放
-    if (audio.readyState >= 3) {
+    if (audioElement.readyState >= 3) {
       playSound();
     }
-
+    
     // 組件卸載時清理
     return () => {
-      audio.pause();
-      audio.currentTime = 0;
+      audioElement.pause();
+      audioElement.currentTime = 0;
+      document.body.removeChild(audioElement);
     };
   }, []);
 
