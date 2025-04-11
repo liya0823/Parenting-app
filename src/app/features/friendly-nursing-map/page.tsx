@@ -625,7 +625,7 @@ export default function FriendlyNursingMap() {
           const average = dataArray.reduce((a, b) => a + b) / bufferLength;
           const normalizedVolume = average / 128;
           
-          if (normalizedVolume > 0.5) {
+          if (normalizedVolume > 0.7) {
             setShowSoundAlert(true);
             // 顯示提示後，延遲 2 秒跳轉到舒緩音樂頁面
             setTimeout(() => {
@@ -667,7 +667,7 @@ export default function FriendlyNursingMap() {
               />
               <button className={styles.searchIcon}>
                 <Image
-                  src="/search.png"
+                  src="/Search.png"
                   alt="Search"
                   width={25}
                   height={25}
