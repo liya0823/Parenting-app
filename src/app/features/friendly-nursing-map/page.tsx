@@ -495,6 +495,7 @@ export default function FriendlyNursingMap() {
   const alertTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const soundStartTimeRef = useRef<number | null>(null);
   const soundDetectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const notificationAudioRef = useRef<HTMLAudioElement | null>(null);
 
   // 當選擇新的店家時重置圖片索引
   useEffect(() => {
@@ -620,8 +621,11 @@ export default function FriendlyNursingMap() {
         const bufferLength = analyser.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);
         
-        // 設一個直觀的音量閾值，寶寶哭聲通常在 80-120 之間
-        const volumeThreshold = 70;
+        // 降低音量閾值，使檢測更靈敏
+        const volumeThreshold = 40;
+        
+        // 初始化提示音
+        notificationAudioRef.current = new Audio('/audio/偵測提示.mp3');
         
         const checkVolume = () => {
           if (!audioContext) return;
@@ -637,11 +641,20 @@ export default function FriendlyNursingMap() {
             if (soundStartTimeRef.current === null) {
               soundStartTimeRef.current = Date.now();
               
-              // 設置 3 秒後檢查是否仍然超過閾值
+              // 設置 1.5 秒後檢查是否仍然超過閾值
               soundDetectionTimeoutRef.current = setTimeout(() => {
-                // 如果 3 秒後仍然在檢測中，則觸發提示
+                // 如果 1.5 秒後仍然在檢測中，則觸發提示
                 if (soundStartTimeRef.current !== null) {
                   setShowSoundAlert(true);
+                  
+                  // 播放提示音
+                  if (notificationAudioRef.current) {
+                    notificationAudioRef.current.currentTime = 0; // 重置音頻位置
+                    notificationAudioRef.current.play().catch(error => {
+                      console.error('Error playing notification sound:', error);
+                    });
+                  }
+                  
                   // 顯示提示後，延遲 2 秒跳轉到舒緩音樂頁面
                   setTimeout(() => {
                     router.push('/features/soothing-music');
@@ -652,7 +665,7 @@ export default function FriendlyNursingMap() {
                   // 重置檢測狀態
                   soundStartTimeRef.current = null;
                 }
-              }, 3000); // 改為 3 秒
+              }, 1500); // 改為 1.5 秒
             }
           } else {
             // 如果聲音低於閾值，重置計時器
@@ -676,6 +689,11 @@ export default function FriendlyNursingMap() {
           // 清理計時器
           if (soundDetectionTimeoutRef.current) {
             clearTimeout(soundDetectionTimeoutRef.current);
+          }
+          // 清理提示音
+          if (notificationAudioRef.current) {
+            notificationAudioRef.current.pause();
+            notificationAudioRef.current = null;
           }
         };
       } catch (error) {
