@@ -621,7 +621,7 @@ export default function FriendlyNursingMap() {
         const dataArray = new Uint8Array(bufferLength);
         
         // 設一個直觀的音量閾值，寶寶哭聲通常在 80-120 之間
-        const volumeThreshold = 90;
+        const volumeThreshold = 70;
         
         const checkVolume = () => {
           if (!audioContext) return;
