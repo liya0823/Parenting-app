@@ -498,6 +498,7 @@ export default function FriendlyNursingMap() {
   const notificationAudioRef = useRef<HTMLAudioElement | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const isListeningRef = useRef<boolean>(false);
+  const isPlayingRef = useRef<boolean>(false);
 
   // 當選擇新的店家時重置圖片索引
   useEffect(() => {
@@ -632,26 +633,28 @@ export default function FriendlyNursingMap() {
         
         // 暫停麥克風的函數
         const pauseMicrophone = () => {
-          if (mediaStreamRef.current) {
+          if (mediaStreamRef.current && !isPlayingRef.current) {
             mediaStreamRef.current.getTracks().forEach(track => {
               track.enabled = false;
             });
             isListeningRef.current = false;
+            isPlayingRef.current = true;
           }
         };
         
         // 恢復麥克風的函數
         const resumeMicrophone = () => {
-          if (mediaStreamRef.current) {
+          if (mediaStreamRef.current && isPlayingRef.current) {
             mediaStreamRef.current.getTracks().forEach(track => {
               track.enabled = true;
             });
             isListeningRef.current = true;
+            isPlayingRef.current = false;
           }
         };
         
         const checkVolume = () => {
-          if (!audioContext || !isListeningRef.current) return;
+          if (!audioContext || !isListeningRef.current || isPlayingRef.current) return;
           
           analyser.getByteFrequencyData(dataArray);
           const average = dataArray.reduce((a, b) => a + b) / bufferLength;
@@ -678,10 +681,11 @@ export default function FriendlyNursingMap() {
                     notificationAudioRef.current.currentTime = 0; // 重置音頻位置
                     notificationAudioRef.current.play()
                       .then(() => {
-                        // 播放完成後恢復麥克風
-                        setTimeout(() => {
+                        // 等待音頻播放完成
+                        notificationAudioRef.current?.addEventListener('ended', () => {
+                          // 播放完成後恢復麥克風
                           resumeMicrophone();
-                        }, 1000); // 等待1秒後恢復麥克風
+                        }, { once: true });
                       })
                       .catch(error => {
                         console.error('Error playing notification sound:', error);
@@ -718,6 +722,7 @@ export default function FriendlyNursingMap() {
         
         // 初始化麥克風狀態
         isListeningRef.current = true;
+        isPlayingRef.current = false;
         checkVolume();
         
         return () => {

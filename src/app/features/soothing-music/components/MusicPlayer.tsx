@@ -31,21 +31,52 @@ const MusicPlayer = () => {
 
   // 播放哭聲偵測中的聲音
   useEffect(() => {
-    // 創建音頻元素
-    audioRef.current = new Audio('/audio/哭聲偵測中.mp3');
+    let audio: HTMLAudioElement | null = null;
     
-    // 播放聲音
-    if (audioRef.current) {
-      audioRef.current.play().catch(error => {
-        console.error('播放聲音失敗:', error);
-      });
-    }
+    const playAudio = async () => {
+      try {
+        // 創建音頻元素
+        audio = new Audio('/audio/哭聲偵測中.mp3');
+        
+        // 等待音頻加載完成
+        await new Promise((resolve, reject) => {
+          if (!audio) return reject('Audio element not created');
+          
+          audio.addEventListener('canplaythrough', resolve);
+          audio.addEventListener('error', reject);
+          
+          // 設置音頻屬性
+          audio.volume = 1.0;
+          audio.preload = 'auto';
+        });
+        
+        // 嘗試播放
+        const playPromise = audio.play();
+        
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.error('播放聲音失敗:', error);
+            // 如果自動播放失敗，添加點擊事件監聽器
+            const playOnClick = () => {
+              audio?.play().catch(console.error);
+              document.removeEventListener('click', playOnClick);
+            };
+            document.addEventListener('click', playOnClick);
+          });
+        }
+      } catch (error) {
+        console.error('音頻加載或播放失敗:', error);
+      }
+    };
+    
+    playAudio();
     
     // 組件卸載時清理
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+        audio = null;
       }
     };
   }, []);
