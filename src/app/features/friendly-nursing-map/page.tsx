@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { GoogleMap, LoadScript, MarkerF } from '@react-google-maps/api';
 import Image from 'next/image';
 import styles from './page.module.css';
@@ -438,39 +438,26 @@ const CustomMarker = ({ position, onClick, name }: {
   position: google.maps.LatLngLiteral, 
   onClick: () => void,
   name: string 
-}) => {
-  if (typeof window === 'undefined') return null;
-  
-  const { AdvancedMarkerElement } = google.maps.marker;
-  if (!AdvancedMarkerElement) return null;
-
-  const markerContent = document.createElement('div');
-  markerContent.className = styles.markerContainer;
-  
-  const icon = document.createElement('img');
-  icon.src = '/10.png';
-  icon.style.width = '89px';
-  icon.style.height = '60px';
-  
-  const label = document.createElement('div');
-  label.textContent = name;
-  label.style.color = '#7C695B';
-  label.style.fontSize = '15px';
-  label.style.fontFamily = 'Inter';
-  label.className = styles.markerLabel;
-  
-  markerContent.appendChild(icon);
-  markerContent.appendChild(label);
-
-  const marker = new AdvancedMarkerElement({
-    position,
-    content: markerContent,
-  });
-
-  marker.addListener('click', onClick);
-  
-  return marker;
-};
+}) => (
+  <MarkerF
+    position={position}
+    onClick={onClick}
+    icon={{
+      url: '/10.png',
+      scaledSize: new window.google.maps.Size(89, 60),  // 保持 148:100 的比例，但整體縮小
+    }}
+    options={{
+      optimized: false
+    }}
+    label={{
+      text: name,
+      color: '#7C695B',
+      fontSize: '15px',
+      fontFamily: 'Inter',
+      className: styles.markerLabel
+    }}
+  />
+);
 
 // 計算兩點之間的距離（使用 Haversine 公式）
 const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
@@ -499,8 +486,13 @@ export default function FriendlyNursingMap() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
-  const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [markers, setMarkers] = useState<any[]>([]);
+  const [showSoundAlert, setShowSoundAlert] = useState(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const microphoneRef = useRef<MediaStreamAudioSourceNode | null>(null);
+  const animationFrameRef = useRef<number>();
+  const lastTriggerTimeRef = useRef<number>(0);
+  const alertTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // 當選擇新的店家時重置圖片索引
   useEffect(() => {
@@ -598,79 +590,67 @@ export default function FriendlyNursingMap() {
   };
 
   const onMapLoad = useCallback((map: google.maps.Map) => {
-    setMap(map);
+    console.log('Map Component Loaded...');
     setIsLoaded(true);
   }, []);
 
-  // 當地圖和標記都準備好時，添加標記
-  useEffect(() => {
-    if (!map || !isLoaded || typeof window === 'undefined' || !window.google) return;
-
-    try {
-      // 清除舊的標記
-      markers.forEach(marker => {
-        if (marker && marker.setMap) {
-          marker.setMap(null);
-        }
-      });
-      
-      // 添加新的標記
-      const newMarkers = nearbyStores.map(store => {
-        const marker = new google.maps.Marker({
-          position: { lat: store.lat, lng: store.lng },
-          map,
-          icon: {
-            url: '/10.png',
-            scaledSize: new google.maps.Size(89, 60),
-          },
-          label: {
-            text: store.name,
-            color: '#7C695B',
-            fontSize: '15px',
-            fontFamily: 'Inter',
-            className: styles.markerLabel
-          }
-        });
-
-        marker.addListener('click', () => setSelectedStore(store));
-        return marker;
-      });
-
-      // 添加用戶位置標記
-      const userMarker = new google.maps.Marker({
-        position: center,
-        map,
-        icon: {
-          url: '/11.png',
-          scaledSize: new google.maps.Size(50, 50),
-          anchor: new google.maps.Point(25, 25),
-        }
-      });
-
-      setMarkers([...newMarkers, userMarker]);
-    } catch (error) {
-      console.error('Error creating markers:', error);
-    }
-  }, [map, isLoaded, nearbyStores, center]);
-
   const mapOptions = {
     disableDefaultUI: true,  // 隱藏所有預設控制項
-    zoomControl: true,      // 顯示縮放控制
+    zoomControl: true,      // 隱藏縮放控制
     mapTypeControl: false,   // 隱藏地圖類型切換
     streetViewControl: false, // 隱藏街景
     fullscreenControl: false, // 隱藏全螢幕按鈕
-    gestureHandling: 'cooperative', // 更好的手機觸控支援
-    scrollwheel: true,      // 允許滾動縮放
-    draggable: true,        // 允許拖動
-    keyboardShortcuts: false, // 禁用鍵盤快捷鍵
-    styles: [
-      {
-        featureType: 'poi',
-        elementType: 'labels',
-        stylers: [{ visibility: 'off' }]
-      }
-    ]
+    gestureHandling: 'greedy'
   };
+
+  // 自動開始聲音檢測
+  useEffect(() => {
+    // 自動開始聲音檢測
+    const initAudio = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const source = audioContext.createMediaStreamSource(stream);
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        source.connect(analyser);
+        
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        
+        const checkVolume = () => {
+          if (!audioContext) return;
+          
+          analyser.getByteFrequencyData(dataArray);
+          const average = dataArray.reduce((a, b) => a + b) / bufferLength;
+          const normalizedVolume = average / 128;
+          
+          if (normalizedVolume > 0.5) {
+            setShowSoundAlert(true);
+            // 顯示提示後，延遲 2 秒跳轉到舒緩音樂頁面
+            setTimeout(() => {
+              router.push('/features/soothing-music');
+            }, 2000);
+            // 5 秒後隱藏提示
+            setTimeout(() => setShowSoundAlert(false), 5000);
+          }
+          
+          requestAnimationFrame(checkVolume);
+        };
+        
+        checkVolume();
+        
+        return () => {
+          stream.getTracks().forEach(track => track.stop());
+          audioContext.close();
+        };
+      } catch (error) {
+        console.error('Error accessing microphone:', error);
+      }
+    };
+    
+    initAudio();
+  }, [router]);
 
   return (
     <div className={styles.phoneContainer}>
@@ -687,7 +667,7 @@ export default function FriendlyNursingMap() {
               />
               <button className={styles.searchIcon}>
                 <Image
-                  src="/Search.png"
+                  src="/search.png"
                   alt="Search"
                   width={25}
                   height={25}
@@ -708,26 +688,55 @@ export default function FriendlyNursingMap() {
         </div>
 
         {/* Google Maps */}
-        <div className={styles.mapContainer}>
-          <LoadScript 
-            googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}
-            loadingElement={<div>Loading Google Maps...</div>}
-            onLoad={() => console.log('Google Maps Script loaded successfully')}
-            onError={(error: Error) => console.error('Error loading Google Maps:', error)}
-            libraries={['places']}
+        <LoadScript 
+          googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}
+          loadingElement={<div>Loading Google Maps...</div>}
+          onLoad={() => console.log('Google Maps Script loaded successfully')}
+          onError={(error) => console.error('Error loading Google Maps:', error)}
+        >
+          <GoogleMap
+            mapContainerStyle={{
+              width: '100%',
+              height: '100%'
+            }}
+            center={center}
+            zoom={15}
+            options={{
+              disableDefaultUI: true,
+              zoomControl: true,
+              mapTypeControl: false,
+              streetViewControl: false,
+              fullscreenControl: false,
+              gestureHandling: 'greedy'
+            }}
+            onLoad={onMapLoad}
           >
-            <GoogleMap
-              mapContainerStyle={{
-                width: '100%',
-                height: '100%'
-              }}
-              center={center}
-              zoom={15}
-              options={mapOptions}
-              onLoad={onMapLoad}
-            />
-          </LoadScript>
-        </div>
+            {isLoaded && (
+              <>
+                {nearbyStores.map(store => (
+                  <CustomMarker
+                    key={store.id}
+                    position={{ lat: store.lat, lng: store.lng }}
+                    onClick={() => setSelectedStore(store)}
+                    name={store.name}
+                  />
+                ))}
+
+                <MarkerF
+                  position={center}
+                  icon={{
+                    url: '/11.png',
+                    scaledSize: new window.google.maps.Size(50, 50),
+                    anchor: new window.google.maps.Point(25, 25),
+                  }}
+                  options={{
+                    optimized: false
+                  }}
+                />
+              </>
+            )}
+          </GoogleMap>
+        </LoadScript>
 
         {selectedStore && (
           <div 
@@ -995,6 +1004,16 @@ export default function FriendlyNursingMap() {
                   style={{ bottom: '15px' }}
                 />
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* 聲音檢測提示窗 */}
+        {showSoundAlert && (
+          <div className={styles.soundAlert}>
+            <div className={styles.alertContent}>
+              <span className={styles.alertIcon}>🍼</span>
+              <span className={styles.alertText}>偵測到可能的寶寶哭聲，幫您確認中…</span>
             </div>
           </div>
         )}
