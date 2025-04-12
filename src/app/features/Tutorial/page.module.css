@@ -475,3 +475,456 @@
     height: 18px;
   }
 }
+
+/* iPhone 12/13/14 Pro Max (428x926) */
+@media screen and (min-width: 428px) and (min-height: 926px) {
+  .anxinwei {
+    font-size: 20px;
+    top: 25px;
+  }
+  
+  .tutorial {
+    font-size: 20px;
+    top: 25px;
+  }
+  
+  .userIcon {
+    right: 25px;
+    top: 20px;
+    margin-right: -12px;
+  }
+  
+  .tabContainer {
+    padding: 18px 0;
+    top: 80px;
+  }
+  
+  .tab {
+    font-size: 18px;
+    padding: 6px 0;
+  }
+  
+  .activeTab::after {
+    bottom: -5px;
+    width: 187.5px;
+    height: 6px;
+    border-radius: 3px;
+  }
+  
+  .content {
+    padding: 25px;
+    padding-top: 210px;
+    padding-bottom: 195px;
+  }
+  
+  .topOverlay {
+    height: 105px;
+  }
+  
+  .videoSection {
+    padding: 12px;
+    gap: 25px;
+  }
+  
+  .videoTitle {
+    font-size: 18px;
+    margin: 15px 0;
+    padding-left: 12px;
+  }
+  
+  .videoContainer {
+    border-radius: 18px;
+    margin-bottom: 12px;
+    min-height: 340px;
+  }
+  
+  .video {
+    min-height: 340px;
+  }
+  
+  .faqSection {
+    gap: 18px;
+    padding: 0 12px;
+  }
+  
+  .faqCategory {
+    gap: 18px;
+  }
+  
+  .categoryHeader {
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+  
+  .categoryIcon {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .categoryTitle {
+    font-size: 20px;
+  }
+  
+  .faqItem {
+    border-radius: 14px;
+    padding: 18px;
+  }
+  
+  .faqItem h3 {
+    font-size: 17px;
+    margin: 0 0 8px 0;
+  }
+  
+  .faqItem p {
+    font-size: 15px;
+  }
+  
+  .faqItem ul {
+    font-size: 15px;
+    padding-left: 22px;
+  }
+  
+  .faqItem li {
+    margin-bottom: 4px;
+  }
+  
+  .navbar {
+    height: 75px;
+  }
+  
+  .navButton {
+    padding: 5px;
+    gap: 3px;
+  }
+  
+  .navButton img {
+    width: 45px;
+    height: 45px;
+    margin-bottom: -2px;
+  }
+  
+  .navText {
+    font-size: 13px;
+  }
+  
+  .searchContainer {
+    padding: 0px 6px;
+    margin-bottom: 6px;
+    top: -30px;
+  }
+  
+  .searchInput {
+    height: 50px;
+    padding: 0 18px 0 45px;
+    border-radius: 25px;
+    font-size: 17px;
+  }
+  
+  .searchIcon {
+    left: 25px;
+    width: 22px;
+    height: 22px;
+  }
+}
+
+/* Google Pixel 4a (393x851) */
+@media screen and (min-width: 393px) and (min-height: 851px) and (max-width: 427px) and (max-height: 925px) {
+  .anxinwei {
+    font-size: 19px;
+    top: 22px;
+  }
+  
+  .tutorial {
+    font-size: 19px;
+    top: 22px;
+  }
+  
+  .userIcon {
+    right: 22px;
+    top: 17px;
+    margin-right: -11px;
+  }
+  
+  .tabContainer {
+    padding: 16px 0;
+    top: 75px;
+  }
+  
+  .tab {
+    font-size: 17px;
+    padding: 5px 0;
+  }
+  
+  .activeTab::after {
+    bottom: -4px;
+    width: 177.5px;
+    height: 5px;
+    border-radius: 2.5px;
+  }
+  
+  .content {
+    padding: 22px;
+    padding-top: 195px;
+    padding-bottom: 180px;
+  }
+  
+  .topOverlay {
+    height: 98px;
+  }
+  
+  .videoSection {
+    padding: 11px;
+    gap: 22px;
+  }
+  
+  .videoTitle {
+    font-size: 17px;
+    margin: 13px 0;
+    padding-left: 11px;
+  }
+  
+  .videoContainer {
+    border-radius: 16px;
+    margin-bottom: 11px;
+    min-height: 310px;
+  }
+  
+  .video {
+    min-height: 310px;
+  }
+  
+  .faqSection {
+    gap: 16px;
+    padding: 0 11px;
+  }
+  
+  .faqCategory {
+    gap: 16px;
+  }
+  
+  .categoryHeader {
+    gap: 13px;
+    margin-bottom: 11px;
+  }
+  
+  .categoryIcon {
+    width: 33px;
+    height: 33px;
+  }
+  
+  .categoryTitle {
+    font-size: 19px;
+  }
+  
+  .faqItem {
+    border-radius: 13px;
+    padding: 17px;
+  }
+  
+  .faqItem h3 {
+    font-size: 16px;
+    margin: 0 0 7px 0;
+  }
+  
+  .faqItem p {
+    font-size: 14px;
+  }
+  
+  .faqItem ul {
+    font-size: 14px;
+    padding-left: 21px;
+  }
+  
+  .faqItem li {
+    margin-bottom: 4px;
+  }
+  
+  .navbar {
+    height: 70px;
+  }
+  
+  .navButton {
+    padding: 4px;
+    gap: 2px;
+  }
+  
+  .navButton img {
+    width: 42px;
+    height: 42px;
+    margin-bottom: -1px;
+  }
+  
+  .navText {
+    font-size: 12px;
+  }
+  
+  .searchContainer {
+    padding: 0px 5px;
+    margin-bottom: 5px;
+    top: -25px;
+  }
+  
+  .searchInput {
+    height: 48px;
+    padding: 0 16px 0 42px;
+    border-radius: 24px;
+    font-size: 16px;
+  }
+  
+  .searchIcon {
+    left: 22px;
+    width: 21px;
+    height: 21px;
+  }
+}
+
+/* Samsung Galaxy S21 (412x915) */
+@media screen and (min-width: 412px) and (min-height: 915px) and (max-width: 427px) and (max-height: 925px) {
+  .anxinwei {
+    font-size: 19px;
+    top: 23px;
+  }
+  
+  .tutorial {
+    font-size: 19px;
+    top: 23px;
+  }
+  
+  .userIcon {
+    right: 23px;
+    top: 18px;
+    margin-right: -11px;
+  }
+  
+  .tabContainer {
+    padding: 17px 0;
+    top: 77px;
+  }
+  
+  .tab {
+    font-size: 17px;
+    padding: 5px 0;
+  }
+  
+  .activeTab::after {
+    bottom: -4px;
+    width: 182.5px;
+    height: 5px;
+    border-radius: 2.5px;
+  }
+  
+  .content {
+    padding: 23px;
+    padding-top: 200px;
+    padding-bottom: 185px;
+  }
+  
+  .topOverlay {
+    height: 100px;
+  }
+  
+  .videoSection {
+    padding: 11px;
+    gap: 23px;
+  }
+  
+  .videoTitle {
+    font-size: 17px;
+    margin: 14px 0;
+    padding-left: 11px;
+  }
+  
+  .videoContainer {
+    border-radius: 17px;
+    margin-bottom: 11px;
+    min-height: 320px;
+  }
+  
+  .video {
+    min-height: 320px;
+  }
+  
+  .faqSection {
+    gap: 17px;
+    padding: 0 11px;
+  }
+  
+  .faqCategory {
+    gap: 17px;
+  }
+  
+  .categoryHeader {
+    gap: 13px;
+    margin-bottom: 11px;
+  }
+  
+  .categoryIcon {
+    width: 34px;
+    height: 34px;
+  }
+  
+  .categoryTitle {
+    font-size: 19px;
+  }
+  
+  .faqItem {
+    border-radius: 13px;
+    padding: 17px;
+  }
+  
+  .faqItem h3 {
+    font-size: 16px;
+    margin: 0 0 7px 0;
+  }
+  
+  .faqItem p {
+    font-size: 14px;
+  }
+  
+  .faqItem ul {
+    font-size: 14px;
+    padding-left: 21px;
+  }
+  
+  .faqItem li {
+    margin-bottom: 4px;
+  }
+  
+  .navbar {
+    height: 72px;
+  }
+  
+  .navButton {
+    padding: 4px;
+    gap: 2px;
+  }
+  
+  .navButton img {
+    width: 43px;
+    height: 43px;
+    margin-bottom: -1px;
+  }
+  
+  .navText {
+    font-size: 12px;
+  }
+  
+  .searchContainer {
+    padding: 0px 5px;
+    margin-bottom: 5px;
+    top: -27px;
+  }
+  
+  .searchInput {
+    height: 49px;
+    padding: 0 17px 0 43px;
+    border-radius: 24px;
+    font-size: 16px;
+  }
+  
+  .searchIcon {
+    left: 23px;
+    width: 21px;
+    height: 21px;
+  }
+}

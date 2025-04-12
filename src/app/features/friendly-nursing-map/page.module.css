@@ -624,4 +624,478 @@
   100% {
     transform: scale(1);
   }
+}
+
+/* iPhone 12/13/14 Pro Max (428x926) */
+@media screen and (min-width: 428px) and (min-height: 926px) {
+  .navbar {
+    height: 75px;
+  }
+  
+  .navButton {
+    padding: 5px;
+    gap: 3px;
+  }
+  
+  .navButton img {
+    width: 45px;
+    height: 45px;
+    margin-bottom: -2px;
+  }
+  
+  .navText {
+    font-size: 13px;
+  }
+  
+  .infoWindow {
+    width: 280px !important;
+    height: 240px !important;
+    padding: 10px !important;
+    padding-top: 22px !important;
+    border-radius: 10px !important;
+  }
+  
+  .storeInfo {
+    gap: 14px;
+  }
+  
+  .storeLogo {
+    width: 65px;
+    height: 65px;
+  }
+  
+  .storeDetails {
+    gap: 6px;
+    max-width: 170px;
+  }
+  
+  .storeName {
+    font-size: 22px;
+  }
+  
+  .storeRating {
+    width: 100px;
+  }
+  
+  .storeImage {
+    width: 600px !important;
+    height: 200px !important;
+    border-radius: 10px !important;
+    margin: 18px 0 !important;
+  }
+  
+  .facilities {
+    margin-bottom: 18px;
+  }
+  
+  .facilityIcon {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .header {
+    top: 45px;
+    padding: 0 25px;
+  }
+  
+  .header::before {
+    top: -45px;
+    height: 70px;
+  }
+  
+  .headerContent {
+    max-width: 380px;
+    gap: 10px;
+    padding-right: 4px;
+  }
+  
+  .searchBar {
+    width: 320px;
+    height: 50px;
+  }
+  
+  .searchBar input {
+    padding: 0 55px 0 25px;
+    border: 3px solid #CFE6EE;
+    border-radius: 55px;
+    font-size: 15px;
+  }
+  
+  .searchIcon {
+    right: 18px;
+  }
+  
+  .mapContainer {
+    height: calc(100% - 70px);
+    padding-top: 140px;
+  }
+  
+  .markerLabel {
+    margin-top: -55px;
+    font-size: 14px;
+  }
+  
+  .userLocationLabel {
+    margin-top: -40px;
+    font-size: 13px;
+  }
+  
+  .modalContent {
+    width: 380px;
+    height: 480px;
+    padding: 25px;
+    border-radius: 25px;
+  }
+  
+  .volumeIndicator {
+    bottom: 90px;
+    right: 25px;
+    width: 170px;
+    padding: 12px;
+    border-radius: 10px;
+  }
+  
+  .volumeBar {
+    height: 12px;
+    border-radius: 6px;
+  }
+  
+  .volumeText {
+    font-size: 0.9rem;
+  }
+  
+  .soundAlert {
+    top: 25px;
+  }
+  
+  .alertContent {
+    gap: 12px;
+    padding: 14px 24px;
+    border-radius: 14px;
+    max-width: 340px;
+  }
+  
+  .alertIcon {
+    font-size: 28px;
+  }
+  
+  .alertText {
+    font-size: 16px;
+  }
+}
+
+/* Google Pixel 4a (393x851) */
+@media screen and (min-width: 393px) and (min-height: 851px) and (max-width: 427px) and (max-height: 925px) {
+  .navbar {
+    height: 70px;
+  }
+  
+  .navButton {
+    padding: 4px;
+    gap: 2px;
+  }
+  
+  .navButton img {
+    width: 42px;
+    height: 42px;
+    margin-bottom: -1px;
+  }
+  
+  .navText {
+    font-size: 12px;
+  }
+  
+  .infoWindow {
+    width: 270px !important;
+    height: 230px !important;
+    padding: 9px !important;
+    padding-top: 20px !important;
+    border-radius: 9px !important;
+  }
+  
+  .storeInfo {
+    gap: 13px;
+  }
+  
+  .storeLogo {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .storeDetails {
+    gap: 5px;
+    max-width: 160px;
+  }
+  
+  .storeName {
+    font-size: 21px;
+  }
+  
+  .storeRating {
+    width: 95px;
+  }
+  
+  .storeImage {
+    width: 580px !important;
+    height: 190px !important;
+    border-radius: 9px !important;
+    margin: 16px 0 !important;
+  }
+  
+  .facilities {
+    margin-bottom: 16px;
+  }
+  
+  .facilityIcon {
+    width: 38px;
+    height: 38px;
+  }
+  
+  .header {
+    top: 42px;
+    padding: 0 22px;
+  }
+  
+  .header::before {
+    top: -42px;
+    height: 65px;
+  }
+  
+  .headerContent {
+    max-width: 360px;
+    gap: 9px;
+    padding-right: 3px;
+  }
+  
+  .searchBar {
+    width: 310px;
+    height: 48px;
+  }
+  
+  .searchBar input {
+    padding: 0 52px 0 22px;
+    border: 2.5px solid #CFE6EE;
+    border-radius: 52px;
+    font-size: 14px;
+  }
+  
+  .searchIcon {
+    right: 16px;
+  }
+  
+  .mapContainer {
+    height: calc(100% - 65px);
+    padding-top: 130px;
+  }
+  
+  .markerLabel {
+    margin-top: -50px;
+    font-size: 13px;
+  }
+  
+  .userLocationLabel {
+    margin-top: -35px;
+    font-size: 12px;
+  }
+  
+  .modalContent {
+    width: 360px;
+    height: 460px;
+    padding: 22px;
+    border-radius: 22px;
+  }
+  
+  .volumeIndicator {
+    bottom: 85px;
+    right: 22px;
+    width: 160px;
+    padding: 11px;
+    border-radius: 9px;
+  }
+  
+  .volumeBar {
+    height: 11px;
+    border-radius: 5.5px;
+  }
+  
+  .volumeText {
+    font-size: 0.85rem;
+  }
+  
+  .soundAlert {
+    top: 22px;
+  }
+  
+  .alertContent {
+    gap: 11px;
+    padding: 13px 22px;
+    border-radius: 13px;
+    max-width: 320px;
+  }
+  
+  .alertIcon {
+    font-size: 26px;
+  }
+  
+  .alertText {
+    font-size: 15px;
+  }
+}
+
+/* Samsung Galaxy S21 (412x915) */
+@media screen and (min-width: 412px) and (min-height: 915px) and (max-width: 427px) and (max-height: 925px) {
+  .navbar {
+    height: 72px;
+  }
+  
+  .navButton {
+    padding: 4px;
+    gap: 2px;
+  }
+  
+  .navButton img {
+    width: 43px;
+    height: 43px;
+    margin-bottom: -1px;
+  }
+  
+  .navText {
+    font-size: 12px;
+  }
+  
+  .infoWindow {
+    width: 275px !important;
+    height: 235px !important;
+    padding: 9px !important;
+    padding-top: 21px !important;
+    border-radius: 9px !important;
+  }
+  
+  .storeInfo {
+    gap: 13px;
+  }
+  
+  .storeLogo {
+    width: 62px;
+    height: 62px;
+  }
+  
+  .storeDetails {
+    gap: 5px;
+    max-width: 165px;
+  }
+  
+  .storeName {
+    font-size: 21px;
+  }
+  
+  .storeRating {
+    width: 97px;
+  }
+  
+  .storeImage {
+    width: 590px !important;
+    height: 195px !important;
+    border-radius: 9px !important;
+    margin: 17px 0 !important;
+  }
+  
+  .facilities {
+    margin-bottom: 17px;
+  }
+  
+  .facilityIcon {
+    width: 39px;
+    height: 39px;
+  }
+  
+  .header {
+    top: 43px;
+    padding: 0 23px;
+  }
+  
+  .header::before {
+    top: -43px;
+    height: 67px;
+  }
+  
+  .headerContent {
+    max-width: 370px;
+    gap: 9px;
+    padding-right: 3px;
+  }
+  
+  .searchBar {
+    width: 315px;
+    height: 49px;
+  }
+  
+  .searchBar input {
+    padding: 0 54px 0 23px;
+    border: 2.5px solid #CFE6EE;
+    border-radius: 54px;
+    font-size: 14px;
+  }
+  
+  .searchIcon {
+    right: 17px;
+  }
+  
+  .mapContainer {
+    height: calc(100% - 67px);
+    padding-top: 135px;
+  }
+  
+  .markerLabel {
+    margin-top: -52px;
+    font-size: 13px;
+  }
+  
+  .userLocationLabel {
+    margin-top: -37px;
+    font-size: 12px;
+  }
+  
+  .modalContent {
+    width: 370px;
+    height: 470px;
+    padding: 23px;
+    border-radius: 23px;
+  }
+  
+  .volumeIndicator {
+    bottom: 87px;
+    right: 23px;
+    width: 165px;
+    padding: 11px;
+    border-radius: 9px;
+  }
+  
+  .volumeBar {
+    height: 11px;
+    border-radius: 5.5px;
+  }
+  
+  .volumeText {
+    font-size: 0.85rem;
+  }
+  
+  .soundAlert {
+    top: 23px;
+  }
+  
+  .alertContent {
+    gap: 11px;
+    padding: 13px 23px;
+    border-radius: 13px;
+    max-width: 330px;
+  }
+  
+  .alertIcon {
+    font-size: 27px;
+  }
+  
+  .alertText {
+    font-size: 15px;
+  }
 } 

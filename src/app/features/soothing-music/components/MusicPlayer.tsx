@@ -19,8 +19,12 @@ const MusicPlayer = () => {
   const [activeMode, setActiveMode] = useState('auto'); // 'auto' or 'manual'
   const [fadeOut, setFadeOut] = useState(false);
   const [detectedSituation, setDetectedSituation] = useState<keyof typeof situationMusicMap | null>(null);
+  const [isDetecting, setIsDetecting] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false); // 控制聲波動畫
+  const [isPlayingSound, setIsPlayingSound] = useState(false); // 控制提示音播放
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const soundTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleModeChange = (mode: string) => {
     setActiveMode(mode);
@@ -29,97 +33,51 @@ const MusicPlayer = () => {
     }
   };
 
-  // 播放哭聲偵測中的聲音
-  useEffect(() => {
-    // 創建一個隱藏的 audio 元素
-    const audioElement = document.createElement('audio');
-    audioElement.src = '/audio/哭聲偵測中.mp3';
-    audioElement.volume = 1.0;
-    audioElement.autoplay = true;
-    audioElement.loop = false;
+  const handleStartDetection = () => {
+    setIsDetecting(true);
+    setIsAnimating(true); // 開始聲波動畫
     
-    // 添加到 DOM 中
-    document.body.appendChild(audioElement);
+    // 創建音頻元素
+    const audio = new Audio('/sounds/crying.mp3');
+    audioRef.current = audio;
     
-    // 嘗試播放
-    const playSound = () => {
-      // 使用 Promise 處理播放
-      const playPromise = audioElement.play();
+    // 設置4秒後播放提示音
+    soundTimerRef.current = setTimeout(() => {
+      setIsPlayingSound(true); // 開始播放提示音
       
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            console.log('音頻開始播放');
-          })
-          .catch(error => {
-            console.error('自動播放失敗:', error);
-            // 如果自動播放失敗，添加點擊事件監聽器
-            const playOnClick = () => {
-              audioElement.play()
-                .then(() => {
-                  console.log('點擊後音頻開始播放');
-                  document.removeEventListener('click', playOnClick);
-                })
-                .catch(console.error);
-            };
-            document.addEventListener('click', playOnClick);
-          });
-      }
-    };
-    
-    // 確保音頻已加載
-    audioElement.addEventListener('canplaythrough', playSound, { once: true });
-    
-    // 如果音頻已經可以播放，立即播放
-    if (audioElement.readyState >= 3) {
-      playSound();
-    }
-    
-    // 組件卸載時清理
-    return () => {
-      audioElement.pause();
-      audioElement.currentTime = 0;
-      document.body.removeChild(audioElement);
-    };
-  }, []);
-
-  // 自動跳轉邏輯
-  useEffect(() => {
-    // 清除之前的計時器
-    if (redirectTimerRef.current) {
-      clearTimeout(redirectTimerRef.current);
-    }
-    
-    // 設置新的計時器，4000毫秒後跳轉
-    redirectTimerRef.current = setTimeout(() => {
-      // 如果是自動模式，隨機選擇一個情況
-      if (activeMode === 'auto') {
-        // 獲取所有可能的情況
-        const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
-        // 隨機選擇一個情況
-        const randomSituation = situations[Math.floor(Math.random() * situations.length)];
-        setDetectedSituation(randomSituation);
-        
-        // 根據情況選擇對應的音樂類型
-        const musicType = situationMusicMap[randomSituation];
-        
-        console.log('4000毫秒後跳轉到音樂播放頁面:', musicType);
-        
-        setFadeOut(true);
-        setTimeout(() => {
-          // 添加 autoplay 參數
-          router.push(`/features/soothing-music/${musicType}?autoplay=true`);
-        }, 500);
-      }
+      // 嘗試播放音頻
+      audio.play().catch(error => {
+        console.error('Autoplay failed:', error);
+        // 添加點擊事件監聽器以處理自動播放限制
+        document.addEventListener('click', () => {
+          audio.play();
+        }, { once: true });
+      });
     }, 4000);
-    
-    // 清理函數
+
+    // 設置重定向計時器
+    redirectTimerRef.current = setTimeout(() => {
+      const situations = ['hungry', 'tired', 'colic'];
+      const randomSituation = situations[Math.floor(Math.random() * situations.length)];
+      router.push(`/features/soothing-music/${randomSituation}`);
+    }, 4000);
+  };
+
+  // 組件卸載時清理計時器和音頻
+  useEffect(() => {
     return () => {
       if (redirectTimerRef.current) {
         clearTimeout(redirectTimerRef.current);
       }
+      if (soundTimerRef.current) {
+        clearTimeout(soundTimerRef.current);
+      }
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
     };
-  }, [activeMode, router]);
+  }, []);
 
   return (
     <div className={`${styles.container} ${fadeOut ? styles.fadeOut : ''}`}>
@@ -157,26 +115,34 @@ const MusicPlayer = () => {
           alt="背景圖"
           width={350}
           height={350}
-          className={styles.backgroundCircle}
+          className={`${styles.backgroundCircle} ${isAnimating ? styles.animate : ''}`}
         />
         <div className={styles.soundWave}>
           {[90, 70, 85, 55, 45, 85, 65].map((height, index) => (
             <div
               key={index}
-              className={styles.soundWaveBar}
+              className={`${styles.soundWaveBar} ${isAnimating ? styles.animate : ''}`}
               style={{
                 height: `${height}px`,
-                animationDelay: `${index * 0.2}s`
+                animationDelay: isAnimating ? `${index * 0.2}s` : '0s'
               }}
             />
           ))}
         </div>
         <div className={styles.detectionText}>
-          <div className={styles.detectionRow}>
-            <span className={styles.staticText}>哭聲偵測中</span>
-            <span className={styles.dots}>...</span>
-          </div>
-  
+          {!isDetecting ? (
+            <button 
+              className={styles.startDetectionButton}
+              onClick={handleStartDetection}
+            >
+              開始偵測
+            </button>
+          ) : (
+            <div className={styles.detectionRow}>
+              <span className={styles.staticText}>哭聲偵測中</span>
+              <span className={styles.dots}>...</span>
+            </div>
+          )}
         </div>
       </div>
     </div>

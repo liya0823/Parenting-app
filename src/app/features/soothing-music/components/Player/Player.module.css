@@ -98,13 +98,11 @@
 }
 
 .restartButton {
-  position: absolute;
-  top: 64%;
-  right:-46%;
-  transform: translate(-200px, -50%);
+  position: relative;
   z-index: 1000;
   cursor: pointer;
   transition: transform 0.2s;
+  margin: 0 10px;
 }
 
 .restartButton:hover {
@@ -112,13 +110,11 @@
 }
 
 .shuffleButton {
-  position: absolute;
-  top: 64%;
-  right: -17%;
-  transform: translate(-400px, -50%);
+  position: relative;
   z-index: 1000;
   cursor: pointer;
   transition: transform 0.2s;
+  margin: 0 10px;
 }
 
 .shuffleButton:hover {
@@ -296,19 +292,15 @@
   }
 
   .restartButton {
-    top: 62%;
-    right: -42%;
-    transform: translate(-180px, -50%);
     width: 35px;
     height: 35px;
+    margin: 0 8px;
   }
 
   .shuffleButton {
-    top: 62%;
-    right: -12%;
-    transform: translate(-360px, -50%);
     width: 30px;
     height: 30px;
+    margin: 0 8px;
   }
 
   .playerControls {
@@ -348,6 +340,476 @@
   .songTitle {
     font-size: 30px;
     top: 65px;
+  }
+}
+
+/* iPhone 12/13/14 Pro Max (428x926) */
+@media screen and (min-width: 428px) and (min-height: 926px) {
+  .container {
+    padding: 0;
+  }
+
+  .phoneContainer {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .userIcon {
+    right: 18px;
+    top: 15px;
+    margin-right: -9px;
+  }
+
+  .statusBar {
+    height: 42px;
+    padding: 11px 22px;
+  }
+
+  .icon {
+    width: 17px;
+    height: 17px;
+  }
+
+  .backIcon {
+    top: 11px;
+    left: 9px;
+  }
+
+  .mainContent {
+    padding-bottom: 90px;
+  }
+
+  .animalImage {
+    padding: 13% !important;
+    max-width: 67% !important;
+    max-height: 67% !important;
+  }
+
+  .restartButton {
+    width: 45px;
+    height: 45px;
+    margin: 0 12px;
+  }
+
+  .shuffleButton {
+    width: 40px;
+    height: 40px;
+    margin: 0 12px;
+  }
+
+  .playerControls {
+    gap: 9px;
+    margin-bottom: 110px;
+  }
+
+  .playButton img {
+    width: 115px;
+    height: 115px;
+  }
+
+  .navbar {
+    height: 62px;
+  }
+
+  .navButton {
+    padding: 3.5px;
+    gap: 1.5px;
+  }
+
+  .navButton img {
+    width: 39px;
+    height: 39px;
+    margin-bottom: -1.5px;
+  }
+
+  .navText {
+    font-size: 11.5px;
+  }
+
+  .anxinwei {
+    font-size: 18px;
+    top: 17px;
+  }
+
+  .songTitle {
+    font-size: 31px;
+    top: 67px;
+  }
+}
+
+/* Google Pixel 4a (393x851) */
+@media screen and (min-width: 393px) and (min-height: 851px) and (max-width: 427px) and (max-height: 925px) {
+  .container {
+    padding: 0;
+  }
+
+  .phoneContainer {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .userIcon {
+    right: 16px;
+    top: 14px;
+    margin-right: -8.5px;
+  }
+
+  .statusBar {
+    height: 41px;
+    padding: 10.5px 21px;
+  }
+
+  .icon {
+    width: 16.5px;
+    height: 16.5px;
+  }
+
+  .backIcon {
+    top: 10.5px;
+    left: 8.5px;
+  }
+
+  .mainContent {
+    padding-bottom: 85px;
+  }
+
+  .animalImage {
+    padding: 12.5% !important;
+    max-width: 66% !important;
+    max-height: 66% !important;
+  }
+
+  .restartButton {
+    width: 42px;
+    height: 42px;
+    margin: 0 11px;
+  }
+
+  .shuffleButton {
+    width: 38px;
+    height: 38px;
+    margin: 0 11px;
+  }
+
+  .playerControls {
+    gap: 8.5px;
+    margin-bottom: 105px;
+  }
+
+  .playButton img {
+    width: 112px;
+    height: 112px;
+  }
+
+  .navbar {
+    height: 61px;
+  }
+
+  .navButton {
+    padding: 3.2px;
+    gap: 1.2px;
+  }
+
+  .navButton img {
+    width: 38.5px;
+    height: 38.5px;
+    margin-bottom: -1.2px;
+  }
+
+  .navText {
+    font-size: 11.2px;
+  }
+
+  .anxinwei {
+    font-size: 18px;
+    top: 16px;
+  }
+
+  .songTitle {
+    font-size: 30.5px;
+    top: 66px;
+  }
+}
+
+/* Samsung Galaxy S21 (412x915) */
+@media screen and (min-width: 412px) and (min-height: 915px) and (max-width: 427px) and (max-height: 925px) {
+  .container {
+    padding: 0;
+  }
+
+  .phoneContainer {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .userIcon {
+    right: 17px;
+    top: 14.5px;
+    margin-right: -8.8px;
+  }
+
+  .statusBar {
+    height: 41.5px;
+    padding: 10.8px 21.5px;
+  }
+
+  .icon {
+    width: 16.8px;
+    height: 16.8px;
+  }
+
+  .backIcon {
+    top: 10.8px;
+    left: 8.8px;
+  }
+
+  .mainContent {
+    padding-bottom: 87px;
+  }
+
+  .animalImage {
+    padding: 12.8% !important;
+    max-width: 66.5% !important;
+    max-height: 66.5% !important;
+  }
+
+  .restartButton {
+    width: 43px;
+    height: 43px;
+    margin: 0 11px;
+  }
+
+  .shuffleButton {
+    width: 39px;
+    height: 39px;
+    margin: 0 11px;
+  }
+
+  .playerControls {
+    gap: 8.8px;
+    margin-bottom: 107px;
+  }
+
+  .playButton img {
+    width: 113px;
+    height: 113px;
+  }
+
+  .navbar {
+    height: 61.5px;
+  }
+
+  .navButton {
+    padding: 3.3px;
+    gap: 1.3px;
+  }
+
+  .navButton img {
+    width: 38.8px;
+    height: 38.8px;
+    margin-bottom: -1.3px;
+  }
+
+  .navText {
+    font-size: 11.3px;
+  }
+
+  .anxinwei {
+    font-size: 18px;
+    top: 16.5px;
+  }
+
+  .songTitle {
+    font-size: 30.8px;
+    top: 66.5px;
+  }
+}
+
+/* iPad Mini (768x1024) */
+@media screen and (min-width: 768px) and (min-height: 1024px) {
+  .container {
+    padding: 0;
+  }
+
+  .phoneContainer {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .userIcon {
+    right: 25px;
+    top: 20px;
+    margin-right: -12px;
+  }
+
+  .statusBar {
+    height: 50px;
+    padding: 15px 30px;
+  }
+
+  .icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .backIcon {
+    top: 15px;
+    left: 12px;
+  }
+
+  .mainContent {
+    padding-bottom: 120px;
+  }
+
+  .animalImage {
+    padding: 18% !important;
+    max-width: 75% !important;
+    max-height: 75% !important;
+  }
+
+  .restartButton {
+    width: 55px;
+    height: 55px;
+    margin: 0 15px;
+  }
+
+  .shuffleButton {
+    width: 50px;
+    height: 50px;
+    margin: 0 15px;
+  }
+
+  .playerControls {
+    gap: 12px;
+    margin-bottom: 140px;
+  }
+
+  .playButton img {
+    width: 140px;
+    height: 140px;
+  }
+
+  .navbar {
+    height: 75px;
+  }
+
+  .navButton {
+    padding: 5px;
+    gap: 3px;
+  }
+
+  .navButton img {
+    width: 50px;
+    height: 50px;
+    margin-bottom: -2px;
+  }
+
+  .navText {
+    font-size: 14px;
+  }
+
+  .anxinwei {
+    font-size: 22px;
+    top: 25px;
+  }
+
+  .songTitle {
+    font-size: 38px;
+    top: 80px;
+  }
+}
+
+/* iPad Pro 12.9" (1024x1366) */
+@media screen and (min-width: 1024px) and (min-height: 1366px) {
+  .container {
+    padding: 0;
+  }
+
+  .phoneContainer {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .userIcon {
+    right: 30px;
+    top: 25px;
+    margin-right: -15px;
+  }
+
+  .statusBar {
+    height: 60px;
+    padding: 18px 36px;
+  }
+
+  .icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .backIcon {
+    top: 18px;
+    left: 15px;
+  }
+
+  .mainContent {
+    padding-bottom: 150px;
+  }
+
+  .animalImage {
+    padding: 20% !important;
+    max-width: 80% !important;
+    max-height: 80% !important;
+  }
+
+  .restartButton {
+    width: 65px;
+    height: 65px;
+    margin: 0 18px;
+  }
+
+  .shuffleButton {
+    width: 60px;
+    height: 60px;
+    margin: 0 18px;
+  }
+
+  .playerControls {
+    gap: 15px;
+    margin-bottom: 170px;
+  }
+
+  .playButton img {
+    width: 170px;
+    height: 170px;
+  }
+
+  .navbar {
+    height: 90px;
+  }
+
+  .navButton {
+    padding: 6px;
+    gap: 4px;
+  }
+
+  .navButton img {
+    width: 60px;
+    height: 60px;
+    margin-bottom: -3px;
+  }
+
+  .navText {
+    font-size: 16px;
+  }
+
+  .anxinwei {
+    font-size: 26px;
+    top: 30px;
+  }
+
+  .songTitle {
+    font-size: 44px;
+    top: 90px;
   }
 }
 

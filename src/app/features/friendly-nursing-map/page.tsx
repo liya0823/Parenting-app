@@ -626,7 +626,7 @@ export default function FriendlyNursingMap() {
         const dataArray = new Uint8Array(bufferLength);
         
         // 降低音量閾值，使檢測更靈敏
-        const volumeThreshold = 40;
+        const volumeThreshold = 70;
         
         // 初始化提示音
         notificationAudioRef.current = new Audio('/audio/偵測提示.mp3');
@@ -697,14 +697,14 @@ export default function FriendlyNursingMap() {
                   // 顯示提示後，延遲 2 秒跳轉到舒緩音樂頁面
                   setTimeout(() => {
                     router.push('/features/soothing-music');
-                  }, 2000);
+                  }, 4000);
                   // 5 秒後隱藏提示
                   setTimeout(() => setShowSoundAlert(false), 5000);
                   
                   // 重置檢測狀態
                   soundStartTimeRef.current = null;
                 }
-              }, 1500); // 改為 1.5 秒
+              }, 2000); // 改為 1.5 秒
             }
           } else {
             // 如果聲音低於閾值，重置計時器
