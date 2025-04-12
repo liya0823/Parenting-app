@@ -38,7 +38,7 @@ const MusicPlayer = () => {
     setIsAnimating(true); // 開始聲波動畫
     
     // 創建音頻元素，使用正確的音頻文件路徑
-    const audio = new Audio('/audio/偵測提示.mp3');
+    const audio = new Audio('/audio/哭聲偵測中.mp3');
     audioRef.current = audio;
     
     // 立即播放提示音
