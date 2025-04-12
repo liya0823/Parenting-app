@@ -610,12 +610,20 @@ export default function FriendlyNursingMap() {
     gestureHandling: 'greedy'
   };
 
-  // 自動開始聲音檢測
+  // 在 useEffect 中添加清理函數
   useEffect(() => {
+    let cleanupFunction: (() => void) | undefined;
+    let isComponentMounted = true; // 添加組件掛載狀態標記
+    
     // 自動開始聲音檢測
     const initAudio = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        if (!isComponentMounted) {
+          stream.getTracks().forEach(track => track.stop());
+          return;
+        }
+        
         mediaStreamRef.current = stream;
         const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
         const source = audioContext.createMediaStreamSource(stream);
@@ -659,6 +667,8 @@ export default function FriendlyNursingMap() {
         };
         
         const checkVolume = () => {
+          if (!isListeningRef.current || !isComponentMounted) return;
+          
           analyser.getByteFrequencyData(dataArray);
           const average = dataArray.reduce((a, b) => a + b) / bufferLength;
           
@@ -667,6 +677,8 @@ export default function FriendlyNursingMap() {
               soundStartTimeRef.current = Date.now();
               
               soundDetectionTimeoutRef.current = setTimeout(() => {
+                if (!isComponentMounted) return;
+                
                 // 如果 1.5 秒後仍然在檢測中，則觸發提示
                 if (soundStartTimeRef.current !== null && !isPlayingNotification) {
                   setShowSoundAlert(true);
@@ -675,7 +687,7 @@ export default function FriendlyNursingMap() {
                   // 暫停麥克風
                   pauseMicrophone();
                   
-                  // 創建新的音頻實例
+                  // 確保清理舊的音頻實例
                   if (notificationAudioRef.current) {
                     notificationAudioRef.current.pause();
                     notificationAudioRef.current.currentTime = 0;
@@ -683,14 +695,18 @@ export default function FriendlyNursingMap() {
                   }
                   
                   // 創建新的音頻實例並設置音量
-                  notificationAudioRef.current = new Audio('/audio/偵測提示.mp3');
-                  notificationAudioRef.current.volume = 1.0; // 設置音量為最大
+                  notificationAudioRef.current = new Audio('/audio/哭聲偵測中.mp3');
+                  notificationAudioRef.current.volume = 1.0;
                   
                   // 播放提示音
                   notificationAudioRef.current.play()
                     .then(() => {
+                      if (!isComponentMounted) return;
+                      
                       // 等待音頻播放完成
                       notificationAudioRef.current?.addEventListener('ended', () => {
+                        if (!isComponentMounted) return;
+                        
                         // 播放完成後恢復麥克風
                         resumeMicrophone();
                         // 清理音頻實例
@@ -704,6 +720,8 @@ export default function FriendlyNursingMap() {
                     })
                     .catch(error => {
                       console.error('Error playing notification sound:', error);
+                      if (!isComponentMounted) return;
+                      
                       // 發生錯誤時也要恢復麥克風
                       resumeMicrophone();
                       // 清理音頻實例
@@ -717,10 +735,15 @@ export default function FriendlyNursingMap() {
                   
                   // 顯示提示後，延遲 2 秒跳轉到舒緩音樂頁面
                   setTimeout(() => {
+                    if (!isComponentMounted) return;
                     router.push('/features/soothing-music');
                   }, 4000);
+                  
                   // 5 秒後隱藏提示
-                  setTimeout(() => setShowSoundAlert(false), 5000);
+                  setTimeout(() => {
+                    if (!isComponentMounted) return;
+                    setShowSoundAlert(false);
+                  }, 5000);
                   
                   // 重置檢測狀態
                   soundStartTimeRef.current = null;
@@ -738,7 +761,9 @@ export default function FriendlyNursingMap() {
             }
           }
           
-          requestAnimationFrame(checkVolume);
+          if (isListeningRef.current && isComponentMounted) {
+            requestAnimationFrame(checkVolume);
+          }
         };
         
         // 初始化麥克風狀態
@@ -746,11 +771,18 @@ export default function FriendlyNursingMap() {
         isPlayingRef.current = false;
         checkVolume();
         
-        return () => {
+        // 設置清理函數
+        cleanupFunction = () => {
+          isComponentMounted = false; // 標記組件已卸載
+          isListeningRef.current = false; // 停止聲音檢測
+          
+          // 停止所有音頻相關的活動
           if (mediaStreamRef.current) {
             mediaStreamRef.current.getTracks().forEach(track => track.stop());
           }
-          audioContext.close();
+          if (audioContext) {
+            audioContext.close();
+          }
           // 清理計時器
           if (soundDetectionTimeoutRef.current) {
             clearTimeout(soundDetectionTimeoutRef.current);
@@ -769,6 +801,13 @@ export default function FriendlyNursingMap() {
     };
     
     initAudio();
+    
+    // 確保在組件卸載時執行清理
+    return () => {
+      if (cleanupFunction) {
+        cleanupFunction();
+      }
+    };
   }, [router]);
 
   return (
