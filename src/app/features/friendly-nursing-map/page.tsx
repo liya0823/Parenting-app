@@ -635,7 +635,7 @@ export default function FriendlyNursingMap() {
         const dataArray = new Uint8Array(bufferLength);
         
         // 降低音量閾值，使檢測更靈敏
-        const volumeThreshold = 35;
+        const volumeThreshold = 45;
         
         // 初始化提示音
         if (notificationAudioRef.current) {
@@ -695,7 +695,7 @@ export default function FriendlyNursingMap() {
                   }
                   
                   // 創建新的音頻實例並設置音量
-                  notificationAudioRef.current = new Audio('/audio/哭聲偵測中.mp3');
+                  notificationAudioRef.current = new Audio('/audio/偵測提示.mp3');
                   notificationAudioRef.current.volume = 1.0;
                   
                   // 播放提示音
