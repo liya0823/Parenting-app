@@ -63,7 +63,7 @@ const MusicPlayer = () => {
       const musicType = situationMusicMap[randomSituation];
       
       // 跳轉到對應的音樂頁面
-      router.push(`/features/soothing-music/playlist/${musicType}`);
+      router.push(`/features/soothing-music/${musicType}?autoplay=true`);
     }, 4000);
   };
 

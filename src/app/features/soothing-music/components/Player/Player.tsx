@@ -25,9 +25,10 @@ const Player: React.FC<PlayerProps> = ({ title, audioSrc, imageSrc, onClose, onP
 
   // 定義所有可用的音樂類型
   const musicTypes = [
-    'ocean', 'rain', 'fire', 'bird', 'wind', 'stream',
-    'shush', 'lullaby', 'cradle', 'dog', 'sheep', 'elephant',
-    'rattle', 'cat', 'duck', 'bear', 'frog'
+    // 自然聲音
+    'ocean', 'rain', 'fire', 'bird', 'stream', 'wind', 'lullaby', 'cradle', 'shush',
+    // 動畫聲音
+    'dog', 'sheep', 'elephant', 'rattle', 'cat', 'duck', 'bear', 'frog'
   ];
 
   const handleNavClick = (num: number) => {

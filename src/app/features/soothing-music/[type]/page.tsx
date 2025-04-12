@@ -37,7 +37,7 @@ const naturalMusicList = [
   {
     type: 'stream',
     title: '溪流聲',
-    audioSrc: '/audio/66666.mp3',
+    audioSrc: '/audio/水.mp3',
     imageSrc: '/images/66666.jpg'
   },
   {
@@ -179,8 +179,10 @@ export default function MusicTypePage({ params }: { params: { type: string } }) 
       if (params.type in notificationMessages) {
         return notificationMessages[params.type as keyof typeof notificationMessages];
       }
+      // 如果沒有對應的提示窗文案，返回默認文案
+      return notificationMessages.default;
     }
-    // 默認提示窗文案
+    // 非自動播放模式返回默認提示窗文案
     return notificationMessages.default;
   };
 
@@ -204,7 +206,7 @@ export default function MusicTypePage({ params }: { params: { type: string } }) 
     }
   };
 
-  // 初始化主音樂
+  // 初始化主音樂和提示音
   useEffect(() => {
     if (autoplay) {
       const musicData = getMusicData();
@@ -213,14 +215,24 @@ export default function MusicTypePage({ params }: { params: { type: string } }) 
       // 設置主音樂為暫停狀態，等待提示音結束後再播放
       mainAudioRef.current.pause();
       
+      // 創建並播放提示音
+      const notificationAudio = new Audio(`/audio/${notificationMessage.sound}`);
+      notificationAudio.addEventListener('ended', handleNotificationEnded);
+      notificationAudio.play().catch(error => {
+        console.error('播放提示音失敗:', error);
+        // 如果提示音播放失敗，直接播放主音樂
+        handleNotificationEnded();
+      });
+      
       return () => {
         if (mainAudioRef.current) {
           mainAudioRef.current.pause();
           mainAudioRef.current = null;
         }
+        notificationAudio.removeEventListener('ended', handleNotificationEnded);
       };
     }
-  }, [autoplay]);
+  }, [autoplay, notificationMessage.sound]);
 
   const handlePrevious = () => {
     const prevIndex = currentIndex > 0 ? currentIndex - 1 : currentList.length - 1;
