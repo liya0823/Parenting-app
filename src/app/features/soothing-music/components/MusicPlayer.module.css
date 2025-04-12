@@ -222,12 +222,14 @@
   color: #333;
   font-size: 18px;
   font-weight: bold;
+  transition: all 0.3s ease;
 }
 
 .detectionRow {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 5px;
 }
 
 .staticText {
@@ -237,6 +239,11 @@
   text-align: center;
   color: #FACFC5;
   margin-right: 5px;
+  transition: color 0.3s ease;
+}
+
+.detecting .staticText {
+  color: #CCEAEC;
 }
 
 .dots {
@@ -505,35 +512,49 @@
 }
 }
 
+
 .startDetectionButton {
   position: absolute;
   bottom: 15%;
   left: 50%;
   transform: translateX(-50%);
-  padding: 12px 30px;
+  padding: 12px 24px;
   background-color: #FACFC5;
   color: white;
   border: none;
   border-radius: 25px;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 3px 6px rgba(250, 207, 197, 0.3);
-  z-index: 2;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  min-width: 120px;
+  text-align: center;
 }
 
 .startDetectionButton:hover {
   transform: translateX(-50%) scale(1.05);
-  box-shadow: 0 4px 8px rgba(250, 207, 197, 0.4);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .startDetectionButton:active {
   transform: translateX(-50%) scale(0.95);
+}
+
+.startDetectionButton.detecting {
   background-color: #CCEAEC;
 }
 
 .startDetectionButton:focus {
   outline: none;
+}
+
+/* 移除不需要的樣式 */
+.detectionText,
+.detectionRow,
+.staticText,
+.dots {
+  display: none;
 }
 

@@ -26,6 +26,8 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ onModeChange }) => {
   const [isDetecting, setIsDetecting] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false); // 控制聲波動畫
   const [isPlayingSound, setIsPlayingSound] = useState(false); // 控制提示音播放
+  const [buttonText, setButtonText] = useState('開始偵測');
+  const [detectionText, setDetectionText] = useState('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
   const soundTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -68,38 +70,47 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ onModeChange }) => {
 
   const handleStartDetection = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaStreamRef.current = stream;
-      
-      const audioContext = new AudioContext();
-      audioContextRef.current = audioContext;
-      
-      const source = audioContext.createMediaStreamSource(stream);
-      const analyser = audioContext.createAnalyser();
-      analyserRef.current = analyser;
-      
-      source.connect(analyser);
-      analyser.fftSize = 256;
-      
-      const bufferLength = analyser.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
-      
-      const checkVolume = () => {
-        if (!analyserRef.current) return;
+      if (!isDetecting) {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaStreamRef.current = stream;
         
-        analyserRef.current.getByteFrequencyData(dataArray);
-        const average = dataArray.reduce((a, b) => a + b) / bufferLength;
-        setVolume(average);
+        const audioContext = new AudioContext();
+        audioContextRef.current = audioContext;
         
-        if (average > 30) {
-          playNotificationSound();
-        }
+        const source = audioContext.createMediaStreamSource(stream);
+        const analyser = audioContext.createAnalyser();
+        analyserRef.current = analyser;
         
-        animationFrameRef.current = requestAnimationFrame(checkVolume);
-      };
-      
-      checkVolume();
-      setIsDetecting(true);
+        source.connect(analyser);
+        analyser.fftSize = 256;
+        
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        
+        const checkVolume = () => {
+          if (!analyserRef.current) return;
+          
+          analyserRef.current.getByteFrequencyData(dataArray);
+          const average = dataArray.reduce((a, b) => a + b) / bufferLength;
+          setVolume(average);
+          
+          if (average > 30) {
+            playNotificationSound();
+          }
+          
+          animationFrameRef.current = requestAnimationFrame(checkVolume);
+        };
+        
+        checkVolume();
+        setIsDetecting(true);
+        setButtonText('哭聲偵測中');
+        setDetectionText('');
+      } else {
+        cleanupAudio();
+        setIsDetecting(false);
+        setButtonText('開始偵測');
+        setDetectionText('');
+      }
     } catch (error) {
       console.error('Error accessing microphone:', error);
     }
@@ -148,7 +159,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ onModeChange }) => {
     <div className={`${styles.container} ${fadeOut ? styles.fadeOut : ''}`}>
       <div className={styles.header}>
         <div className={styles.logoWrapper}>
-          <span className={styles.anxinwei}>安心餵</span>
+          <span className={styles.anxinwei}>安撫音樂</span>
           <Image
             src="/User.png"
             alt="使用者"
@@ -194,17 +205,11 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ onModeChange }) => {
             />
           ))}
         </div>
-        <div className={styles.detectionText}>
-          <div className={styles.detectionRow}>
-            <span className={styles.staticText}>正在偵測</span>
-            <span className={styles.dots}>...</span>
-          </div>
-        </div>
         <button
-          className={styles.startDetectionButton}
-          onClick={isDetecting ? cleanupAudio : handleStartDetection}
+          className={`${styles.startDetectionButton} ${isDetecting ? styles.detecting : ''}`}
+          onClick={handleStartDetection}
         >
-          {isDetecting ? '停止偵測' : '開始偵測'}
+          {buttonText}
         </button>
       </div>
     </div>
