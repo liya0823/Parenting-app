@@ -627,7 +627,7 @@ export default function FriendlyNursingMap() {
         const dataArray = new Uint8Array(bufferLength);
         
         // 降低音量閾值，使檢測更靈敏
-        const volumeThreshold = 50;
+        const volumeThreshold = 55;
         
         // 初始化提示音
         if (notificationAudioRef.current) {
