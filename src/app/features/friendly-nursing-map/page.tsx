@@ -695,16 +695,17 @@ export default function FriendlyNursingMap() {
                   }
                   
                   // 創建新的音頻實例並設置音量
-                  notificationAudioRef.current = new Audio('/audio/偵測提示.mp3');
-                  notificationAudioRef.current.volume = 1.0;
+                  const audio = new Audio('/audio/偵測提示.mp3');
+                  audio.volume = 1.0;
+                  notificationAudioRef.current = audio;
                   
                   // 播放提示音
-                  notificationAudioRef.current.play()
+                  audio.play()
                     .then(() => {
                       if (!isComponentMounted) return;
                       
                       // 等待音頻播放完成
-                      notificationAudioRef.current?.addEventListener('ended', () => {
+                      audio.addEventListener('ended', () => {
                         if (!isComponentMounted) return;
                         
                         // 播放完成後恢復麥克風

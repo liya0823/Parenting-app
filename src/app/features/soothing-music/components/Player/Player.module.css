@@ -138,6 +138,8 @@
   gap: 10px;
   margin-bottom: 120px;
   position: relative;
+  width: 100%;
+  height: 60px;
 }
 
 .playButton {
@@ -147,6 +149,7 @@
   padding: 0;
   transition: transform 0.2s;
   z-index: 1;
+  margin: 0 15px;
 }
 
 .playButton:hover {
@@ -822,36 +825,3 @@
 }
 
 /* 移除不支持的:global(body)选择器 */
-
-.controlsContainer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  margin: 20px 0;
-}
-
-.controlButton {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease;
-}
-
-.controlButton:hover {
-  transform: scale(1.1);
-}
-
-.controlButton:active {
-  transform: scale(0.95);
-}
-
-.controlButton svg {
-  width: 24px;
-  height: 24px;
-  fill: #333;
-}

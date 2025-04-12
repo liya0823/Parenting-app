@@ -30,26 +30,26 @@
     }
 }
 .anxinwei {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    color: #CCEAEC;
-    font-size: 18px;
-    font-style: bold ;
-    font-weight: 800;
-    z-index: 5;
-    top: 20px;
-  }
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #CCEAEC;
+  font-size: 18px;
+  font-style: bold ;
+  font-weight: 800;
+  z-index: 5;
+  top: 20px;
+}
 
-  .userIcon {
-    position: absolute;
-    right: 20px;
-    top: 15px;
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
-    z-index: 5;
-    margin-right: -10px;
+.userIcon {
+  position: absolute;
+  right: 20px;
+  top: 15px;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  z-index: 5;
+  margin-right: -10px;
 }
 
 .scrollableContent {
