@@ -51,13 +51,8 @@ const Player: React.FC<PlayerProps> = ({ title, audioSrc, imageSrc, onClose, onP
 
   // 隨機播放功能
   const handleShuffle = () => {
-    const currentType = type;
-    let newType;
-    do {
-      newType = musicTypes[Math.floor(Math.random() * musicTypes.length)];
-    } while (newType === currentType); // 確保不會選到當前正在播放的音樂
-
-    // 根據新的類型構建路由
+    const randomIndex = Math.floor(Math.random() * musicTypes.length);
+    const newType = musicTypes[randomIndex];
     router.push(`/features/soothing-music/${newType}?autoplay=true`);
   };
 
