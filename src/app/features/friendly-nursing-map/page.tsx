@@ -627,7 +627,7 @@ export default function FriendlyNursingMap() {
         const dataArray = new Uint8Array(bufferLength);
         
         // 降低音量閾值，使檢測更靈敏
-        const volumeThreshold = 40;
+        const volumeThreshold = 50;
         
         // 初始化提示音
         if (notificationAudioRef.current) {
@@ -724,7 +724,7 @@ export default function FriendlyNursingMap() {
                   // 重置檢測狀態
                   soundStartTimeRef.current = null;
                 }
-              }, 2000);
+              }, 1500);
             }
           } else {
             // 如果聲音低於閾值，重置計時器
