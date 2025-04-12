@@ -53,6 +53,17 @@ const MusicPlayer = () => {
         audio.currentTime = 0;
       };
       await audio.play();
+
+      // 設置重定向計時器
+      redirectTimerRef.current = setTimeout(() => {
+        // 從 situationMusicMap 中隨機選擇一個情況
+        const situations = Object.keys(situationMusicMap) as (keyof typeof situationMusicMap)[];
+        const randomSituation = situations[Math.floor(Math.random() * situations.length)];
+        const musicType = situationMusicMap[randomSituation];
+        
+        // 跳轉到對應的音樂頁面
+        router.push(`/features/soothing-music/${musicType}?autoplay=true`);
+      }, 4000);
     } catch (error) {
       console.error('Failed to play detection sound:', error);
     }
