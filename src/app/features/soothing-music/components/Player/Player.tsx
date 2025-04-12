@@ -188,44 +188,45 @@ const Player: React.FC<PlayerProps> = ({ title, audioSrc, imageSrc, onClose, onP
             className={styles.backgroundImage}
           />
           
-          <Image
-            src="/Restart.png"
-            alt="重新播放"
-            width={40}
-            height={40}
-            className={styles.restartButton}
-            onClick={handleRestart}
-          />
-          <Image
-            src="/Shuffle.png"
-            alt="隨機播放"
-            width={35}
-            height={35}
-            className={styles.shuffleButton}
-            onClick={handleShuffle}
-          />
-
-          <div className={styles.playerControls}>
+          <div className={styles.controlsContainer}>
             <Image
-              src="/L1.png"
+              src="/Previous.png"
               alt="上一首"
-              width={50}
-              height={50}
+              width={40}
+              height={40}
+              className={styles.controlButton}
               onClick={onPrevious}
             />
-            <button className={styles.playButton} onClick={handlePlayPause}>
-              <Image
-                src={isPlaying ? '/pause.png' : '/play.png'}
-                alt={isPlaying ? '暫停' : '播放'}
-                width={124}
-                height={124}
-              />
-            </button>
             <Image
-              src="/Right.png"
+              src="/Restart.png"
+              alt="重新播放"
+              width={40}
+              height={40}
+              className={styles.controlButton}
+              onClick={handleRestart}
+            />
+            <Image
+              src={isPlaying ? "/Pause.png" : "/Play.png"}
+              alt={isPlaying ? "暫停" : "播放"}
+              width={60}
+              height={60}
+              className={styles.controlButton}
+              onClick={handlePlayPause}
+            />
+            <Image
+              src="/Shuffle.png"
+              alt="隨機播放"
+              width={40}
+              height={40}
+              className={styles.controlButton}
+              onClick={handleShuffle}
+            />
+            <Image
+              src="/Next.png"
               alt="下一首"
-              width={50}
-              height={50}
+              width={40}
+              height={40}
+              className={styles.controlButton}
               onClick={onNext}
             />
           </div>
