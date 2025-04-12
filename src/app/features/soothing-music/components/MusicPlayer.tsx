@@ -71,6 +71,11 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ onModeChange }) => {
   const handleStartDetection = async () => {
     try {
       if (!isDetecting) {
+        setIsDetecting(true);
+        setButtonText('哭聲偵測中');
+        setDetectionText('');
+        setIsAnimating(true);
+
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         mediaStreamRef.current = stream;
         
@@ -102,10 +107,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ onModeChange }) => {
         };
         
         checkVolume();
-        setIsDetecting(true);
-        setButtonText('哭聲偵測中');
-        setDetectionText('');
-        setIsAnimating(true);
       } else {
         cleanupAudio();
         setIsDetecting(false);
@@ -115,6 +116,10 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ onModeChange }) => {
       }
     } catch (error) {
       console.error('Error accessing microphone:', error);
+      setIsDetecting(false);
+      setButtonText('開始偵測');
+      setDetectionText('無法存取麥克風');
+      setIsAnimating(false);
     }
   };
 
