@@ -20,12 +20,12 @@ interface MusicPlayerProps {
 
 const MusicPlayer: React.FC<MusicPlayerProps> = ({ onModeChange }) => {
   const router = useRouter();
-  const [activeMode, setActiveMode] = useState('auto'); // 'auto' or 'manual'
+  const [activeMode, setActiveMode] = useState('auto');
   const [fadeOut, setFadeOut] = useState(false);
   const [detectedSituation, setDetectedSituation] = useState<keyof typeof situationMusicMap | null>(null);
   const [isDetecting, setIsDetecting] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false); // 控制聲波動畫
-  const [isPlayingSound, setIsPlayingSound] = useState(false); // 控制提示音播放
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [isPlayingSound, setIsPlayingSound] = useState(false);
   const [buttonText, setButtonText] = useState('開始偵測');
   const [detectionText, setDetectionText] = useState('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -42,7 +42,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ onModeChange }) => {
   const animationFrameRef = useRef<number>();
 
   const handleModeChange = (mode: string) => {
-    setCurrentMode(mode);
+    setActiveMode(mode);
     onModeChange(mode);
     cleanupAudio();
   };
@@ -105,11 +105,13 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ onModeChange }) => {
         setIsDetecting(true);
         setButtonText('哭聲偵測中');
         setDetectionText('');
+        setIsAnimating(true);
       } else {
         cleanupAudio();
         setIsDetecting(false);
         setButtonText('開始偵測');
         setDetectionText('');
+        setIsAnimating(false);
       }
     } catch (error) {
       console.error('Error accessing microphone:', error);
@@ -159,7 +161,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ onModeChange }) => {
     <div className={`${styles.container} ${fadeOut ? styles.fadeOut : ''}`}>
       <div className={styles.header}>
         <div className={styles.logoWrapper}>
-          <span className={styles.anxinwei}>安撫音樂</span>
+          <span className={styles.anxinwei}>安心餵</span>
           <Image
             src="/User.png"
             alt="使用者"
@@ -197,9 +199,9 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ onModeChange }) => {
           {[...Array(20)].map((_, i) => (
             <div
               key={i}
-              className={`${styles.soundWaveBar} ${isDetecting ? styles.animate : ''}`}
+              className={`${styles.soundWaveBar} ${isAnimating ? styles.animate : ''}`}
               style={{
-                height: isDetecting ? `${Math.max(20, volume * 2)}px` : '20px',
+                height: isAnimating ? `${Math.max(20, volume * 2)}px` : '20px',
                 animationDelay: `${i * 0.1}s`
               }}
             />
