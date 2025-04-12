@@ -499,6 +499,7 @@ export default function FriendlyNursingMap() {
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const isListeningRef = useRef<boolean>(false);
   const isPlayingRef = useRef<boolean>(false);
+  const [isPlayingNotification, setIsPlayingNotification] = useState(false);
 
   // 當選擇新的店家時重置圖片索引
   useEffect(() => {
@@ -634,7 +635,6 @@ export default function FriendlyNursingMap() {
           notificationAudioRef.current.currentTime = 0;
           notificationAudioRef.current = null;
         }
-        notificationAudioRef.current = new Audio('/audio/偵測提示.mp3');
         
         // 暫停麥克風的函數
         const pauseMicrophone = () => {
@@ -663,38 +663,56 @@ export default function FriendlyNursingMap() {
           const average = dataArray.reduce((a, b) => a + b) / bufferLength;
           
           if (average > volumeThreshold) {
-            if (soundStartTimeRef.current === null) {
+            if (soundStartTimeRef.current === null && !isPlayingNotification) {
               soundStartTimeRef.current = Date.now();
               
               soundDetectionTimeoutRef.current = setTimeout(() => {
                 // 如果 1.5 秒後仍然在檢測中，則觸發提示
-                if (soundStartTimeRef.current !== null) {
+                if (soundStartTimeRef.current !== null && !isPlayingNotification) {
                   setShowSoundAlert(true);
+                  setIsPlayingNotification(true);
                   
                   // 暫停麥克風
                   pauseMicrophone();
                   
-                  // 播放提示音
+                  // 確保清理舊的音頻實例
                   if (notificationAudioRef.current) {
-                    notificationAudioRef.current.currentTime = 0; // 重置音頻位置
-                    notificationAudioRef.current.play()
-                      .then(() => {
-                        // 等待音頻播放完成
-                        notificationAudioRef.current?.addEventListener('ended', () => {
-                          // 播放完成後恢復麥克風
-                          resumeMicrophone();
-                          // 清理音頻實例
-                          notificationAudioRef.current = null;
-                        }, { once: true });
-                      })
-                      .catch(error => {
-                        console.error('Error playing notification sound:', error);
-                        // 發生錯誤時也要恢復麥克風
+                    notificationAudioRef.current.pause();
+                    notificationAudioRef.current.currentTime = 0;
+                    notificationAudioRef.current = null;
+                  }
+                  
+                  // 創建新的音頻實例
+                  notificationAudioRef.current = new Audio('/audio/偵測提示.mp3');
+                  
+                  // 播放提示音
+                  notificationAudioRef.current.play()
+                    .then(() => {
+                      // 等待音頻播放完成
+                      notificationAudioRef.current?.addEventListener('ended', () => {
+                        // 播放完成後恢復麥克風
                         resumeMicrophone();
                         // 清理音頻實例
+                        if (notificationAudioRef.current) {
+                          notificationAudioRef.current.pause();
+                          notificationAudioRef.current.currentTime = 0;
+                          notificationAudioRef.current = null;
+                        }
+                        setIsPlayingNotification(false);
+                      }, { once: true });
+                    })
+                    .catch(error => {
+                      console.error('Error playing notification sound:', error);
+                      // 發生錯誤時也要恢復麥克風
+                      resumeMicrophone();
+                      // 清理音頻實例
+                      if (notificationAudioRef.current) {
+                        notificationAudioRef.current.pause();
+                        notificationAudioRef.current.currentTime = 0;
                         notificationAudioRef.current = null;
-                      });
-                  }
+                      }
+                      setIsPlayingNotification(false);
+                    });
                   
                   // 顯示提示後，延遲 2 秒跳轉到舒緩音樂頁面
                   setTimeout(() => {
@@ -706,7 +724,7 @@ export default function FriendlyNursingMap() {
                   // 重置檢測狀態
                   soundStartTimeRef.current = null;
                 }
-              }, 2000); // 改為 1.5 秒
+              }, 2000);
             }
           } else {
             // 如果聲音低於閾值，重置計時器
@@ -742,6 +760,7 @@ export default function FriendlyNursingMap() {
             notificationAudioRef.current.currentTime = 0;
             notificationAudioRef.current = null;
           }
+          setIsPlayingNotification(false);
         };
       } catch (error) {
         console.error('Error accessing microphone:', error);
