@@ -627,7 +627,7 @@ export default function FriendlyNursingMap() {
         const dataArray = new Uint8Array(bufferLength);
         
         // 降低音量閾值，使檢測更靈敏
-        const volumeThreshold = 55;
+        const volumeThreshold = 40;
         
         // 初始化提示音
         if (notificationAudioRef.current) {
@@ -1155,8 +1155,8 @@ export default function FriendlyNursingMap() {
             className={`${styles.navButton} ${activeNav === 8 ? styles.activeNav : ''}`}
             onClick={() => handleNavClick(8)}
           >
-            <Image src="/08.png" alt="舒緩音樂" width={40} height={40} />
-            <span className={styles.navText}>舒緩音樂</span>
+            <Image src="/08.png" alt="安撫音樂" width={40} height={40} />
+            <span className={styles.navText}>安撫音樂</span>
           </button>
           <button 
             className={`${styles.navButton} ${activeNav === 9 ? styles.activeNav : ''}`}
