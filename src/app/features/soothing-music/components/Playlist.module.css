@@ -12,36 +12,22 @@
   font-family: 'Inter', sans-serif;
 }
 
-.globalStyles {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-.container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  background: white;
-}
-  
 
 @media (max-width: 390px) {
-    .container {
-        padding: 0;
-    }
+  .container {
+      padding: 0;
+  }
 
-    .phoneContainer {
-        width: 100vw;
-        height: 100vh;
-    }
-    
-    .headerMask,
-    .bottomMask,
-    .navbar {
-        width: 100vw;
-    }
+  .phoneContainer {
+      width: 100vw;
+      height: 100vh;
+  }
+  
+  .headerMask,
+  .bottomMask,
+  .navbar {
+      width: 100vw;
+  }
 }
 .anxinwei {
   position: absolute;
@@ -63,297 +49,298 @@
   height: 40px;
   cursor: pointer;
   z-index: 5;
-  margin-right: -10px;
-}
+margin-right: -10px;
+    }
+
 
 .scrollableContent {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow-y: auto;
-    overflow-x: visible;
-    z-index: 1;
-    padding-bottom: 80px;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: visible;
+  z-index: 1;
+  padding-bottom: 80px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .scrollableContent::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 
 .modeSwitch {
-    margin: 20px auto;
-    width: 350px;
-    height: 40px;
-    background-color: #FEF7EC;
-    border-radius: 20px;
-    display: flex;
-    overflow: hidden;
-    position: relative;
-    margin-bottom: 20px;
-    box-shadow: 0 3px 4px rgba(200, 169, 154, 0.511);
+  margin: 20px auto;
+  width: 350px;
+  height: 40px;
+  background-color: #FEF7EC;
+  border-radius: 20px;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 20px;
+  box-shadow: 0 3px 4px rgba(200, 169, 154, 0.511);
 }
 
 .modeSwitchHighlight {
-    position: absolute;
-    width: 50%;
-    height: 100%;
-    background-color: #FACFC5;
-    transition: transform 0.3s ease;
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  background-color: #FACFC5;
+  transition: transform 0.3s ease;
 }
 
 .modeSwitch[data-mode="auto"] .modeSwitchHighlight {
-    transform: translateX(0);
-    border-top-left-radius: 20px;
-    border-bottom-left-radius: 20px;
+  transform: translateX(0);
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
 }
 
 .modeSwitch[data-mode="manual"] .modeSwitchHighlight {
-    transform: translateX(100%);
-    border-top-right-radius: 20px;
-    border-bottom-right-radius: 20px;
+  transform: translateX(100%);
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
 }
 
 .modeSwitchOption {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #C8A99A;
-    font-weight: 500;
-    font-size: 18px;
-    z-index: 2;
-    cursor: pointer;
-    border: none;
-    background: none;
-    transition: color 0.3s ease;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #C8A99A;
+  font-weight: 500;
+  font-size: 18px;
+  z-index: 2;
+  cursor: pointer;
+  border: none;
+  background: none;
+  transition: color 0.3s ease;
 }
 
 .modeSwitchOption.active {
-    color: #FFFFFF;
+  color: #FFFFFF;
 }
 
 .categoryTitle {
-    font-size: 16px;
-    font-weight: 700;
-    color: #C8A99A;
-    margin: 20px 15px 20px;
-    position: relative;
-    z-index: 2;
+  font-size: 16px;
+  font-weight: 700;
+  color: #C8A99A;
+  margin: 20px 15px 20px;
+  position: relative;
+  z-index: 2;
 }
 
 .categoryTitle:not(:first-of-type) {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 .scrollableContent > .categoryTitle:first-of-type {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 .mainContent {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding-top: 165px;
-    padding-bottom: 180px;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-top: 165px;
+  padding-bottom: 180px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .mainContent::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 
 .headerMask {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 130px;
-    background: white;
-    z-index: 1000;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 130px;
+  background: white;
+  z-index: 1000;
 }
 
 .bottomMask {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 120px;
-    background: linear-gradient(to bottom, rgba(255,255,255,0), white 70%);
-    z-index: 1000;
-    pointer-events: none;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 120px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0), white 70%);
+  z-index: 1000;
+  pointer-events: none;
 }
 
 .gridContainer {
-    position: relative;
-    margin: 0;
-    width: 100%;
-    overflow-x: scroll;
-    overflow-y: hidden;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    scroll-behavior: smooth;
-    padding: 0 16px;
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-x pan-y;
-    cursor: grab;
+  position: relative;
+  margin: 0;
+  width: 100%;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth;
+  padding: 0 16px;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
+  cursor: grab;
 }
 
 .gridContainer:active {
-    cursor: grabbing;
+  cursor: grabbing;
 }
 
 .gridRow {
-    display: flex;
-    gap: 15px;
-    margin: 0;
-    padding: 12px 0;
-    min-width: fit-content;
-    width: max-content;
-    will-change: transform;
+  display: flex;
+  gap: 15px;
+  margin: 0;
+  padding: 12px 0;
+  min-width: fit-content;
+  width: max-content;
+  will-change: transform;
 }
 
 .gridItem {
-    width: 127px;
-    height: 156px;
-    background-color: #ffffff;
-    border-radius: 15px;
-    transition: transform 0.2s ease;
-    box-shadow: 0 3px 4px rgba(200, 169, 154, 0.511);
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-    flex: 0 0 auto;
-    user-select: none;
-    -webkit-user-select: none;
-    will-change: transform;
-    touch-action: pan-x pan-y;
+  width: 127px;
+  height: 156px;
+  background-color: #ffffff;
+  border-radius: 15px;
+  transition: transform 0.2s ease;
+  box-shadow: 0 3px 4px rgba(200, 169, 154, 0.511);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  flex: 0 0 auto;
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+  touch-action: pan-x pan-y;
 }
 
 .animalGridItem {
-    background-color: #FEF7EC;
+  background-color: #FEF7EC;
 }
 
 .bgImg, .animalImg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 14px;
-    z-index: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 14px;
+  z-index: 1;
 }
 
 .animalImg {
-    padding: 15px;
-    object-fit: contain;
+  padding: 15px;
+  object-fit: contain;
 }
 
 .labelImg {
-    position: absolute;
-    bottom: 10px;
-    left: 6px;
-    width: 112px;
-    height: 28px;
-    z-index: 2;
+  position: absolute;
+  bottom: 10px;
+  left: 6px;
+  width: 112px;
+  height: 28px;
+  z-index: 2;
 }
 
 .labelText {
-    position: absolute;
-    bottom: 10px;
-    left: 6px;
-    width: 112px;
-    height: 28px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #ffffff;
-    font-size: 14px;
-    font-weight: 500;
-    z-index: 3;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    background-color: rgba(0, 0, 0, 0.3);
-    border-radius: 14px;
+  position: absolute;
+  bottom: 10px;
+  left: 6px;
+  width: 112px;
+  height: 28px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 3;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 14px;
 }
 
 .gridItem:hover {
-    transform: scale(1.05);
+  transform: scale(1.05);
 }
 
 .gridItem:active {
-    transform: scale(0.95);
+  transform: scale(0.95);
 }
 
 .navbar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 65px;
-    background: #FFFFFF;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    z-index: 2;
-    padding-bottom: env(safe-area-inset-bottom);
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 65px;
+  background: #FFFFFF;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 2;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .navButton {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px;
-    transition: all 0.3s ease;
-    gap: 2px;
-    width: 25%;
-    height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  transition: all 0.3s ease;
+  gap: 2px;
+  width: 25%;
+  height: 100%;
 }
 
 .navButton img {
-    width: 40px;
-    height: 40px;
-    object-fit: contain;
-    margin-bottom: -2px;
-    transition: filter 0.3s ease;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  margin-bottom: -2px;
+  transition: filter 0.3s ease;
 }
 
 .navText {
-    font-size: 12px;
-    font-weight: 700;
-    color: #CCEAEC;
-    transition: color 0.3s ease;
-    margin-top: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #CCEAEC;
+  transition: color 0.3s ease;
+  margin-top: 0;
 }
 
 .activeNav {
-    background: none; /* 移除底色 */
+  background: none; /* 移除底色 */
 }
 
 .activeNav .navText {
-    color: #FACFC5; /* 改成粉色，不使用白色 */
+  color: #FACFC5; /* 改成粉色，不使用白色 */
 }
 
 .activeNav img {
-    filter: brightness(0) saturate(100%) invert(83%) sepia(16%) saturate(1095%) hue-rotate(310deg) brightness(102%) contrast(96%);
+  filter: brightness(0) saturate(100%) invert(83%) sepia(16%) saturate(1095%) hue-rotate(310deg) brightness(102%) contrast(96%);
 }
 
 @supports (padding-top: env(safe-area-inset-top)) {
-    .statusBar {
-        padding-top: env(safe-area-inset-top);
-        height: calc(44px + env(safe-area-inset-top));
-    }
+  .statusBar {
+      padding-top: env(safe-area-inset-top);
+      height: calc(44px + env(safe-area-inset-top));
+  }
 }
 
 .toggleContainer {
@@ -411,18 +398,6 @@
 
 .toggleButton.active {
   color: white;
-}
-
-.tutorial {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  color: #CCEAEC;
-  font-size: 18px;
-  font-style: bold;
-  font-weight: 800;
-  z-index: 5;
-  top: 20px;
 }
 
 /* 小屏幕適配 - 保持比例 */
