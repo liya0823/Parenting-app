@@ -44,15 +44,24 @@ const MusicPlayer = () => {
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
+        audioRef.current = null;
       }
       
-      const audio = new Audio('/audio/哭聲偵測中.mp3');
-      audio.onended = () => {
+      // 創建新的音頻實例並賦值給 audioRef
+      audioRef.current = new Audio('/audio/哭聲偵測中.mp3');
+      
+      // 設置結束事件處理器
+      audioRef.current.onended = () => {
         // 清理音頻實例
-        audio.pause();
-        audio.currentTime = 0;
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0;
+          audioRef.current = null;
+        }
       };
-      await audio.play();
+      
+      // 播放音頻
+      await audioRef.current.play();
 
       // 設置重定向計時器
       redirectTimerRef.current = setTimeout(() => {
