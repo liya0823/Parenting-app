@@ -25,6 +25,7 @@ const MusicPlayer = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
   const soundTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const notificationAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const handleModeChange = (mode: string) => {
     setActiveMode(mode);
@@ -33,33 +34,62 @@ const MusicPlayer = () => {
     }
   };
 
-  const handleStartDetection = () => {
+  const handleStartDetection = async () => {
     setIsDetecting(true);
     setIsAnimating(true); // 開始聲波動畫
     
-    // 創建音頻元素，使用正確的音頻文件路徑
-    const audio = new Audio('/audio/哭聲偵測中.mp3');
-    audioRef.current = audio;
-    
-    // 立即播放提示音
-    audio.play().catch(error => {
-      console.error('Autoplay failed:', error);
-      // 添加點擊事件監聽器以處理自動播放限制
-      document.addEventListener('click', () => {
-        audio.play();
-      }, { once: true });
-    });
-
-    // 設置重定向計時器
-    redirectTimerRef.current = setTimeout(() => {
-      // 從 situationMusicMap 中隨機選擇一個情況
-      const situations = Object.keys(situationMusicMap) as (keyof typeof situationMusicMap)[];
-      const randomSituation = situations[Math.floor(Math.random() * situations.length)];
-      const musicType = situationMusicMap[randomSituation];
+    // 播放提示音
+    try {
+      // 如果已經有音頻在播放，先停止它
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
       
-      // 跳轉到對應的音樂頁面
-      router.push(`/features/soothing-music/${musicType}?autoplay=true`);
-    }, 4000);
+      const audio = new Audio('/audio/哭聲偵測中.mp3');
+      audio.onended = () => {
+        // 清理音頻實例
+        audio.pause();
+        audio.currentTime = 0;
+      };
+      await audio.play();
+    } catch (error) {
+      console.error('Failed to play detection sound:', error);
+    }
+  };
+
+  const handleStopDetection = () => {
+    setIsDetecting(false);
+    // 確保清理所有音頻實例
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    if (notificationAudioRef.current) {
+      notificationAudioRef.current.pause();
+      notificationAudioRef.current.currentTime = 0;
+    }
+  };
+
+  const handleAudioEnded = () => {
+    setIsPlayingSound(false);
+    setIsAnimating(false);
+    // 確保清理音頻實例
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+  };
+
+  const handleAudioError = (e: ErrorEvent) => {
+    console.error('Audio error:', e);
+    setIsPlayingSound(false);
+    setIsAnimating(false);
+    // 確保清理音頻實例
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
   };
 
   // 組件卸載時清理計時器和音頻
@@ -73,7 +103,13 @@ const MusicPlayer = () => {
       }
       if (audioRef.current) {
         audioRef.current.pause();
+        audioRef.current.currentTime = 0;
         audioRef.current = null;
+      }
+      if (notificationAudioRef.current) {
+        notificationAudioRef.current.pause();
+        notificationAudioRef.current.currentTime = 0;
+        notificationAudioRef.current = null;
       }
     };
   }, []);
