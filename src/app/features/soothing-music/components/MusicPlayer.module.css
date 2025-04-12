@@ -1,1032 +1,539 @@
 .phoneContainer {
-    width: 100vw;
-    height: 100vh;
-    margin: 0;
-    overflow: hidden;
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    background: #FFFFFF;
-    font-family: 'Inter', sans-serif;
-  }
-  
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: #FFFFFF;
+  font-family: 'Inter', sans-serif;
+}
+
 .globalStyles {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 .container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    background-color: #fff;
-    overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: white;
 }
 
 .referenceImage {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: auto;
-    object-fit: none;
-    object-position: top;
-    z-index: 11;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  object-fit: none;
+  object-position: top;
+  z-index: 11;
 }
 
 .interfaceContent {
-    flex: 1;
-    position: relative;
-    z-index: 1;
+  flex: 1;
+  position: relative;
+  z-index: 1;
 }
 
 .statusBar {
-    height: 44px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 16px;
-    color: #333;
+  height: 44px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  color: #333;
 }
 
 .mainContent {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    background: white;
-    padding-bottom: 60px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: white;
+  padding-bottom: 60px;
 }
 
 .backgroundImage {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    background-color: #ffffff;
-    z-index: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background-color: #ffffff;
+  z-index: 0;
 }
 
 .group121 {
-    position: absolute;
-    top: 83px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 350px;
-    height: 44px;
-    z-index: 5;
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    position: relative;
-    z-index: 10;
-}
-
-.logoWrapper {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  position: absolute;
+  top: 83px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 350px;
+  height: 44px;
+  z-index: 5;
 }
 
 .anxinwei {
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #CCEAEC;
+  font-size: 18px;
+  font-style: bold ;
+  font-weight: 800;
+  z-index: 5;
+  top: 20px;
 }
 
 .userIcon {
-    cursor: pointer;
-    border-radius: 50%;
+  position: absolute;
+  right: 20px;
+  top: 15px;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  z-index: 5;
+  margin-right: -10px;
 }
 
-.toggleContainer {
-    display: flex;
-    background-color: #f5f5f5;
-    border-radius: 20px;
-    padding: 4px;
-    position: relative;
+.blurBox {
+  position: absolute;
+  width: 380mm;
+  height: 10mm;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 9;
+  top: 0;
+  left: 0;
 }
 
-.toggleButton {
-    padding: 8px 16px;
-    border: none;
-    background: none;
-    border-radius: 16px;
-    font-size: 14px;
-    color: #666;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    z-index: 1;
+.scrollableContent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 1;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 0;
+  -webkit-overflow-scrolling: touch;
+  background-color: transparent;
 }
 
-.toggleButton.active {
-    color: #fff;
-    background-color: #4CAF50;
+.scrollableContent::-webkit-scrollbar {
+  display: none;
+}
+
+.safeAreaBottom {
+  height: 34px;
+  width: 100%;
 }
 
 .soundWaveContainer {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: -115px;
+  position: relative;
 }
 
 .backgroundCircle {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1;
+  width: 350px;
+  height: 350px;
+  position: absolute;
+  z-index: 0;
+  animation: rotateAnimation 8s linear infinite;
+}
+
+@keyframes rotateAnimation {
+  from {
+      transform: rotate(0deg);
+  }
+  to {
+      transform: rotate(360deg);
+  }
 }
 
 .soundWave {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    height: 200px;
-    position: relative;
-    z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 160px;
+  width: 240px;
+  gap: 10px;
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .soundWaveBar {
-    width: 4px;
-    background-color: #4CAF50;
-    border-radius: 2px;
-    transition: height 0.3s ease;
+  background-color: #FACFC5;
+  width: 14px;
+  margin: 0;
+  border-radius: 20px;
+  opacity: 0.9;
+  animation: soundWaveAnimation 1.8s infinite ease-in-out;
+  transform-origin: center center;
 }
 
-.soundWaveBar.animate {
-    animation: waveAnimation 1s ease-in-out infinite;
+@keyframes soundWaveAnimation {
+  0% {
+      transform: scaleY(0.5);
+  }
+  25% {
+      transform: scaleY(1.2);
+  }
+  50% {
+      transform: scaleY(0.6);
+  }
+  75% {
+      transform: scaleY(1.3);
+  }
+  100% {
+      transform: scaleY(0.5);
+  }
 }
 
 .detectionText {
-    margin-top: 20px;
-    text-align: center;
-    position: relative;
-    z-index: 2;
-}
-
-.startDetectionButton {
-    padding: 12px 24px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 20px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.startDetectionButton:hover {
-    background-color: #45a049;
+  position: absolute;
+  bottom: 23%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #333;
+  font-size: 18px;
+  font-weight: bold;
 }
 
 .detectionRow {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .staticText {
-    font-size: 18px;
-    color: #333;
+  display: inline-block;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  color: #FACFC5;
+  margin-right: 5px;
 }
 
 .dots {
-    font-size: 18px;
-    color: #333;
-    animation: dotsAnimation 1.5s infinite;
-}
-
-@keyframes waveAnimation {
-    0%, 100% {
-        transform: scaleY(1);
-    }
-    50% {
-        transform: scaleY(1.2);
-    }
+  display: inline-block;
+  animation: dotsAnimation 1.5s infinite ease-in-out;
+  font-size: 20px;
+  font-weight: 700;
+  color: #FACFC5;
 }
 
 @keyframes dotsAnimation {
-    0%, 20% {
-        content: ".";
-    }
-    40% {
-        content: "..";
-    }
-    60%, 100% {
-        content: "...";
-    }
+  0%, 100% {
+      opacity: 0.5;
+      transform: translateY(0);
+  }
+  50% {
+      opacity: 1;
+      transform: translateY(-3px);
+  }
 }
 
+
 @media screen and (max-width: 390px) {
-    .container {
-        width: 100%;
-        height: 100%;
-    }
-    
-    .statusBar {
-        padding-top: env(safe-area-inset-top, 0);
-        height: calc(44px + env(safe-area-inset-top, 0));
-    }
+  .container {
+      width: 100%;
+      height: 100%;
+  }
+  
+  .statusBar {
+      padding-top: env(safe-area-inset-top, 0);
+      height: calc(44px + env(safe-area-inset-top, 0));
+  }
 }
 
 .navbar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 65px;
-    background: #FFFFFF;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    z-index: 2;
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  
-  .navButton {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px;
-    transition: all 0.3s ease;
-    gap: 2px;
-    width: 25%;
-    height: 100%;
-  }
-  
-  .navButton img {
-    width: 40px;
-    height: 40px;
-    object-fit: contain;
-    margin-bottom: -2px;
-    transition: filter 0.3s ease;
-  }
-  
-  .navText {
-    font-size: 12px;
-    font-weight: 700;
-    color: #CCEAEC;
-    transition: color 0.3s ease;
-    margin-top: 0;
-  }
-  
-  .activeNav {
-    background: none; /* 移除底色 */
-  }
-  
-  .activeNav .navText {
-    color: #FACFC5; /* 改成粉色，不使用白色 */
-  }
-  
-  .activeNav img {
-    filter: brightness(0) saturate(100%) invert(83%) sepia(16%) saturate(1095%) hue-rotate(310deg) brightness(102%) contrast(96%);
-  }
-  .toggleContainer {
-    width: 350px;
-    height: 45px;
-    background: #FEF7EC;
-    border-radius: 50px;
-    display: flex;
-    position: absolute;
-    top: 70px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1001;
-    box-shadow: 0 3px 4px rgba(200, 169, 154, 0.511);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 65px;
+  background: #FFFFFF;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 2;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.navButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  transition: all 0.3s ease;
+  gap: 2px;
+  width: 25%;
+  height: 100%;
+}
+
+.navButton img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  margin-bottom: -2px;
+  transition: filter 0.3s ease;
+}
+
+.navText {
+  font-size: 12px;
+  font-weight: 700;
+  color: #CCEAEC;
+  transition: color 0.3s ease;
+  margin-top: 0;
+}
+
+.activeNav {
+  background: none; /* 移除底色 */
+}
+
+.activeNav .navText {
+  color: #FACFC5; /* 改成粉色，不使用白色 */
+}
+
+.activeNav img {
+  filter: brightness(0) saturate(100%) invert(83%) sepia(16%) saturate(1095%) hue-rotate(310deg) brightness(102%) contrast(96%);
+}
+.toggleContainer {
+  width: 350px;
+  height: 45px;
+  background: #FEF7EC;
+  border-radius: 50px;
+  display: flex;
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1001;
+  box-shadow: 0 3px 4px rgba(200, 169, 154, 0.511);
 }
 
 .toggleContainer::before {
-    content: '';
-    position: absolute;
-    width: 50%;
-    height: 100%;
-    background: #CCEAEC;
-    border-radius: 50px;
-    transition: transform 0.3s ease;
-    transform: translateX(0%);
+  content: '';
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  background: #CCEAEC;
+  border-radius: 50px;
+  transition: transform 0.3s ease;
+  transform: translateX(0%);
 }
 
 .toggleContainer[data-mode="manual"]::before {
-    transform: translateX(100%);
+  transform: translateX(100%);
 }
 
 .toggleContainer::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #C8A99A;
-    z-index: 1;
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #C8A99A;
+  z-index: 1;
 }
 
 .toggleButton {
-    width: 50%;
-    height: 100%;
-    border: none;
-    background: none;
-    font-size: 16px;
-    font-weight: bold;
-    color: #C8A99A;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    z-index: 2;
-    position: relative;
+  width: 50%;
+  height: 100%;
+  border: none;
+  background: none;
+  font-size: 16px;
+  font-weight: bold;
+  color: #C8A99A;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 2;
+  position: relative;
 }
 
 .toggleButton.active {
-    color: white;
+  color: white;
 }
 
 .tutorial {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    color: #CCEAEC;
-    font-size: 18px;
-    font-style: bold;
-    font-weight: 800;
-    z-index: 5;
-    top: 20px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #CCEAEC;
+  font-size: 18px;
+  font-style: bold;
+  font-weight: 800;
+  z-index: 5;
+  top: 20px;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  from {
+      opacity: 0;
+      transform: translateY(10px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
 }
 
 
 
 /* iPhone 8 適配 (375x667) - 保持比例 */
 @media screen and (max-width: 375px) and (max-height: 667px) {
-  .container {
-    padding: 0;
-  }
-  
-  .statusBar {
-    height: 38px;
-    padding: 0 12px;
-  }
-  
-  .mainContent {
-    padding-bottom: 50px;
-  }
-  
-  .anxinwei {
-    font-size: 16px;
-    top: 15px;
-  }
-  
-  .userIcon {
-    right: 15px;
-    top: 12px;
-    margin-right: -8px;
-  }
-  
-  .soundWaveContainer {
-    margin-top: -50px;
-  }
-  
-  .backgroundCircle {
-    width: 300px;
-    height: 300px;
-  }
-  
-  .soundWave {
-    height: 140px;
-    width: 210px;
-    gap: 8px;
-  }
-  
-  .soundWaveBar {
-    width: 12px;
-    border-radius: 16px;
-  }
-  
-  .detectionText {
-    bottom: 21%;
-    font-size: 16px;
-  }
-  
-  .staticText {
-    font-size: 18px;
-    margin-right: 5px;
-  }
-  
-  .dots {
-    font-size: 18px;
-  }
-  
-  .navbar {
-    height: 55px;
-  }
-  
-  .navButton {
-    padding: 3px;
-    gap: 1px;
-  }
-  
-  .navButton img {
-    width: 35px;
-    height: 35px;
-    margin-bottom: -1px;
-  }
-  
-  .navText {
-    font-size: 11px;
-  }
-  
-  .toggleContainer {
-    width: 340px;
-    height: 45px;
-    border-radius: 22px;
-    top: 60px;
-  }
-  
-  .toggleButton {
-    font-size: 14px;
-  }
-  
-  .tutorial {
-    font-size: 16px;
-    top: 15px;
-  }
+.container {
+  padding: 0;
+}
+
+.statusBar {
+  height: 38px;
+  padding: 0 12px;
+}
+
+.mainContent {
+  padding-bottom: 50px;
+}
+
+.anxinwei {
+  font-size: 16px;
+  top: 15px;
+}
+
+.userIcon {
+  right: 15px;
+  top: 12px;
+  margin-right: -8px;
+}
+
+.soundWaveContainer {
+  margin-top: -50px;
+}
+
+.backgroundCircle {
+  width: 300px;
+  height: 300px;
+}
+
+.soundWave {
+  height: 140px;
+  width: 210px;
+  gap: 8px;
+}
+
+.soundWaveBar {
+  width: 12px;
+  border-radius: 16px;
+}
+
+.detectionText {
+  bottom: 21%;
+  font-size: 16px;
+}
+
+.staticText {
+  font-size: 18px;
+  margin-right: 5px;
+}
+
+.dots {
+  font-size: 18px;
+}
+
+.navbar {
+  height: 55px;
+}
+
+.navButton {
+  padding: 3px;
+  gap: 1px;
+}
+
+.navButton img {
+  width: 35px;
+  height: 35px;
+  margin-bottom: -1px;
+}
+
+.navText {
+  font-size: 11px;
+}
+
+.toggleContainer {
+  width: 340px;
+  height: 45px;
+  border-radius: 22px;
+  top: 60px;
+}
+
+.toggleButton {
+  font-size: 14px;
+}
+
+.tutorial {
+  font-size: 16px;
+  top: 15px;
+}
 }
 
 .startDetectionButton {
-    background-color: #FACFC5;
-    color: #FFFFFF;
-    border: none;
-    border-radius: 25px;
-    padding: 12px 30px;
-    font-size: 20px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-top: 10px;
+  position: absolute;
+  bottom: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 30px;
+  background-color: #FACFC5;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 6px rgba(250, 207, 197, 0.3);
+  z-index: 2;
 }
 
 .startDetectionButton:hover {
-    background-color: #CCEAEC;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transform: translateX(-50%) scale(1.05);
+  box-shadow: 0 4px 8px rgba(250, 207, 197, 0.4);
 }
 
 .startDetectionButton:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateX(-50%) scale(0.95);
+  background-color: #CCEAEC;
 }
 
-/* iPhone 12/13/14 Pro Max 適配 (428x926) */
-@media screen and (min-width: 428px) and (max-height: 926px) {
-  .container {
-    padding: 0;
-  }
-  
-  .statusBar {
-    height: 44px;
-    padding: 0 16px;
-  }
-  
-  .mainContent {
-    padding-bottom: 60px;
-  }
-  
-  .anxinwei {
-    font-size: 20px;
-    top: 20px;
-  }
-  
-  .userIcon {
-    right: 20px;
-    top: 15px;
-    width: 45px;
-    height: 45px;
-    margin-right: -10px;
-  }
-  
-  .soundWaveContainer {
-    margin-top: -120px;
-  }
-  
-  .backgroundCircle {
-    width: 380px;
-    height: 380px;
-  }
-  
-  .soundWave {
-    height: 180px;
-    width: 260px;
-    gap: 12px;
-  }
-  
-  .soundWaveBar {
-    width: 16px;
-    border-radius: 22px;
-  }
-  
-  .detectionText {
-    bottom: 23%;
-    font-size: 20px;
-  }
-  
-  .staticText {
-    font-size: 22px;
-    margin-right: 6px;
-  }
-  
-  .dots {
-    font-size: 22px;
-  }
-  
-  .navbar {
-    height: 70px;
-  }
-  
-  .navButton {
-    padding: 5px;
-    gap: 3px;
-  }
-  
-  .navButton img {
-    width: 45px;
-    height: 45px;
-    margin-bottom: -2px;
-  }
-  
-  .navText {
-    font-size: 13px;
-  }
-  
-  .toggleContainer {
-    width: 380px;
-    height: 50px;
-    border-radius: 25px;
-    top: 75px;
-  }
-  
-  .toggleButton {
-    font-size: 18px;
-  }
-  
-  .tutorial {
-    font-size: 20px;
-    top: 20px;
-  }
-  
-  .startDetectionButton {
-    padding: 14px 35px;
-    font-size: 22px;
-    border-radius: 28px;
-    margin-top: 15px;
-  }
-}
-
-/* Google Pixel 4a 適配 (393x851) */
-@media screen and (min-width: 393px) and (max-width: 427px) and (max-height: 851px) {
-  .container {
-    padding: 0;
-  }
-  
-  .statusBar {
-    height: 42px;
-    padding: 0 15px;
-  }
-  
-  .mainContent {
-    padding-bottom: 55px;
-  }
-  
-  .anxinwei {
-    font-size: 19px;
-    top: 18px;
-  }
-  
-  .userIcon {
-    right: 18px;
-    top: 14px;
-    width: 42px;
-    height: 42px;
-    margin-right: -9px;
-  }
-  
-  .soundWaveContainer {
-    margin-top: -110px;
-  }
-  
-  .backgroundCircle {
-    width: 360px;
-    height: 360px;
-  }
-  
-  .soundWave {
-    height: 170px;
-    width: 250px;
-    gap: 11px;
-  }
-  
-  .soundWaveBar {
-    width: 15px;
-    border-radius: 20px;
-  }
-  
-  .detectionText {
-    bottom: 22%;
-    font-size: 19px;
-  }
-  
-  .staticText {
-    font-size: 21px;
-    margin-right: 5px;
-  }
-  
-  .dots {
-    font-size: 21px;
-  }
-  
-  .navbar {
-    height: 68px;
-  }
-  
-  .navButton {
-    padding: 4px;
-    gap: 2px;
-  }
-  
-  .navButton img {
-    width: 42px;
-    height: 42px;
-    margin-bottom: -2px;
-  }
-  
-  .navText {
-    font-size: 12px;
-  }
-  
-  .toggleContainer {
-    width: 360px;
-    height: 48px;
-    border-radius: 24px;
-    top: 72px;
-  }
-  
-  .toggleButton {
-    font-size: 17px;
-  }
-  
-  .tutorial {
-    font-size: 19px;
-    top: 18px;
-  }
-  
-  .startDetectionButton {
-    padding: 13px 32px;
-    font-size: 21px;
-    border-radius: 26px;
-    margin-top: 12px;
-  }
-}
-
-/* Samsung Galaxy S21 適配 (412x915) */
-@media screen and (min-width: 412px) and (max-width: 427px) and (min-height: 852px) and (max-height: 915px) {
-  .container {
-    padding: 0;
-  }
-  
-  .statusBar {
-    height: 43px;
-    padding: 0 15px;
-  }
-  
-  .mainContent {
-    padding-bottom: 58px;
-  }
-  
-  .anxinwei {
-    font-size: 19px;
-    top: 19px;
-  }
-  
-  .userIcon {
-    right: 19px;
-    top: 14px;
-    width: 43px;
-    height: 43px;
-    margin-right: -9px;
-  }
-  
-  .soundWaveContainer {
-    margin-top: -115px;
-  }
-  
-  .backgroundCircle {
-    width: 370px;
-    height: 370px;
-  }
-  
-  .soundWave {
-    height: 175px;
-    width: 255px;
-    gap: 11px;
-  }
-  
-  .soundWaveBar {
-    width: 15px;
-    border-radius: 21px;
-  }
-  
-  .detectionText {
-    bottom: 22%;
-    font-size: 19px;
-  }
-  
-  .staticText {
-    font-size: 21px;
-    margin-right: 5px;
-  }
-  
-  .dots {
-    font-size: 21px;
-  }
-  
-  .navbar {
-    height: 69px;
-  }
-  
-  .navButton {
-    padding: 4px;
-    gap: 2px;
-  }
-  
-  .navButton img {
-    width: 43px;
-    height: 43px;
-    margin-bottom: -2px;
-  }
-  
-  .navText {
-    font-size: 12px;
-  }
-  
-  .toggleContainer {
-    width: 370px;
-    height: 49px;
-    border-radius: 24px;
-    top: 73px;
-  }
-  
-  .toggleButton {
-    font-size: 17px;
-  }
-  
-  .tutorial {
-    font-size: 19px;
-    top: 19px;
-  }
-  
-  .startDetectionButton {
-    padding: 13px 33px;
-    font-size: 21px;
-    border-radius: 27px;
-    margin-top: 13px;
-  }
-}
-
-/* iPad Mini 適配 (768x1024) */
-@media screen and (min-width: 768px) and (max-height: 1024px) {
-  .container {
-    padding: 0;
-  }
-  
-  .statusBar {
-    height: 50px;
-    padding: 0 20px;
-  }
-  
-  .mainContent {
-    padding-bottom: 80px;
-  }
-  
-  .anxinwei {
-    font-size: 24px;
-    top: 25px;
-  }
-  
-  .userIcon {
-    right: 25px;
-    top: 20px;
-    width: 50px;
-    height: 50px;
-    margin-right: -12px;
-  }
-  
-  .soundWaveContainer {
-    margin-top: -150px;
-  }
-  
-  .backgroundCircle {
-    width: 450px;
-    height: 450px;
-  }
-  
-  .soundWave {
-    height: 220px;
-    width: 320px;
-    gap: 15px;
-  }
-  
-  .soundWaveBar {
-    width: 20px;
-    border-radius: 25px;
-  }
-  
-  .detectionText {
-    bottom: 25%;
-    font-size: 24px;
-  }
-  
-  .staticText {
-    font-size: 26px;
-    margin-right: 8px;
-  }
-  
-  .dots {
-    font-size: 26px;
-  }
-  
-  .navbar {
-    height: 85px;
-  }
-  
-  .navButton {
-    padding: 6px;
-    gap: 4px;
-  }
-  
-  .navButton img {
-    width: 55px;
-    height: 55px;
-    margin-bottom: -3px;
-  }
-  
-  .navText {
-    font-size: 16px;
-  }
-  
-  .toggleContainer {
-    width: 480px;
-    height: 60px;
-    border-radius: 30px;
-    top: 90px;
-  }
-  
-  .toggleButton {
-    font-size: 22px;
-  }
-  
-  .tutorial {
-    font-size: 24px;
-    top: 25px;
-  }
-  
-  .startDetectionButton {
-    padding: 16px 40px;
-    font-size: 26px;
-    border-radius: 32px;
-    margin-top: 18px;
-  }
-}
-
-/* iPad Pro 12.9" 適配 (1024x1366) */
-@media screen and (min-width: 1024px) and (max-height: 1366px) {
-  .container {
-    padding: 0;
-  }
-  
-  .statusBar {
-    height: 60px;
-    padding: 0 25px;
-  }
-  
-  .mainContent {
-    padding-bottom: 100px;
-  }
-  
-  .anxinwei {
-    font-size: 28px;
-    top: 30px;
-  }
-  
-  .userIcon {
-    right: 30px;
-    top: 25px;
-    width: 60px;
-    height: 60px;
-    margin-right: -15px;
-  }
-  
-  .soundWaveContainer {
-    margin-top: -180px;
-  }
-  
-  .backgroundCircle {
-    width: 550px;
-    height: 550px;
-  }
-  
-  .soundWave {
-    height: 270px;
-    width: 390px;
-    gap: 18px;
-  }
-  
-  .soundWaveBar {
-    width: 24px;
-    border-radius: 30px;
-  }
-  
-  .detectionText {
-    bottom: 26%;
-    font-size: 28px;
-  }
-  
-  .staticText {
-    font-size: 30px;
-    margin-right: 10px;
-  }
-  
-  .dots {
-    font-size: 30px;
-  }
-  
-  .navbar {
-    height: 100px;
-  }
-  
-  .navButton {
-    padding: 8px;
-    gap: 5px;
-  }
-  
-  .navButton img {
-    width: 65px;
-    height: 65px;
-    margin-bottom: -4px;
-  }
-  
-  .navText {
-    font-size: 20px;
-  }
-  
-  .toggleContainer {
-    width: 580px;
-    height: 70px;
-    border-radius: 35px;
-    top: 110px;
-  }
-  
-  .toggleButton {
-    font-size: 26px;
-  }
-  
-  .tutorial {
-    font-size: 28px;
-    top: 30px;
-  }
-  
-  .startDetectionButton {
-    padding: 20px 50px;
-    font-size: 30px;
-    border-radius: 38px;
-    margin-top: 22px;
-  }
+.startDetectionButton:focus {
+  outline: none;
 }
 
