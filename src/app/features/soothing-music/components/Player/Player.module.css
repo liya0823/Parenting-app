@@ -97,49 +97,16 @@
   margin: auto !important;
 }
 
-.restartButton {
-  position: absolute;
-  left: 20%;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-  z-index: 2;
-}
-
-.restartButton:hover {
-  transform: translateY(-50%) scale(1.1);
-}
-
-.shuffleButton {
-  position: absolute;
-  right: 20%;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 35px;
-  height: 35px;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-  z-index: 2;
-}
-
-.shuffleButton:hover {
-  transform: translateY(-50%) scale(1.1);
-}
-
 .playerControls {
   position: relative;
   z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 30px;
   margin-bottom: 120px;
-  position: relative;
   width: 100%;
-  height: 60px;
+  padding: 0 20px;
 }
 
 .playButton {
@@ -149,7 +116,9 @@
   padding: 0;
   transition: transform 0.2s;
   z-index: 1;
-  margin: 0 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .playButton:hover {
@@ -158,6 +127,30 @@
 
 .playButton:active {
   transform: scale(0.95);
+}
+
+.restartButton {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  z-index: 2;
+}
+
+.restartButton:hover {
+  transform: scale(1.1);
+}
+
+.shuffleButton {
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  z-index: 2;
+}
+
+.shuffleButton:hover {
+  transform: scale(1.1);
 }
 
 .navbar {

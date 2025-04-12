@@ -1,16 +1,30 @@
 .phoneContainer {
-    width: 100vw;
-    height: 100vh;
-    margin: 0;
-    overflow: hidden;
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    background: #FFFFFF;
-    font-family: 'Inter', sans-serif;
-  }
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: #FFFFFF;
+  font-family: 'Inter', sans-serif;
+}
+
+.globalStyles {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: white;
+}
   
 
 @media (max-width: 390px) {
