@@ -523,3 +523,623 @@ margin-right: -10px;
     top: 15px;
   }
 }
+
+/* iPhone 12/13/14 Pro Max (428x926) */
+@media screen and (min-width: 428px) and (min-height: 926px) {
+  .container {
+    padding: 0;
+  }
+  
+  .phoneContainer {
+    width: 100vw;
+    height: 100vh;
+  }
+  
+  .headerMask,
+  .bottomMask,
+  .navbar {
+    width: 100vw;
+  }
+  
+  .anxinwei {
+    font-size: 18px;
+    top: 17px;
+  }
+  
+  .userIcon {
+    right: 18px;
+    top: 15px;
+    margin-right: -9px;
+  }
+  
+  .modeSwitch {
+    width: 360px;
+    height: 42px;
+    border-radius: 21px;
+    margin: 18px auto;
+  }
+  
+  .modeSwitchOption {
+    font-size: 17px;
+  }
+  
+  .categoryTitle {
+    font-size: 16.5px;
+    margin: 18px 14px 18px;
+  }
+  
+  .mainContent {
+    padding-top: 170px;
+    padding-bottom: 180px;
+  }
+  
+  .headerMask {
+    height: 135px;
+  }
+  
+  .bottomMask {
+    height: 125px;
+  }
+  
+  .gridContainer {
+    padding: 0 18px;
+  }
+  
+  .gridRow {
+    gap: 16px;
+    padding: 13px 0;
+  }
+  
+  .gridItem {
+    width: 132px;
+    height: 162px;
+    border-radius: 16px;
+  }
+  
+  .labelImg {
+    width: 116px;
+    height: 29px;
+    bottom: 11px;
+    left: 6px;
+  }
+  
+  .labelText {
+    width: 116px;
+    height: 29px;
+    bottom: 11px;
+    left: 6px;
+    font-size: 14.5px;
+    border-radius: 16px;
+  }
+  
+  .navbar {
+    height: 62px;
+  }
+  
+  .navButton {
+    padding: 3.5px;
+    gap: 1.5px;
+  }
+  
+  .navButton img {
+    width: 39px;
+    height: 39px;
+    margin-bottom: -1.5px;
+  }
+  
+  .navText {
+    font-size: 11.5px;
+  }
+  
+  .toggleContainer {
+    width: 360px;
+    height: 45px;
+    border-radius: 22px;
+    top: 65px;
+  }
+  
+  .toggleButton {
+    font-size: 15px;
+  }
+  
+  .tutorial {
+    font-size: 18px;
+    top: 17px;
+  }
+}
+
+/* Google Pixel 4a (393x851) */
+@media screen and (min-width: 393px) and (min-height: 851px) and (max-width: 427px) and (max-height: 925px) {
+  .container {
+    padding: 0;
+  }
+  
+  .phoneContainer {
+    width: 100vw;
+    height: 100vh;
+  }
+  
+  .headerMask,
+  .bottomMask,
+  .navbar {
+    width: 100vw;
+  }
+  
+  .anxinwei {
+    font-size: 17px;
+    top: 16px;
+  }
+  
+  .userIcon {
+    right: 16px;
+    top: 14px;
+    margin-right: -8.5px;
+  }
+  
+  .modeSwitch {
+    width: 335px;
+    height: 40px;
+    border-radius: 20px;
+    margin: 16px auto;
+  }
+  
+  .modeSwitchOption {
+    font-size: 16.5px;
+  }
+  
+  .categoryTitle {
+    font-size: 15.5px;
+    margin: 16px 13px 16px;
+  }
+  
+  .mainContent {
+    padding-top: 160px;
+    padding-bottom: 170px;
+  }
+  
+  .headerMask {
+    height: 125px;
+  }
+  
+  .bottomMask {
+    height: 115px;
+  }
+  
+  .gridContainer {
+    padding: 0 14px;
+  }
+  
+  .gridRow {
+    gap: 14px;
+    padding: 11px 0;
+  }
+  
+  .gridItem {
+    width: 121px;
+    height: 148px;
+    border-radius: 14px;
+  }
+  
+  .labelImg {
+    width: 108px;
+    height: 27px;
+    bottom: 9px;
+    left: 5px;
+  }
+  
+  .labelText {
+    width: 108px;
+    height: 27px;
+    bottom: 9px;
+    left: 5px;
+    font-size: 13.5px;
+    border-radius: 14px;
+  }
+  
+  .navbar {
+    height: 61px;
+  }
+  
+  .navButton {
+    padding: 3.2px;
+    gap: 1.2px;
+  }
+  
+  .navButton img {
+    width: 38.5px;
+    height: 38.5px;
+    margin-bottom: -1.2px;
+  }
+  
+  .navText {
+    font-size: 11.2px;
+  }
+  
+  .toggleContainer {
+    width: 350px;
+    height: 45px;
+    border-radius: 22px;
+    top: 62px;
+  }
+  
+  .toggleButton {
+    font-size: 14.5px;
+  }
+  
+  .tutorial {
+    font-size: 17px;
+    top: 16px;
+  }
+}
+
+/* Samsung Galaxy S21 (412x915) */
+@media screen and (min-width: 412px) and (min-height: 915px) and (max-width: 427px) and (max-height: 925px) {
+  .container {
+    padding: 0;
+  }
+  
+  .phoneContainer {
+    width: 100vw;
+    height: 100vh;
+  }
+  
+  .headerMask,
+  .bottomMask,
+  .navbar {
+    width: 100vw;
+  }
+  
+  .anxinwei {
+    font-size: 17.5px;
+    top: 16.5px;
+  }
+  
+  .userIcon {
+    right: 17px;
+    top: 14.5px;
+    margin-right: -8.8px;
+  }
+  
+  .modeSwitch {
+    width: 345px;
+    height: 41px;
+    border-radius: 20.5px;
+    margin: 17px auto;
+  }
+  
+  .modeSwitchOption {
+    font-size: 16.8px;
+  }
+  
+  .categoryTitle {
+    font-size: 16px;
+    margin: 17px 13.5px 17px;
+  }
+  
+  .mainContent {
+    padding-top: 165px;
+    padding-bottom: 175px;
+  }
+  
+  .headerMask {
+    height: 130px;
+  }
+  
+  .bottomMask {
+    height: 120px;
+  }
+  
+  .gridContainer {
+    padding: 0 16px;
+  }
+  
+  .gridRow {
+    gap: 15px;
+    padding: 12px 0;
+  }
+  
+  .gridItem {
+    width: 126px;
+    height: 155px;
+    border-radius: 15px;
+  }
+  
+  .labelImg {
+    width: 112px;
+    height: 28px;
+    bottom: 10px;
+    left: 5.5px;
+  }
+  
+  .labelText {
+    width: 112px;
+    height: 28px;
+    bottom: 10px;
+    left: 5.5px;
+    font-size: 14px;
+    border-radius: 15px;
+  }
+  
+  .navbar {
+    height: 61.5px;
+  }
+  
+  .navButton {
+    padding: 3.3px;
+    gap: 1.3px;
+  }
+  
+  .navButton img {
+    width: 38.8px;
+    height: 38.8px;
+    margin-bottom: -1.3px;
+  }
+  
+  .navText {
+    font-size: 11.3px;
+  }
+  
+  .toggleContainer {
+    width: 355px;
+    height: 45px;
+    border-radius: 22px;
+    top: 63px;
+  }
+  
+  .toggleButton {
+    font-size: 14.8px;
+  }
+  
+  .tutorial {
+    font-size: 17.5px;
+    top: 16.5px;
+  }
+}
+
+/* iPad Mini (768x1024) */
+@media screen and (min-width: 768px) and (min-height: 1024px) {
+  .container {
+    padding: 0;
+  }
+  
+  .phoneContainer {
+    width: 100vw;
+    height: 100vh;
+  }
+  
+  .headerMask,
+  .bottomMask,
+  .navbar {
+    width: 100vw;
+  }
+  
+  .anxinwei {
+    font-size: 22px;
+    top: 25px;
+  }
+  
+  .userIcon {
+    right: 25px;
+    top: 20px;
+    margin-right: -12px;
+  }
+  
+  .modeSwitch {
+    width: 450px;
+    height: 55px;
+    border-radius: 27px;
+    margin: 25px auto;
+  }
+  
+  .modeSwitchOption {
+    font-size: 22px;
+  }
+  
+  .categoryTitle {
+    font-size: 20px;
+    margin: 25px 20px 25px;
+  }
+  
+  .mainContent {
+    padding-top: 220px;
+    padding-bottom: 230px;
+  }
+  
+  .headerMask {
+    height: 180px;
+  }
+  
+  .bottomMask {
+    height: 170px;
+  }
+  
+  .gridContainer {
+    padding: 0 25px;
+  }
+  
+  .gridRow {
+    gap: 20px;
+    padding: 18px 0;
+  }
+  
+  .gridItem {
+    width: 160px;
+    height: 195px;
+    border-radius: 20px;
+  }
+  
+  .labelImg {
+    width: 140px;
+    height: 35px;
+    bottom: 15px;
+    left: 8px;
+  }
+  
+  .labelText {
+    width: 140px;
+    height: 35px;
+    bottom: 15px;
+    left: 8px;
+    font-size: 18px;
+    border-radius: 20px;
+  }
+  
+  .navbar {
+    height: 75px;
+  }
+  
+  .navButton {
+    padding: 5px;
+    gap: 3px;
+  }
+  
+  .navButton img {
+    width: 50px;
+    height: 50px;
+    margin-bottom: -2px;
+  }
+  
+  .navText {
+    font-size: 14px;
+  }
+  
+  .toggleContainer {
+    width: 450px;
+    height: 55px;
+    border-radius: 27px;
+    top: 80px;
+  }
+  
+  .toggleButton {
+    font-size: 18px;
+  }
+  
+  .tutorial {
+    font-size: 22px;
+    top: 25px;
+  }
+}
+
+/* iPad Pro 12.9" (1024x1366) */
+@media screen and (min-width: 1024px) and (min-height: 1366px) {
+  .container {
+    padding: 0;
+  }
+  
+  .phoneContainer {
+    width: 100vw;
+    height: 100vh;
+  }
+  
+  .headerMask,
+  .bottomMask,
+  .navbar {
+    width: 100vw;
+  }
+  
+  .anxinwei {
+    font-size: 26px;
+    top: 30px;
+  }
+  
+  .userIcon {
+    right: 30px;
+    top: 25px;
+    margin-right: -15px;
+  }
+  
+  .modeSwitch {
+    width: 550px;
+    height: 65px;
+    border-radius: 32px;
+    margin: 30px auto;
+  }
+  
+  .modeSwitchOption {
+    font-size: 26px;
+  }
+  
+  .categoryTitle {
+    font-size: 24px;
+    margin: 30px 25px 30px;
+  }
+  
+  .mainContent {
+    padding-top: 270px;
+    padding-bottom: 280px;
+  }
+  
+  .headerMask {
+    height: 220px;
+  }
+  
+  .bottomMask {
+    height: 210px;
+  }
+  
+  .gridContainer {
+    padding: 0 30px;
+  }
+  
+  .gridRow {
+    gap: 25px;
+    padding: 22px 0;
+  }
+  
+  .gridItem {
+    width: 195px;
+    height: 240px;
+    border-radius: 25px;
+  }
+  
+  .labelImg {
+    width: 170px;
+    height: 42px;
+    bottom: 18px;
+    left: 10px;
+  }
+  
+  .labelText {
+    width: 170px;
+    height: 42px;
+    bottom: 18px;
+    left: 10px;
+    font-size: 22px;
+    border-radius: 25px;
+  }
+  
+  .navbar {
+    height: 90px;
+  }
+  
+  .navButton {
+    padding: 6px;
+    gap: 4px;
+  }
+  
+  .navButton img {
+    width: 60px;
+    height: 60px;
+    margin-bottom: -3px;
+  }
+  
+  .navText {
+    font-size: 16px;
+  }
+  
+  .toggleContainer {
+    width: 550px;
+    height: 65px;
+    border-radius: 32px;
+    top: 100px;
+  }
+  
+  .toggleButton {
+    font-size: 22px;
+  }
+  
+  .tutorial {
+    font-size: 26px;
+    top: 30px;
+  }
+}

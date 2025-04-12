@@ -5,24 +5,22 @@ import Image from 'next/image';
 import styles from './page.module.css';
 import MusicPlayer from './components/MusicPlayer';
 
-export default function SoothingMusicPage() {
+const SoothingMusicPage = () => {
   const router = useRouter();
-  const [activeButton, setActiveButton] = useState(8);
+  const [currentMode, setCurrentMode] = useState('hungry');
 
-  const handleNavClick = (buttonId: number) => {
-    setActiveButton(buttonId);
-    switch (buttonId) {
-      case 6:
-        router.push('/features/voice-assistant');
+  const handleModeChange = (mode: string) => {
+    setCurrentMode(mode);
+    // 根據模式切換到相應的音樂頁面
+    switch (mode) {
+      case 'hungry':
+        router.push('/features/soothing-music/hungry');
         break;
-      case 7:
-        router.push('/features/friendly-nursing-map');
+      case 'briefCry':
+        router.push('/features/soothing-music/brief-cry');
         break;
-      case 8:
-        router.push('/features/soothing-music');
-        break;
-      case 9:
-        router.push('/features/Tutorial');
+      case 'longCry':
+        router.push('/features/soothing-music/long-cry');
         break;
       default:
         break;
@@ -33,34 +31,34 @@ export default function SoothingMusicPage() {
     <div className={styles.phoneContainer}>
       <div className={styles.container}>
         <main className={styles.content}>
-          <MusicPlayer />
+          <MusicPlayer onModeChange={handleModeChange} />
         </main>
 
         <nav className={styles.navbar}>
           <button 
-            className={`${styles.navButton} ${activeButton === 6 ? styles.activeNav : ''}`}
-            onClick={() => handleNavClick(6)}
+            className={`${styles.navButton} ${currentMode === 'hungry' ? styles.activeNav : ''}`}
+            onClick={() => handleModeChange('hungry')}
           >
             <Image src="/06.png" alt="AI助手" width={40} height={40} />
             <span className={styles.navText}>AI助手</span>
           </button>
           <button 
-            className={`${styles.navButton} ${activeButton === 7 ? styles.activeNav : ''}`}
-            onClick={() => handleNavClick(7)}
+            className={`${styles.navButton} ${currentMode === 'briefCry' ? styles.activeNav : ''}`}
+            onClick={() => handleModeChange('briefCry')}
           >
             <Image src="/07.png" alt="友善地圖" width={40} height={40} />
             <span className={styles.navText}>友善地圖</span>
           </button>
           <button 
-            className={`${styles.navButton} ${activeButton === 8 ? styles.activeNav : ''}`}
-            onClick={() => handleNavClick(8)}
+            className={`${styles.navButton} ${currentMode === 'longCry' ? styles.activeNav : ''}`}
+            onClick={() => handleModeChange('longCry')}
           >
             <Image src="/08.png" alt="安撫音樂" width={40} height={40} />
             <span className={styles.navText}>安撫音樂</span>
           </button>
           <button 
-            className={`${styles.navButton} ${activeButton === 9 ? styles.activeNav : ''}`}
-            onClick={() => handleNavClick(9)}
+            className={`${styles.navButton} ${currentMode === 'hungry' ? styles.activeNav : ''}`}
+            onClick={() => handleModeChange('hungry')}
           >
             <Image src="/09.png" alt="背帶教學" width={40} height={40} />
             <span className={styles.navText}>背帶教學</span>
@@ -69,4 +67,6 @@ export default function SoothingMusicPage() {
       </div>
     </div>
   );
-} 
+};
+
+export default SoothingMusicPage; 
