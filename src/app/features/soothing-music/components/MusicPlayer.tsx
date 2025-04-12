@@ -26,6 +26,7 @@ const MusicPlayer = () => {
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
   const soundTimerRef = useRef<NodeJS.Timeout | null>(null);
   const notificationAudioRef = useRef<HTMLAudioElement | null>(null);
+  const isAudioPlayingRef = useRef<boolean>(false);
 
   const handleModeChange = (mode: string) => {
     setActiveMode(mode);
@@ -34,71 +35,65 @@ const MusicPlayer = () => {
     }
   };
 
+  const cleanupAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current.removeEventListener('ended', handleAudioEnded);
+      audioRef.current = null;
+    }
+    isAudioPlayingRef.current = false;
+  };
+
   const handleStartDetection = async () => {
     setIsDetecting(true);
-    setIsAnimating(true); // 開始聲波動畫
+    setIsAnimating(true);
     
-    // 播放提示音
     try {
-      // 如果已經有音頻在播放，先停止它
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-        audioRef.current = null;
-      }
+      // 清理之前的音頻實例
+      cleanupAudio();
       
-      // 創建新的音頻實例並賦值給 audioRef
-      audioRef.current = new Audio('/audio/哭聲偵測中.mp3');
+      // 創建新的音頻實例
+      const audio = new Audio('/audio/哭聲偵測中.mp3');
       
-      // 設置結束事件處理器
-      audioRef.current.onended = () => {
-        // 清理音頻實例
-        if (audioRef.current) {
-          audioRef.current.pause();
-          audioRef.current.currentTime = 0;
-          audioRef.current = null;
-        }
-      };
+      // 設置音頻結束事件
+      audio.addEventListener('ended', handleAudioEnded);
+      
+      // 賦值給 ref
+      audioRef.current = audio;
+      isAudioPlayingRef.current = true;
       
       // 播放音頻
-      await audioRef.current.play();
+      await audio.play();
 
       // 設置重定向計時器
       redirectTimerRef.current = setTimeout(() => {
-        // 從 situationMusicMap 中隨機選擇一個情況
         const situations = Object.keys(situationMusicMap) as (keyof typeof situationMusicMap)[];
         const randomSituation = situations[Math.floor(Math.random() * situations.length)];
         const musicType = situationMusicMap[randomSituation];
         
-        // 跳轉到對應的音樂頁面
         router.push(`/features/soothing-music/${musicType}?autoplay=true`);
       }, 4000);
     } catch (error) {
       console.error('Failed to play detection sound:', error);
+      handleAudioEnded();
     }
   };
 
   const handleStopDetection = () => {
     setIsDetecting(false);
-    // 確保清理所有音頻實例
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-    if (notificationAudioRef.current) {
-      notificationAudioRef.current.pause();
-      notificationAudioRef.current.currentTime = 0;
+    setIsAnimating(false);
+    cleanupAudio();
+    
+    if (redirectTimerRef.current) {
+      clearTimeout(redirectTimerRef.current);
+      redirectTimerRef.current = null;
     }
   };
 
   const handleAudioEnded = () => {
-    setIsPlayingSound(false);
     setIsAnimating(false);
-    // 確保清理音頻實例
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
+    cleanupAudio();
   };
 
   const handleAudioError = (e: ErrorEvent) => {
@@ -115,22 +110,7 @@ const MusicPlayer = () => {
   // 組件卸載時清理計時器和音頻
   useEffect(() => {
     return () => {
-      if (redirectTimerRef.current) {
-        clearTimeout(redirectTimerRef.current);
-      }
-      if (soundTimerRef.current) {
-        clearTimeout(soundTimerRef.current);
-      }
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-        audioRef.current = null;
-      }
-      if (notificationAudioRef.current) {
-        notificationAudioRef.current.pause();
-        notificationAudioRef.current.currentTime = 0;
-        notificationAudioRef.current = null;
-      }
+      handleStopDetection();
     };
   }, []);
 

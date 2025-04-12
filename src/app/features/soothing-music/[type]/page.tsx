@@ -160,9 +160,9 @@ export default function MusicTypePage({ params }: { params: { type: string } }) 
   const autoplay = searchParams?.get('autoplay') === 'true';
   const [showNotification, setShowNotification] = useState(autoplay);
   const [fadeOut, setFadeOut] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const mainAudioRef = useRef<HTMLAudioElement | null>(null);
   const [isNotificationPlayed, setIsNotificationPlayed] = useState(false);
+  const [isMainAudioReady, setIsMainAudioReady] = useState(false);
 
   // 判斷是否為動畫音樂
   const isAnimationMusic = ['dog', 'sheep', 'elephant', 'rattle', 'cat', 'duck', 'bear', 'frog'].includes(params.type);
@@ -173,16 +173,12 @@ export default function MusicTypePage({ params }: { params: { type: string } }) 
 
   // 獲取對應的提示窗文案
   const getNotificationMessage = () => {
-    // 如果是自動播放模式，根據音樂類型返回對應的提示窗文案
     if (autoplay) {
-      // 檢查是否有對應的提示窗文案
       if (params.type in notificationMessages) {
         return notificationMessages[params.type as keyof typeof notificationMessages];
       }
-      // 如果沒有對應的提示窗文案，返回默認文案
       return notificationMessages.default;
     }
-    // 非自動播放模式返回默認提示窗文案
     return notificationMessages.default;
   };
 
@@ -193,20 +189,19 @@ export default function MusicTypePage({ params }: { params: { type: string } }) 
     console.log('提示音播放結束，開始播放主音樂');
     setIsNotificationPlayed(true);
     
-    // 延遲關閉提示窗
     setTimeout(() => {
       setShowNotification(false);
     }, 1000);
     
-    // 開始播放主音樂
-    if (mainAudioRef.current) {
+    // 確保主音樂已準備好再播放
+    if (mainAudioRef.current && isMainAudioReady) {
       mainAudioRef.current.play().catch(error => {
         console.error('播放主音樂失敗:', error);
       });
     }
   };
 
-  // 初始化主音樂和提示音
+  // 初始化主音樂
   useEffect(() => {
     if (autoplay) {
       const musicData = getMusicData();
@@ -214,38 +209,29 @@ export default function MusicTypePage({ params }: { params: { type: string } }) 
       // 停止之前的音頻（如果有）
       if (mainAudioRef.current) {
         mainAudioRef.current.pause();
+        mainAudioRef.current.currentTime = 0;
         mainAudioRef.current = null;
       }
       
       // 創建新的主音樂音頻
-      mainAudioRef.current = new Audio(musicData.audioSrc);
+      const audio = new Audio(musicData.audioSrc);
+      audio.addEventListener('canplaythrough', () => {
+        setIsMainAudioReady(true);
+      });
+      
+      mainAudioRef.current = audio;
       mainAudioRef.current.pause();
-      
-      // 創建並播放提示音
-      const notificationAudio = new Audio(`/audio/${notificationMessage.sound}`);
-      
-      // 確保提示音只播放一次
-      notificationAudio.addEventListener('ended', () => {
-        notificationAudio.remove(); // 移除音頻元素
-        handleNotificationEnded();
-      });
-      
-      notificationAudio.play().catch(error => {
-        console.error('播放提示音失敗:', error);
-        // 如果提示音播放失敗，直接播放主音樂
-        handleNotificationEnded();
-      });
       
       return () => {
         if (mainAudioRef.current) {
           mainAudioRef.current.pause();
+          mainAudioRef.current.currentTime = 0;
           mainAudioRef.current = null;
         }
-        notificationAudio.pause();
-        notificationAudio.remove();
+        setIsMainAudioReady(false);
       };
     }
-  }, [autoplay, notificationMessage.sound]);
+  }, [autoplay]);
 
   const handlePrevious = () => {
     const prevIndex = currentIndex > 0 ? currentIndex - 1 : currentList.length - 1;
@@ -280,7 +266,6 @@ export default function MusicTypePage({ params }: { params: { type: string } }) 
 
   return (
     <div className={`${styles.container} ${fadeOut ? styles.fadeOut : ''}`}>
-      {/* 提示窗 */}
       {showNotification && (
         <div className={styles.notification}>
           <div className={styles.notificationContent}>
