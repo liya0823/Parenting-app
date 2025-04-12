@@ -83,6 +83,13 @@ export const NotificationAudio: React.FC<NotificationAudioProps> = ({
       // 暫停主音頻
       pauseMainAudio();
       
+      // 如果已經有音頻在播放，先停止它
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        audioRef.current = null;
+      }
+      
       // 創建新音頻實例
       audioRef.current = new Audio(`/audio/${sound}`);
       
@@ -92,6 +99,8 @@ export const NotificationAudio: React.FC<NotificationAudioProps> = ({
         resumeMainAudio();
         // 調用回調
         onEnded();
+        // 清理音頻實例
+        audioRef.current = null;
       };
       
       // 播放提示音
@@ -102,6 +111,8 @@ export const NotificationAudio: React.FC<NotificationAudioProps> = ({
       resumeMainAudio();
       // 調用回調
       onEnded();
+      // 清理音頻實例
+      audioRef.current = null;
     }
   };
 
@@ -131,6 +142,7 @@ export const NotificationAudio: React.FC<NotificationAudioProps> = ({
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
+        audioRef.current = null;
       }
     };
   }, []);

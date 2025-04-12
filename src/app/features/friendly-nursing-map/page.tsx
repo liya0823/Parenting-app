@@ -626,9 +626,14 @@ export default function FriendlyNursingMap() {
         const dataArray = new Uint8Array(bufferLength);
         
         // 降低音量閾值，使檢測更靈敏
-        const volumeThreshold = 70;
+        const volumeThreshold = 50;
         
         // 初始化提示音
+        if (notificationAudioRef.current) {
+          notificationAudioRef.current.pause();
+          notificationAudioRef.current.currentTime = 0;
+          notificationAudioRef.current = null;
+        }
         notificationAudioRef.current = new Audio('/audio/偵測提示.mp3');
         
         // 暫停麥克風的函數
@@ -654,20 +659,13 @@ export default function FriendlyNursingMap() {
         };
         
         const checkVolume = () => {
-          if (!audioContext || !isListeningRef.current || isPlayingRef.current) return;
-          
           analyser.getByteFrequencyData(dataArray);
           const average = dataArray.reduce((a, b) => a + b) / bufferLength;
           
-          // 輸出音量數據，方便調試
-          console.log("Volume average:", average);
-          
           if (average > volumeThreshold) {
-            // 如果聲音超過閾值且尚未開始計時
             if (soundStartTimeRef.current === null) {
               soundStartTimeRef.current = Date.now();
               
-              // 設置 1.5 秒後檢查是否仍然超過閾值
               soundDetectionTimeoutRef.current = setTimeout(() => {
                 // 如果 1.5 秒後仍然在檢測中，則觸發提示
                 if (soundStartTimeRef.current !== null) {
@@ -685,12 +683,16 @@ export default function FriendlyNursingMap() {
                         notificationAudioRef.current?.addEventListener('ended', () => {
                           // 播放完成後恢復麥克風
                           resumeMicrophone();
+                          // 清理音頻實例
+                          notificationAudioRef.current = null;
                         }, { once: true });
                       })
                       .catch(error => {
                         console.error('Error playing notification sound:', error);
                         // 發生錯誤時也要恢復麥克風
                         resumeMicrophone();
+                        // 清理音頻實例
+                        notificationAudioRef.current = null;
                       });
                   }
                   
@@ -737,6 +739,7 @@ export default function FriendlyNursingMap() {
           // 清理提示音
           if (notificationAudioRef.current) {
             notificationAudioRef.current.pause();
+            notificationAudioRef.current.currentTime = 0;
             notificationAudioRef.current = null;
           }
         };
