@@ -29,7 +29,7 @@ const MusicPlayer = () => {
   const handleModeChange = (mode: string) => {
     setActiveMode(mode);
     if (mode === 'manual') {
-      window.location.href = '/features/soothing-music/playlist';
+      router.push('/features/soothing-music/playlist');
     }
   };
 
@@ -37,8 +37,8 @@ const MusicPlayer = () => {
     setIsDetecting(true);
     setIsAnimating(true); // 開始聲波動畫
     
-    // 創建音頻元素
-    const audio = new Audio('/sounds/crying.mp3');
+    // 創建音頻元素，使用正確的音頻文件路徑
+    const audio = new Audio('/audio/偵測提示.mp3');
     audioRef.current = audio;
     
     // 設置4秒後播放提示音
@@ -57,9 +57,13 @@ const MusicPlayer = () => {
 
     // 設置重定向計時器
     redirectTimerRef.current = setTimeout(() => {
-      const situations = ['hungry', 'tired', 'colic'];
+      // 從 situationMusicMap 中隨機選擇一個情況
+      const situations = Object.keys(situationMusicMap) as (keyof typeof situationMusicMap)[];
       const randomSituation = situations[Math.floor(Math.random() * situations.length)];
-      router.push(`/features/soothing-music/${randomSituation}`);
+      const musicType = situationMusicMap[randomSituation];
+      
+      // 跳轉到對應的音樂頁面
+      router.push(`/features/soothing-music/playlist/${musicType}`);
     }, 4000);
   };
 
