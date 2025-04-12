@@ -41,19 +41,14 @@ const MusicPlayer = () => {
     const audio = new Audio('/audio/偵測提示.mp3');
     audioRef.current = audio;
     
-    // 設置4秒後播放提示音
-    soundTimerRef.current = setTimeout(() => {
-      setIsPlayingSound(true); // 開始播放提示音
-      
-      // 嘗試播放音頻
-      audio.play().catch(error => {
-        console.error('Autoplay failed:', error);
-        // 添加點擊事件監聽器以處理自動播放限制
-        document.addEventListener('click', () => {
-          audio.play();
-        }, { once: true });
-      });
-    }, 4000);
+    // 立即播放提示音
+    audio.play().catch(error => {
+      console.error('Autoplay failed:', error);
+      // 添加點擊事件監聽器以處理自動播放限制
+      document.addEventListener('click', () => {
+        audio.play();
+      }, { once: true });
+    });
 
     // 設置重定向計時器
     redirectTimerRef.current = setTimeout(() => {

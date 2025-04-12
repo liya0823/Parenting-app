@@ -210,14 +210,26 @@ export default function MusicTypePage({ params }: { params: { type: string } }) 
   useEffect(() => {
     if (autoplay) {
       const musicData = getMusicData();
-      mainAudioRef.current = new Audio(musicData.audioSrc);
       
-      // 設置主音樂為暫停狀態，等待提示音結束後再播放
+      // 停止之前的音頻（如果有）
+      if (mainAudioRef.current) {
+        mainAudioRef.current.pause();
+        mainAudioRef.current = null;
+      }
+      
+      // 創建新的主音樂音頻
+      mainAudioRef.current = new Audio(musicData.audioSrc);
       mainAudioRef.current.pause();
       
       // 創建並播放提示音
       const notificationAudio = new Audio(`/audio/${notificationMessage.sound}`);
-      notificationAudio.addEventListener('ended', handleNotificationEnded);
+      
+      // 確保提示音只播放一次
+      notificationAudio.addEventListener('ended', () => {
+        notificationAudio.remove(); // 移除音頻元素
+        handleNotificationEnded();
+      });
+      
       notificationAudio.play().catch(error => {
         console.error('播放提示音失敗:', error);
         // 如果提示音播放失敗，直接播放主音樂
@@ -229,7 +241,8 @@ export default function MusicTypePage({ params }: { params: { type: string } }) 
           mainAudioRef.current.pause();
           mainAudioRef.current = null;
         }
-        notificationAudio.removeEventListener('ended', handleNotificationEnded);
+        notificationAudio.pause();
+        notificationAudio.remove();
       };
     }
   }, [autoplay, notificationMessage.sound]);
