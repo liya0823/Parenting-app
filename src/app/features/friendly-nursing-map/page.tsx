@@ -627,7 +627,7 @@ export default function FriendlyNursingMap() {
         const dataArray = new Uint8Array(bufferLength);
         
         // 降低音量閾值，使檢測更靈敏
-        const volumeThreshold = 30;
+        const volumeThreshold = 35;
         
         // 初始化提示音
         if (notificationAudioRef.current) {
@@ -675,15 +675,16 @@ export default function FriendlyNursingMap() {
                   // 暫停麥克風
                   pauseMicrophone();
                   
-                  // 確保清理舊的音頻實例
+                  // 創建新的音頻實例
                   if (notificationAudioRef.current) {
                     notificationAudioRef.current.pause();
                     notificationAudioRef.current.currentTime = 0;
                     notificationAudioRef.current = null;
                   }
                   
-                  // 創建新的音頻實例
+                  // 創建新的音頻實例並設置音量
                   notificationAudioRef.current = new Audio('/audio/偵測提示.mp3');
+                  notificationAudioRef.current.volume = 1.0; // 設置音量為最大
                   
                   // 播放提示音
                   notificationAudioRef.current.play()
