@@ -98,27 +98,35 @@
 }
 
 .restartButton {
-  position: relative;
-  z-index: 1000;
+  position: absolute;
+  left: 20%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
   cursor: pointer;
-  transition: transform 0.2s;
-  margin: 0 10px;
+  transition: transform 0.2s ease;
+  z-index: 2;
 }
 
 .restartButton:hover {
-  transform: scale(1.1);
+  transform: translateY(-50%) scale(1.1);
 }
 
 .shuffleButton {
-  position: relative;
-  z-index: 1000;
+  position: absolute;
+  right: 20%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 35px;
+  height: 35px;
   cursor: pointer;
-  transition: transform 0.2s;
-  margin: 0 10px;
+  transition: transform 0.2s ease;
+  z-index: 2;
 }
 
 .shuffleButton:hover {
-  transform: scale(1.1);
+  transform: translateY(-50%) scale(1.1);
 }
 
 .playerControls {
@@ -292,15 +300,15 @@
   }
 
   .restartButton {
+    left: 15%;
     width: 35px;
     height: 35px;
-    margin: 0 8px;
   }
 
   .shuffleButton {
+    right: 15%;
     width: 30px;
     height: 30px;
-    margin: 0 8px;
   }
 
   .playerControls {
@@ -386,15 +394,15 @@
   }
 
   .restartButton {
-    width: 45px;
-    height: 45px;
-    margin: 0 12px;
+    left: 15%;
+    width: 35px;
+    height: 35px;
   }
 
   .shuffleButton {
-    width: 40px;
-    height: 40px;
-    margin: 0 12px;
+    right: 15%;
+    width: 30px;
+    height: 30px;
   }
 
   .playerControls {
@@ -480,15 +488,15 @@
   }
 
   .restartButton {
-    width: 42px;
-    height: 42px;
-    margin: 0 11px;
+    left: 12%;
+    width: 32px;
+    height: 32px;
   }
 
   .shuffleButton {
-    width: 38px;
-    height: 38px;
-    margin: 0 11px;
+    right: 12%;
+    width: 28px;
+    height: 28px;
   }
 
   .playerControls {
@@ -574,15 +582,15 @@
   }
 
   .restartButton {
-    width: 43px;
-    height: 43px;
-    margin: 0 11px;
+    left: 14%;
+    width: 34px;
+    height: 34px;
   }
 
   .shuffleButton {
-    width: 39px;
-    height: 39px;
-    margin: 0 11px;
+    right: 14%;
+    width: 29px;
+    height: 29px;
   }
 
   .playerControls {
@@ -668,15 +676,15 @@
   }
 
   .restartButton {
-    width: 55px;
-    height: 55px;
-    margin: 0 15px;
+    left: 15%;
+    width: 35px;
+    height: 35px;
   }
 
   .shuffleButton {
-    width: 50px;
-    height: 50px;
-    margin: 0 15px;
+    right: 15%;
+    width: 30px;
+    height: 30px;
   }
 
   .playerControls {
@@ -762,15 +770,15 @@
   }
 
   .restartButton {
-    width: 65px;
-    height: 65px;
-    margin: 0 18px;
+    left: 15%;
+    width: 35px;
+    height: 35px;
   }
 
   .shuffleButton {
-    width: 60px;
-    height: 60px;
-    margin: 0 18px;
+    right: 15%;
+    width: 30px;
+    height: 30px;
   }
 
   .playerControls {
