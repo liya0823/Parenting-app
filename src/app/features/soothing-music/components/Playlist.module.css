@@ -525,52 +525,51 @@
 }
 }
 
+/* 聲音檢測提示窗 */
 .soundAlert {
   position: fixed;
-  top: 50%;
+  top: 20px;
   left: 50%;
-  transform: translate(-50%, -50%);
-  width: 80%;
-  max-width: 300px;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  z-index: 1001;
+  transform: translateX(-50%);
+  z-index: 1000;
   animation: fadeInDown 0.5s ease-out;
+  width: 90%;
+  max-width: 500px;
 }
 
 .alertContent {
-  gap: 11px;
-  padding: 13px 22px;
-  border-radius: 13px;
-  max-width: 380px;
-  width: 90%;
-  min-height: 160px;
+  background-color: white;
+  border-radius: 15px;
+  padding: 15px 20px;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
-  text-align: center;
-  background-color: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(200, 169, 154, 0.3);
+  gap: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-width: 350px;
+  max-width: 90%;
+  pointer-events: auto;
 }
 
 .alertIcon {
-  font-size: 32px;
-  margin-bottom: 15px;
-  animation: pulse 1.5s infinite;
+  animation: pulse 2s infinite;
 }
 
 .alertText {
-  font-size: 16px;
-  line-height: 1.6;
-  margin: 0;
-  padding: 0 15px;
-  color: #7C695B;
-  font-weight: 500;
+  flex: 1;
 }
 
+.alertTitle {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin: 0 0 5px 0;
+}
+
+.alertMessage {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
 @keyframes fadeInDown {
   from {
     opacity: 0;
@@ -578,7 +577,7 @@
   }
   to {
     opacity: 1;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, 0);
   }
 }
 
