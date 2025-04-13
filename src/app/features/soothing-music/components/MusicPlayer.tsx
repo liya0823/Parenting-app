@@ -116,13 +116,13 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
           alt="背景圖"
           width={350}
           height={350}
-          className={styles.backgroundCircle}
+          className={`${styles.backgroundCircle} ${isDetecting ? styles.playing : ''}`}
         />
         <div className={styles.soundWave}>
           {[90, 70, 85, 55, 45, 85, 65].map((height, index) => (
             <div
               key={index}
-              className={styles.soundWaveBar}
+              className={`${styles.soundWaveBar} ${isDetecting ? styles.playing : ''}`}
               style={{
                 height: `${height}px`,
                 animationDelay: `${index * 0.2}s`
