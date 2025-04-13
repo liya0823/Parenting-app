@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import styles from './MusicPlayer.module.css';
 import { useRouter } from 'next/navigation';
@@ -14,11 +14,11 @@ const situationMusicMap = {
   default: 'ocean' // 默認情況
 };
 
-interface MusicPlayerProps {
+export interface MusicPlayerProps {
   onModeChange?: (mode: string) => void;
 }
 
-const MusicPlayer: React.FC<MusicPlayerProps> = ({ onModeChange }) => {
+const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   const router = useRouter();
   const [activeMode, setActiveMode] = useState('auto'); // 'auto' or 'manual'
   const [fadeOut, setFadeOut] = useState(false);

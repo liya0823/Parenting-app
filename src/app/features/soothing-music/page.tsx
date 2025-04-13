@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import styles from './page.module.css';
-import MusicPlayer from './components/MusicPlayer';
+import MusicPlayer, { MusicPlayerProps } from './components/MusicPlayer';
 
 const SoothingMusicPage = () => {
   const router = useRouter();
