@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import styles from './page.module.css';
 import Image from 'next/image';
 import { Message, ChatState } from './types';
-import ChatHistory from '@/components/ChatHistory/ChatHistory';
+import ChatHistory from '../../../components/ChatHistory/ChatHistory';
 import { useRouter } from 'next/navigation';
 
 export default function VoiceAssistantPage() {
