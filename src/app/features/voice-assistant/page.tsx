@@ -378,9 +378,6 @@ export default function VoiceAssistantPage() {
 
   const handleButtonClick = (index: number) => {
     setActiveButton(index);
-    if (index === 0) { // 假設育兒知識按鈕的索引是 0
-      sendRandomParentingQuestion();
-    }
     switch(index) {
       case 0: // 尋找友善空間
         router.push('/features/friendly-nursing-map');
@@ -392,16 +389,8 @@ export default function VoiceAssistantPage() {
         router.push('/features/Tutorial');
         break;
       case 3: // 育兒知識
-        // 保持在當前頁面，清除歡迎畫面
-        setChatState(prev => ({
-          ...prev,
-          messages: [
-            {
-              role: 'assistant',
-              content: '您好！我是餵寶AI助手，很高興為您解答育兒相關的問題。請問您想了解什麼育兒知識呢？'
-            }
-          ]
-        }));
+        // 發送隨機育兒問題
+        sendRandomParentingQuestion();
         break;
     }
   };
