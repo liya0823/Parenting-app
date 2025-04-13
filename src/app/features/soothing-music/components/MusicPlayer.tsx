@@ -40,13 +40,13 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       setIsDetecting(true);
       
       try {
-        // 創建音頻上下文（針對 iOS）
-        const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-        const audioContext = new AudioContext();
-        
         // 創建音頻元素
         const audio = new Audio();
         audio.src = '/audio/哭聲偵測中.mp3';
+        
+        // 設置音頻屬性
+        audio.preload = 'auto';
+        audio.volume = 1.0;
         
         // 等待音頻加載完成
         await new Promise((resolve, reject) => {
@@ -58,21 +58,14 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
         // 保存音頻引用
         audioRef.current = audio;
         
-        // 針對 iOS 的特殊處理
-        if (audioContext.state === 'suspended') {
-          await audioContext.resume();
-        }
-        
         // 播放聲音
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(error => {
-            console.error('播放聲音失敗:', error);
-            // 如果播放失敗，嘗試重新播放
-            setTimeout(() => {
-              audio.play().catch(console.error);
-            }, 1000);
-          });
+        try {
+          await audio.play();
+        } catch (error) {
+          console.error('首次播放失敗，嘗試重新播放:', error);
+          // 如果播放失敗，等待一秒後重試
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          await audio.play();
         }
         
         // 設置計時器，4000毫秒後跳轉
