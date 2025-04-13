@@ -20,8 +20,9 @@ export interface MusicPlayerProps {
 
 const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   const router = useRouter();
-  const [activeMode, setActiveMode] = useState('auto'); // 'auto' or 'manual'
+  const [activeMode, setActiveMode] = useState('auto');
   const [fadeOut, setFadeOut] = useState(false);
+  const [isDetecting, setIsDetecting] = useState(false);
   const [detectedSituation, setDetectedSituation] = useState<keyof typeof situationMusicMap | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -34,64 +35,50 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     }
   };
 
-  // 播放哭聲偵測中的聲音
-  useEffect(() => {
-    // 創建音頻元素
-    audioRef.current = new Audio('/audio/哭聲偵測中.mp3');
-    
-    // 播放聲音
-    if (audioRef.current) {
-      audioRef.current.play().catch(error => {
-        console.error('播放聲音失敗:', error);
-      });
+  const startDetection = () => {
+    if (!isDetecting) {
+      setIsDetecting(true);
+      // 創建音頻元素
+      audioRef.current = new Audio('/audio/哭聲偵測中.mp3');
+      
+      // 播放聲音
+      if (audioRef.current) {
+        audioRef.current.play().catch(error => {
+          console.error('播放聲音失敗:', error);
+        });
+      }
+
+      // 設置計時器，4000毫秒後跳轉
+      redirectTimerRef.current = setTimeout(() => {
+        if (activeMode === 'auto') {
+          const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
+          const randomSituation = situations[Math.floor(Math.random() * situations.length)];
+          setDetectedSituation(randomSituation);
+          
+          const musicType = situationMusicMap[randomSituation];
+          console.log('4000毫秒後跳轉到音樂播放頁面:', musicType);
+          
+          setFadeOut(true);
+          setTimeout(() => {
+            router.push(`/features/soothing-music/${musicType}?autoplay=true`);
+          }, 500);
+        }
+      }, 4000);
     }
-    
-    // 組件卸載時清理
+  };
+
+  // 組件卸載時清理
+  useEffect(() => {
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
       }
-    };
-  }, []);
-
-  // 自動跳轉邏輯
-  useEffect(() => {
-    // 清除之前的計時器
-    if (redirectTimerRef.current) {
-      clearTimeout(redirectTimerRef.current);
-    }
-    
-    // 設置新的計時器，4000毫秒後跳轉
-    redirectTimerRef.current = setTimeout(() => {
-      // 如果是自動模式，隨機選擇一個情況
-      if (activeMode === 'auto') {
-        // 獲取所有可能的情況
-        const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
-        // 隨機選擇一個情況
-        const randomSituation = situations[Math.floor(Math.random() * situations.length)];
-        setDetectedSituation(randomSituation);
-        
-        // 根據情況選擇對應的音樂類型
-        const musicType = situationMusicMap[randomSituation];
-        
-        console.log('4000毫秒後跳轉到音樂播放頁面:', musicType);
-        
-        setFadeOut(true);
-        setTimeout(() => {
-          // 添加 autoplay 參數
-          router.push(`/features/soothing-music/${musicType}?autoplay=true`);
-        }, 500);
-      }
-    }, 4000);
-    
-    // 清理函數
-    return () => {
       if (redirectTimerRef.current) {
         clearTimeout(redirectTimerRef.current);
       }
     };
-  }, [activeMode, router]);
+  }, []);
 
   return (
     <div className={`${styles.container} ${fadeOut ? styles.fadeOut : ''}`}>
@@ -145,10 +132,19 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
         </div>
         <div className={styles.detectionText}>
           <div className={styles.detectionRow}>
-            <span className={styles.staticText}>哭聲偵測中</span>
-            <span className={styles.dots}>...</span>
+            {!isDetecting ? (
+              <button 
+                className={`${styles.detectionButton} ${styles.startButton}`}
+                onClick={startDetection}
+              >
+                開始偵測
+              </button>
+            ) : (
+              <span className={`${styles.detectingText}`}>
+                哭聲偵測中<span className={styles.dots}>...</span>
+              </span>
+            )}
           </div>
-  
         </div>
       </div>
     </div>

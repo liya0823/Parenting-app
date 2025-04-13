@@ -1,17 +1,3 @@
-.phoneContainer {
-  width: 100vw;
-  height: 100vh;
-  margin: 0;
-  overflow: hidden;
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  background: #FFFFFF;
-  font-family: 'Inter', sans-serif;
-}
-
 .globalStyles {
   margin: 0;
   padding: 0;
@@ -19,12 +5,23 @@
 }
 
 .container {
-  height: 100%;
   display: flex;
   flex-direction: column;
   position: relative;
   background: white;
-}
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: #FFFFFF;
+    font-family: 'Inter', sans-serif;
+  }
+
 
 .referenceImage {
   position: absolute;
@@ -244,7 +241,7 @@
   animation: dotsAnimation 1.5s infinite ease-in-out;
   font-size: 20px;
   font-weight: 700;
-  color: #FACFC5;
+  color: #CCEAEC;
 }
 
 @keyframes dotsAnimation {
@@ -283,6 +280,7 @@
   align-items: center;
   z-index: 2;
   padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .navButton {
@@ -503,5 +501,38 @@
   font-size: 16px;
   top: 15px;
 }
+}
+
+.detectionButton {
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 4px rgba(200, 169, 154, 0.511);
+}
+
+.startButton {
+  background-color: #FACFC5;
+  color: white;
+}
+
+.detectingText {
+  color: #CCEAEC;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.dots {
+  display: inline-block;
+  animation: dotAnimation 1.5s infinite;
+}
+
+@keyframes dotAnimation {
+  0% { opacity: 0.3; }
+  50% { opacity: 1; }
+  100% { opacity: 0.3; }
 }
 
