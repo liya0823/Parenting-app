@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import styles from './MusicPlayer.module.css';
 import { useRouter } from 'next/navigation';
@@ -14,159 +14,85 @@ const situationMusicMap = {
   default: 'ocean' // 默認情況
 };
 
-interface MusicPlayerProps {
-  onModeChange: (mode: string) => void;
-}
-
-const MusicPlayer: React.FC<MusicPlayerProps> = ({ onModeChange }) => {
+const MusicPlayer = () => {
   const router = useRouter();
-  const [activeMode, setActiveMode] = useState('auto');
+  const [activeMode, setActiveMode] = useState('auto'); // 'auto' or 'manual'
   const [fadeOut, setFadeOut] = useState(false);
   const [detectedSituation, setDetectedSituation] = useState<keyof typeof situationMusicMap | null>(null);
-  const [isDetecting, setIsDetecting] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [isPlayingSound, setIsPlayingSound] = useState(false);
-  const [buttonText, setButtonText] = useState('開始偵測');
-  const [detectionText, setDetectionText] = useState('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const soundTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const notificationAudioRef = useRef<HTMLAudioElement | null>(null);
-  const isAudioPlayingRef = useRef<boolean>(false);
-  const [currentMode, setCurrentMode] = useState('hungry');
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
-  const [volume, setVolume] = useState(0);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const mediaStreamRef = useRef<MediaStream | null>(null);
-  const animationFrameRef = useRef<number>();
 
   const handleModeChange = (mode: string) => {
     setActiveMode(mode);
-    onModeChange(mode);
-    cleanupAudio();
-  };
-
-  const cleanupAudio = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      audioRef.current.removeEventListener('ended', handleAudioEnded);
-      audioRef.current = null;
-    }
-    isAudioPlayingRef.current = false;
-    if (mediaStreamRef.current) {
-      mediaStreamRef.current.getTracks().forEach(track => track.stop());
-      mediaStreamRef.current = null;
-    }
-    if (audioContextRef.current) {
-      audioContextRef.current.close();
-      audioContextRef.current = null;
-    }
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
+    if (mode === 'manual') {
+      window.location.href = '/features/soothing-music/playlist';
     }
   };
 
-  const handleStartDetection = async () => {
-    try {
-      if (!isDetecting) {
-        setIsDetecting(true);
-        setButtonText('哭聲偵測中');
-        setDetectionText('');
-        setIsAnimating(true);
-
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaStreamRef.current = stream;
-        
-        const audioContext = new AudioContext();
-        audioContextRef.current = audioContext;
-        
-        const source = audioContext.createMediaStreamSource(stream);
-        const analyser = audioContext.createAnalyser();
-        analyserRef.current = analyser;
-        
-        source.connect(analyser);
-        analyser.fftSize = 256;
-        
-        const bufferLength = analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-        
-        const checkVolume = () => {
-          if (!analyserRef.current) return;
-          
-          analyserRef.current.getByteFrequencyData(dataArray);
-          const average = dataArray.reduce((a, b) => a + b) / bufferLength;
-          setVolume(average);
-          
-          if (average > 30) {
-            playNotificationSound();
-          }
-          
-          animationFrameRef.current = requestAnimationFrame(checkVolume);
-        };
-        
-        checkVolume();
-      } else {
-        cleanupAudio();
-        setIsDetecting(false);
-        setButtonText('開始偵測');
-        setDetectionText('');
-        setIsAnimating(false);
-      }
-    } catch (error) {
-      console.error('Error accessing microphone:', error);
-      setIsDetecting(false);
-      setButtonText('開始偵測');
-      setDetectionText('無法存取麥克風');
-      setIsAnimating(false);
-    }
-  };
-
-  const playNotificationSound = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-    
-    const newAudio = new Audio('/audio/notification.mp3');
-    newAudio.volume = 1.0;
-    newAudio.play();
-    audioRef.current = newAudio;
-    
-    newAudio.onended = () => {
-      audioRef.current = null;
-    };
-  };
-
-  const handleAudioEnded = () => {
-    setIsAnimating(false);
-    cleanupAudio();
-  };
-
-  const handleAudioError = (e: ErrorEvent) => {
-    console.error('Audio error:', e);
-    setIsPlayingSound(false);
-    setIsAnimating(false);
-    // 確保清理音頻實例
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-  };
-
-  // 組件卸載時清理計時器和音頻
+  // 播放哭聲偵測中的聲音
   useEffect(() => {
+    // 創建音頻元素
+    audioRef.current = new Audio('/audio/哭聲偵測中.mp3');
+    
+    // 播放聲音
+    if (audioRef.current) {
+      audioRef.current.play().catch(error => {
+        console.error('播放聲音失敗:', error);
+      });
+    }
+    
+    // 組件卸載時清理
     return () => {
-      cleanupAudio();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
     };
   }, []);
+
+  // 自動跳轉邏輯
+  useEffect(() => {
+    // 清除之前的計時器
+    if (redirectTimerRef.current) {
+      clearTimeout(redirectTimerRef.current);
+    }
+    
+    // 設置新的計時器，4000毫秒後跳轉
+    redirectTimerRef.current = setTimeout(() => {
+      // 如果是自動模式，隨機選擇一個情況
+      if (activeMode === 'auto') {
+        // 獲取所有可能的情況
+        const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
+        // 隨機選擇一個情況
+        const randomSituation = situations[Math.floor(Math.random() * situations.length)];
+        setDetectedSituation(randomSituation);
+        
+        // 根據情況選擇對應的音樂類型
+        const musicType = situationMusicMap[randomSituation];
+        
+        console.log('4000毫秒後跳轉到音樂播放頁面:', musicType);
+        
+        setFadeOut(true);
+        setTimeout(() => {
+          // 添加 autoplay 參數
+          router.push(`/features/soothing-music/${musicType}?autoplay=true`);
+        }, 500);
+      }
+    }, 4000);
+    
+    // 清理函數
+    return () => {
+      if (redirectTimerRef.current) {
+        clearTimeout(redirectTimerRef.current);
+      }
+    };
+  }, [activeMode, router]);
 
   return (
     <div className={`${styles.container} ${fadeOut ? styles.fadeOut : ''}`}>
       <div className={styles.header}>
         <div className={styles.logoWrapper}>
-          <span className={styles.anxinwei}>安心餵</span>
+          <span className={styles.anxinwei}>安撫音樂</span>
           <Image
             src="/User.png"
             alt="使用者"
@@ -198,26 +124,27 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ onModeChange }) => {
           alt="背景圖"
           width={350}
           height={350}
-          className={`${styles.backgroundCircle} ${isAnimating ? styles.animate : ''}`}
+          className={styles.backgroundCircle}
         />
         <div className={styles.soundWave}>
-          {[...Array(20)].map((_, i) => (
+          {[90, 70, 85, 55, 45, 85, 65].map((height, index) => (
             <div
-              key={i}
-              className={`${styles.soundWaveBar} ${isAnimating ? styles.animate : ''}`}
+              key={index}
+              className={styles.soundWaveBar}
               style={{
-                height: isAnimating ? `${Math.max(20, volume * 2)}px` : '20px',
-                animationDelay: `${i * 0.1}s`
+                height: `${height}px`,
+                animationDelay: `${index * 0.2}s`
               }}
             />
           ))}
         </div>
-        <button
-          className={`${styles.startDetectionButton} ${isDetecting ? styles.detecting : ''}`}
-          onClick={handleStartDetection}
-        >
-          {buttonText}
-        </button>
+        <div className={styles.detectionText}>
+          <div className={styles.detectionRow}>
+            <span className={styles.staticText}>哭聲偵測中</span>
+            <span className={styles.dots}>...</span>
+          </div>
+  
+        </div>
       </div>
     </div>
   );

@@ -1,0 +1,15 @@
+[33mcommit 7fc23e4e191282b40d8dac20a951914dcf240091[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Author: liya0823 <a0926206129-@gmail.com>
+Date:   Sat Apr 12 19:18:42 2025 +0800
+
+    Update music player components and styles
+[33m4ba28cd[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m Update MusicPlayer and Playlist styles
+[33mbd6f738[m Fix detection button text update timing and error handling
+[33md553933[m Fix auto/manual toggle and detection button functionality
+[33mbc71f12[m Update detection button text and behavior
+[33m29e4bd7[m Update Playlist styles and layout
+[33m03de062[m Add detection button styles with color transition effects
+[33m7fc23e4[m Update music player components and styles
+[33mc09a571[m Update page.module.css styles
+[33m3eedf8f[m Update shuffle function to redirect to normal music page
+[33mb5fcf8e[m Update Playlist.module.css styles
