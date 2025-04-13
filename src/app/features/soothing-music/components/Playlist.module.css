@@ -394,6 +394,17 @@ margin-right: -10px;
   color: white;
 }
 
+.tutorial {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #CCEAEC;
+  font-size: 18px;
+  font-style: bold;
+  font-weight: 800;
+  z-index: 5;
+  top: 20px;
+}
 /* 小屏幕適配 - 保持比例 */
 @media screen and (max-width: 414px) {
 .container {
