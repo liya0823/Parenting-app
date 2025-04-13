@@ -14,7 +14,11 @@ const situationMusicMap = {
   default: 'ocean' // 默認情況
 };
 
-const MusicPlayer = () => {
+interface MusicPlayerProps {
+  onModeChange?: (mode: string) => void;
+}
+
+const MusicPlayer: React.FC<MusicPlayerProps> = ({ onModeChange }) => {
   const router = useRouter();
   const [activeMode, setActiveMode] = useState('auto'); // 'auto' or 'manual'
   const [fadeOut, setFadeOut] = useState(false);
@@ -24,6 +28,7 @@ const MusicPlayer = () => {
 
   const handleModeChange = (mode: string) => {
     setActiveMode(mode);
+    onModeChange?.(mode);
     if (mode === 'manual') {
       window.location.href = '/features/soothing-music/playlist';
     }
