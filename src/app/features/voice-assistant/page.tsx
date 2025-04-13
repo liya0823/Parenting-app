@@ -35,6 +35,8 @@ export default function VoiceAssistantPage() {
   const isListeningRef = useRef<boolean>(false);
   const isPlayingRef = useRef<boolean>(false);
   const [isPlayingNotification, setIsPlayingNotification] = useState(false);
+  // 添加一個狀態變量來跟踪歡迎音效是否已播放完畢
+  const [isWelcomeAudioFinished, setIsWelcomeAudioFinished] = useState(false);
 
   const [chatState, setChatState] = useState<ChatState>({
     messages: [],
@@ -124,12 +126,14 @@ export default function VoiceAssistantPage() {
       audioRef.current.play().catch(error => {
         console.error('播放聲音失敗:', error);
         // 如果播放失敗，仍然初始化音頻
+        setIsWelcomeAudioFinished(true);
         initAudio();
       });
       
       // 監聽播放結束事件
       audioRef.current.addEventListener('ended', () => {
         console.log('歡迎音效播放完畢，開始初始化音頻');
+        setIsWelcomeAudioFinished(true);
         initAudio();
       });
     }
@@ -137,7 +141,10 @@ export default function VoiceAssistantPage() {
     // 組件卸載時清理
     return () => {
       if (audioRef.current) {
-        audioRef.current.removeEventListener('ended', initAudio);
+        audioRef.current.removeEventListener('ended', () => {
+          setIsWelcomeAudioFinished(true);
+          initAudio();
+        });
         audioRef.current.pause();
         audioRef.current = null;
       }
@@ -160,6 +167,12 @@ export default function VoiceAssistantPage() {
 
   // 初始化音頻處理
   const initAudio = async () => {
+    // 如果歡迎音效尚未播放完畢，則不初始化麥克風
+    if (!isWelcomeAudioFinished) {
+      console.log('歡迎音效尚未播放完畢，暫不初始化麥克風');
+      return;
+    }
+    
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaStreamRef.current = stream;
