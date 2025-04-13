@@ -136,10 +136,10 @@ export default function VoiceAssistantPage() {
             if (isComponentMounted) {
               setIsWelcomeAudioFinished(true);
               // 確保在音效播放完畢後初始化麥克風
-              setTimeout(() => {
+              setTimeout(async () => {
                 console.log('開始初始化麥克風');
-                initAudio();
-              }, 1000); // 增加延遲時間到 1 秒
+                await initAudio();
+              }, 1500); // 增加延遲時間到 1.5 秒
             }
           }, { once: true });
         }
@@ -147,7 +147,9 @@ export default function VoiceAssistantPage() {
         console.error('播放聲音失敗:', error);
         if (isComponentMounted) {
           setIsWelcomeAudioFinished(true);
-          initAudio();
+          setTimeout(async () => {
+            await initAudio();
+          }, 1500);
         }
       }
     };
@@ -180,12 +182,6 @@ export default function VoiceAssistantPage() {
 
   // 初始化音頻處理
   const initAudio = async () => {
-    // 如果歡迎音效尚未播放完畢，則不初始化麥克風
-    if (!isWelcomeAudioFinished) {
-      console.log('歡迎音效尚未播放完畢，暫不初始化麥克風');
-      return;
-    }
-    
     try {
       console.log('開始初始化麥克風...');
       
@@ -195,6 +191,11 @@ export default function VoiceAssistantPage() {
         mediaStreamRef.current = null;
       }
       
+      // 重置所有相關狀態
+      isListeningRef.current = false;
+      isPlayingRef.current = false;
+      setIsPlayingNotification(false);
+      
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaStreamRef.current = stream;
       
@@ -203,9 +204,14 @@ export default function VoiceAssistantPage() {
         track.enabled = true;
       });
       
+      // 創建音頻上下文
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      audioContextRef.current = audioContext;
+      
       const source = audioContext.createMediaStreamSource(stream);
       const analyser = audioContext.createAnalyser();
+      analyserRef.current = analyser;
+      
       analyser.fftSize = 256;
       source.connect(analyser);
       
