@@ -154,17 +154,12 @@
   height: 350px;
   position: absolute;
   z-index: 0;
-  animation: rotateAnimation 8s linear infinite;
+  animation: none;
   margin-top: 20px;
 }
 
-@keyframes rotateAnimation {
-  from {
-      transform: rotate(0deg);
-  }
-  to {
-      transform: rotate(360deg);
-  }
+.backgroundCircle.playing {
+  animation: rotateAnimation 8s linear infinite;
 }
 
 .soundWave {
@@ -188,26 +183,12 @@
   margin: 0;
   border-radius: 20px;
   opacity: 0.9;
-  animation: soundWaveAnimation 1.8s infinite ease-in-out;
+  animation: none;
   transform-origin: center center;
 }
 
-@keyframes soundWaveAnimation {
-  0% {
-      transform: scaleY(0.5);
-  }
-  25% {
-      transform: scaleY(1.2);
-  }
-  50% {
-      transform: scaleY(0.6);
-  }
-  75% {
-      transform: scaleY(1.3);
-  }
-  100% {
-      transform: scaleY(0.5);
-  }
+.soundWaveBar.playing {
+  animation: soundWaveAnimation 1.8s infinite ease-in-out;
 }
 
 .detectionText {
@@ -538,5 +519,32 @@
   0% { opacity: 0.3; }
   50% { opacity: 1; }
   100% { opacity: 0.3; }
+}
+
+@keyframes rotateAnimation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes soundWaveAnimation {
+  0% {
+    transform: scaleY(0.5);
+  }
+  25% {
+    transform: scaleY(1.2);
+  }
+  50% {
+    transform: scaleY(0.6);
+  }
+  75% {
+    transform: scaleY(1.3);
+  }
+  100% {
+    transform: scaleY(0.5);
+  }
 }
 

@@ -48,8 +48,9 @@
   height: 40px;
   cursor: pointer;
   z-index: 5;
-margin-right: -10px;
-    }
+  margin-right: -10px;
+}
+
 
 
 .scrollableContent {
