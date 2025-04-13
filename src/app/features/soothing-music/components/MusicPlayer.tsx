@@ -40,6 +40,10 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       setIsDetecting(true);
       
       try {
+        // 創建音頻上下文（針對 iOS）
+        const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+        const audioContext = new AudioContext();
+        
         // 創建音頻元素
         const audio = new Audio();
         audio.src = '/audio/哭聲偵測中.mp3';
@@ -53,6 +57,11 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
         
         // 保存音頻引用
         audioRef.current = audio;
+        
+        // 針對 iOS 的特殊處理
+        if (audioContext.state === 'suspended') {
+          await audioContext.resume();
+        }
         
         // 播放聲音
         const playPromise = audio.play();
