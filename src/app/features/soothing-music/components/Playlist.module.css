@@ -509,19 +509,4 @@
   font-size: 11px;
 }
 
-.toggleContainer {
-  width: 340px;
-  height: 45px;
-  border-radius: 22px;
-  top: 60px;
-}
-
-.toggleButton {
-  font-size: 14px;
-}
-
-.tutorial {
-  font-size: 16px;
-  top: 15px;
-}
 }
