@@ -123,18 +123,25 @@ export default function VoiceAssistantPage() {
     
     // 播放聲音
     if (audioRef.current) {
-      audioRef.current.play().catch(error => {
-        console.error('播放聲音失敗:', error);
-        // 如果播放失敗，仍然初始化音頻
-        setIsWelcomeAudioFinished(true);
-        initAudio();
-      });
+      audioRef.current.play()
+        .then(() => {
+          console.log('開始播放歡迎音效');
+        })
+        .catch(error => {
+          console.error('播放聲音失敗:', error);
+          // 如果播放失敗，仍然初始化音頻
+          setIsWelcomeAudioFinished(true);
+          initAudio();
+        });
       
       // 監聽播放結束事件
       audioRef.current.addEventListener('ended', () => {
         console.log('歡迎音效播放完畢，開始初始化音頻');
         setIsWelcomeAudioFinished(true);
-        initAudio();
+        // 確保在音效播放完畢後初始化麥克風
+        setTimeout(() => {
+          initAudio();
+        }, 100); // 添加小延遲以確保狀態已更新
       });
     }
     
@@ -174,6 +181,7 @@ export default function VoiceAssistantPage() {
     }
     
     try {
+      console.log('開始初始化麥克風...');
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaStreamRef.current = stream;
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -319,17 +327,18 @@ export default function VoiceAssistantPage() {
         }
         
         if (isListeningRef.current) {
-          animationFrameRef.current = requestAnimationFrame(checkVolume);
+          requestAnimationFrame(checkVolume);
         }
       };
       
       // 初始化麥克風狀態
       isListeningRef.current = true;
       isPlayingRef.current = false;
+      console.log('麥克風初始化完成，開始檢測聲音');
       checkVolume();
       
     } catch (error) {
-      console.error('Error initializing audio:', error);
+      console.error('Error accessing microphone:', error);
     }
   };
 
