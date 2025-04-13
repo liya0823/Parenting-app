@@ -16,13 +16,15 @@
   position: fixed;
   bottom: 0;
   left: 0;
-  right: 0;
-  height: 60px;
-  background-color: #ffffff;
+  width: 100%;
+  height: 65px;
+  background: #FFFFFF;
   display: flex;
   justify-content: space-around;
   align-items: center;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .navButton {
@@ -30,29 +32,42 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 8px;
-  border: none;
   background: none;
+  border: none;
   cursor: pointer;
+  padding: 4px;
   transition: all 0.3s ease;
+  gap: 2px;
+  width: 25%;
+  height: 100%;
 }
 
-.navButton:hover {
-  transform: scale(1.1);
-}
-
-.activeNav {
-  color: #4a90e2;
+.navButton img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  margin-bottom: -2px;
+  transition: filter 0.3s ease;
 }
 
 .navText {
   font-size: 12px;
-  margin-top: 4px;
-  color: #666;
+  font-weight: 700;
+  color: #CCEAEC;
+  transition: color 0.3s ease;
+  margin-top: 0;
+}
+
+.activeNav {
+  background: none; /* 移除底色 */
 }
 
 .activeNav .navText {
-  color: #4a90e2;
+  color: #FACFC5; /* 改成粉色，不使用白色 */
+}
+
+.activeNav img {
+  filter: brightness(0) saturate(100%) invert(83%) sepia(16%) saturate(1095%) hue-rotate(310deg) brightness(102%) contrast(96%);
 }
 
 .phoneContainer {
