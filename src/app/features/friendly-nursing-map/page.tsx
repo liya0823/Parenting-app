@@ -695,73 +695,54 @@ export default function FriendlyNursingMap() {
                   }
                   
                   // 創建新的音頻實例並設置音量
-                  const audio = new Audio('/audio/偵測提示.mp3');
+                  const audio = new Audio();
+                  audio.src = '/audio/偵測提示.mp3';
                   audio.volume = 1.0;
                   notificationAudioRef.current = audio;
                   
-                  // 添加音頻加載事件監聽器
-                  audio.addEventListener('canplaythrough', () => {
-                    // 播放提示音
-                    const playPromise = audio.play();
-                    
-                    if (playPromise !== undefined) {
-                      playPromise
-                        .then(() => {
-                          if (!isComponentMounted) return;
-                          
-                          // 等待音頻播放完成
-                          audio.addEventListener('ended', () => {
-                            if (!isComponentMounted) return;
-                            
-                            // 播放完成後恢復麥克風
-                            resumeMicrophone();
-                            // 清理音頻實例
-                            if (notificationAudioRef.current) {
-                              notificationAudioRef.current.pause();
-                              notificationAudioRef.current.currentTime = 0;
-                              notificationAudioRef.current = null;
-                            }
-                            setIsPlayingNotification(false);
-                          }, { once: true });
-                        })
-                        .catch(error => {
-                          console.error('Error playing notification sound:', error);
-                          if (!isComponentMounted) return;
-                          
-                          // 發生錯誤時也要恢復麥克風
-                          resumeMicrophone();
-                          // 清理音頻實例
-                          if (notificationAudioRef.current) {
-                            notificationAudioRef.current.pause();
-                            notificationAudioRef.current.currentTime = 0;
-                            notificationAudioRef.current = null;
-                          }
-                          setIsPlayingNotification(false);
-                          
-                          // 重試播放
-                          setTimeout(() => {
-                            if (!isComponentMounted) return;
-                            audio.play().catch(console.error);
-                          }, 1000);
-                        });
-                    }
-                  }, { once: true });
-                  
-                  // 添加錯誤處理
-                  audio.addEventListener('error', (e) => {
-                    console.error('Audio loading error:', e);
-                    if (!isComponentMounted) return;
-                    
-                    // 發生錯誤時也要恢復麥克風
-                    resumeMicrophone();
-                    // 清理音頻實例
-                    if (notificationAudioRef.current) {
-                      notificationAudioRef.current.pause();
-                      notificationAudioRef.current.currentTime = 0;
-                      notificationAudioRef.current = null;
-                    }
-                    setIsPlayingNotification(false);
-                  }, { once: true });
+                  // 直接嘗試播放
+                  audio.play()
+                    .then(() => {
+                      console.log('Audio started playing');
+                      if (!isComponentMounted) return;
+                      
+                      // 等待音頻播放完成
+                      audio.addEventListener('ended', () => {
+                        console.log('Audio finished playing');
+                        if (!isComponentMounted) return;
+                        
+                        // 播放完成後恢復麥克風
+                        resumeMicrophone();
+                        // 清理音頻實例
+                        if (notificationAudioRef.current) {
+                          notificationAudioRef.current.pause();
+                          notificationAudioRef.current.currentTime = 0;
+                          notificationAudioRef.current = null;
+                        }
+                        setIsPlayingNotification(false);
+                      }, { once: true });
+                    })
+                    .catch(error => {
+                      console.error('Error playing notification sound:', error);
+                      if (!isComponentMounted) return;
+                      
+                      // 發生錯誤時也要恢復麥克風
+                      resumeMicrophone();
+                      // 清理音頻實例
+                      if (notificationAudioRef.current) {
+                        notificationAudioRef.current.pause();
+                        notificationAudioRef.current.currentTime = 0;
+                        notificationAudioRef.current = null;
+                      }
+                      setIsPlayingNotification(false);
+                      
+                      // 重試播放
+                      setTimeout(() => {
+                        if (!isComponentMounted) return;
+                        console.log('Retrying audio playback');
+                        audio.play().catch(console.error);
+                      }, 1000);
+                    });
                   
                   // 顯示提示後，延遲 2 秒跳轉到舒緩音樂頁面
                   setTimeout(() => {
