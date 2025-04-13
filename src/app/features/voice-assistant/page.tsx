@@ -18,6 +18,23 @@ export default function VoiceAssistantPage() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const router = useRouter();
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  
+  // 添加哭聲檢測相關的狀態和引用
+  const [volume, setVolume] = useState(0);
+  const [showSoundAlert, setShowSoundAlert] = useState(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const microphoneRef = useRef<MediaStreamAudioSourceNode | null>(null);
+  const animationFrameRef = useRef<number>();
+  const lastTriggerTimeRef = useRef<number>(0);
+  const alertTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const soundStartTimeRef = useRef<number | null>(null);
+  const soundDetectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const notificationAudioRef = useRef<HTMLAudioElement | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const isListeningRef = useRef<boolean>(false);
+  const isPlayingRef = useRef<boolean>(false);
+  const [isPlayingNotification, setIsPlayingNotification] = useState(false);
 
   const [chatState, setChatState] = useState<ChatState>({
     messages: [],
@@ -97,7 +114,7 @@ export default function VoiceAssistantPage() {
     }
   };
 
-  // 播放打招呼聲音
+  // 修改播放打招呼聲音的 useEffect
   useEffect(() => {
     // 創建音頻元素
     audioRef.current = new Audio('/audio/嗨 ! 我是.mp3');
@@ -107,16 +124,196 @@ export default function VoiceAssistantPage() {
       audioRef.current.play().catch(error => {
         console.error('播放聲音失敗:', error);
       });
+      
+      // 監聽播放結束事件
+      audioRef.current.addEventListener('ended', initAudio);
     }
     
     // 組件卸載時清理
     return () => {
       if (audioRef.current) {
+        audioRef.current.removeEventListener('ended', initAudio);
         audioRef.current.pause();
         audioRef.current = null;
       }
+      
+      // 清理哭聲檢測相關資源
+      if (mediaStreamRef.current) {
+        mediaStreamRef.current.getTracks().forEach(track => track.stop());
+      }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      if (soundDetectionTimeoutRef.current) {
+        clearTimeout(soundDetectionTimeoutRef.current);
+      }
+      if (alertTimeoutRef.current) {
+        clearTimeout(alertTimeoutRef.current);
+      }
     };
   }, []);
+
+  // 初始化音頻處理
+  const initAudio = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaStreamRef.current = stream;
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const source = audioContext.createMediaStreamSource(stream);
+      const analyser = audioContext.createAnalyser();
+      analyser.fftSize = 256;
+      source.connect(analyser);
+      
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      
+      // 降低音量閾值，使檢測更靈敏
+      const volumeThreshold = 45;
+      
+      // 初始化提示音
+      if (notificationAudioRef.current) {
+        notificationAudioRef.current.pause();
+        notificationAudioRef.current.currentTime = 0;
+        notificationAudioRef.current = null;
+      }
+      
+      // 暫停麥克風的函數
+      const pauseMicrophone = () => {
+        if (mediaStreamRef.current && !isPlayingRef.current) {
+          mediaStreamRef.current.getTracks().forEach(track => {
+            track.enabled = false;
+          });
+          isListeningRef.current = false;
+          isPlayingRef.current = true;
+        }
+      };
+      
+      // 恢復麥克風的函數
+      const resumeMicrophone = () => {
+        if (mediaStreamRef.current && isPlayingRef.current) {
+          mediaStreamRef.current.getTracks().forEach(track => {
+            track.enabled = true;
+          });
+          isListeningRef.current = true;
+          isPlayingRef.current = false;
+        }
+      };
+      
+      const checkVolume = () => {
+        if (!isListeningRef.current) return;
+        
+        analyser.getByteFrequencyData(dataArray);
+        const average = dataArray.reduce((a, b) => a + b) / bufferLength;
+        
+        // 更新音量指示器
+        setVolume(Math.min(100, (average / 128) * 100));
+        
+        if (average > volumeThreshold) {
+          if (soundStartTimeRef.current === null && !isPlayingNotification) {
+            soundStartTimeRef.current = Date.now();
+            
+            soundDetectionTimeoutRef.current = setTimeout(() => {
+              // 如果 1.5 秒後仍然在檢測中，則觸發提示
+              if (soundStartTimeRef.current !== null && !isPlayingNotification) {
+                setShowSoundAlert(true);
+                setIsPlayingNotification(true);
+                
+                // 暫停麥克風
+                pauseMicrophone();
+                
+                // 確保清理舊的音頻實例
+                if (notificationAudioRef.current) {
+                  notificationAudioRef.current.pause();
+                  notificationAudioRef.current.currentTime = 0;
+                  notificationAudioRef.current = null;
+                }
+                
+                // 創建新的音頻實例並設置音量
+                const audio = new Audio();
+                audio.src = '/audio/偵測提示.mp3';
+                audio.volume = 1.0;
+                notificationAudioRef.current = audio;
+                
+                // 直接嘗試播放
+                audio.play()
+                  .then(() => {
+                    console.log('Audio started playing');
+                    
+                    // 等待音頻播放完成
+                    audio.addEventListener('ended', () => {
+                      console.log('Audio finished playing');
+                      
+                      // 播放完成後恢復麥克風
+                      resumeMicrophone();
+                      // 清理音頻實例
+                      if (notificationAudioRef.current) {
+                        notificationAudioRef.current.pause();
+                        notificationAudioRef.current.currentTime = 0;
+                        notificationAudioRef.current = null;
+                      }
+                      setIsPlayingNotification(false);
+                    }, { once: true });
+                  })
+                  .catch(error => {
+                    console.error('Error playing notification sound:', error);
+                    
+                    // 發生錯誤時也要恢復麥克風
+                    resumeMicrophone();
+                    // 清理音頻實例
+                    if (notificationAudioRef.current) {
+                      notificationAudioRef.current.pause();
+                      notificationAudioRef.current.currentTime = 0;
+                      notificationAudioRef.current = null;
+                    }
+                    setIsPlayingNotification(false);
+                    
+                    // 重試播放
+                    setTimeout(() => {
+                      console.log('Retrying audio playback');
+                      audio.play().catch(console.error);
+                    }, 1000);
+                  });
+                
+                // 顯示提示後，延遲 2 秒跳轉到舒緩音樂頁面
+                setTimeout(() => {
+                  router.push('/features/soothing-music');
+                }, 4000);
+                
+                // 5 秒後隱藏提示
+                setTimeout(() => {
+                  setShowSoundAlert(false);
+                }, 5000);
+                
+                // 重置檢測狀態
+                soundStartTimeRef.current = null;
+              }
+            }, 1500);
+          }
+        } else {
+          // 如果聲音低於閾值，重置計時器
+          if (soundStartTimeRef.current !== null) {
+            soundStartTimeRef.current = null;
+            if (soundDetectionTimeoutRef.current) {
+              clearTimeout(soundDetectionTimeoutRef.current);
+              soundDetectionTimeoutRef.current = null;
+            }
+          }
+        }
+        
+        if (isListeningRef.current) {
+          animationFrameRef.current = requestAnimationFrame(checkVolume);
+        }
+      };
+      
+      // 初始化麥克風狀態
+      isListeningRef.current = true;
+      isPlayingRef.current = false;
+      checkVolume();
+      
+    } catch (error) {
+      console.error('Error initializing audio:', error);
+    }
+  };
 
   // 組織歷史記錄格式
   const organizeHistory = () => {
@@ -397,6 +594,25 @@ export default function VoiceAssistantPage() {
 
   return (
     <div className={styles.phoneContainer}>
+      {showSoundAlert && (
+        <div className={styles.soundAlert}>
+          <div className={styles.alertContent}>
+            <Image
+              src="/images/crying.png"
+              alt="crying"
+              width={40}
+              height={40}
+              className={styles.alertIcon}
+            />
+            <div className={styles.alertText}>
+              檢測到寶寶哭聲
+              <br />
+              即將為您跳轉到舒緩音樂頁面...
+            </div>
+          </div>
+        </div>
+      )}
+      
       <ChatHistory 
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}

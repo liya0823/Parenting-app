@@ -13,3 +13,8 @@ Date:   Sat Apr 12 19:18:42 2025 +0800
 [33mc09a571[m Update page.module.css styles
 [33m3eedf8f[m Update shuffle function to redirect to normal music page
 [33mb5fcf8e[m Update Playlist.module.css styles
+[33mcommit b3c021d8c94da07cd4e763581967a10f39d3467e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Author: liya0823 <a0926206129-@gmail.com>
+Date:   Mon Apr 14 03:39:22 2025 +0800
+
+    feat: 更新 Playlist.module.css 的樣式
