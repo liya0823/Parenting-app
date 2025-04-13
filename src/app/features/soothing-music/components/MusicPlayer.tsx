@@ -30,7 +30,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ onModeChange }) => {
     setActiveMode(mode);
     onModeChange?.(mode);
     if (mode === 'manual') {
-      window.location.href = '/features/soothing-music/playlist';
+      router.push('/features/soothing-music/playlist');
     }
   };
 
