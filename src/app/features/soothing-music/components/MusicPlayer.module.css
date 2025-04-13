@@ -145,7 +145,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-top: -115px;
+  margin-top: -50px;
   position: relative;
 }
 
@@ -155,6 +155,7 @@
   position: absolute;
   z-index: 0;
   animation: rotateAnimation 8s linear infinite;
+  margin-top: 20px;
 }
 
 @keyframes rotateAnimation {
@@ -178,6 +179,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  margin-top: 20px;
 }
 
 .soundWaveBar {
@@ -210,7 +212,7 @@
 
 .detectionText {
   position: absolute;
-  bottom: 23%;
+  bottom: 15%;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -219,6 +221,8 @@
   color: #333;
   font-size: 18px;
   font-weight: bold;
+  z-index: 2;
+  margin-top: 20px;
 }
 
 .detectionRow {
