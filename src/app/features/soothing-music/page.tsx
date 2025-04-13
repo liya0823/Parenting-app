@@ -7,20 +7,23 @@ import MusicPlayer, { MusicPlayerProps } from './components/MusicPlayer';
 
 const SoothingMusicPage = () => {
   const router = useRouter();
-  const [currentMode, setCurrentMode] = useState('hungry');
+  const [currentMode, setCurrentMode] = useState('music');
 
   const handleModeChange = (mode: string) => {
     setCurrentMode(mode);
-    // 根據模式切換到相應的音樂頁面
+    // 根據模式切換到相應的頁面
     switch (mode) {
-      case 'hungry':
-        router.push('/features/soothing-music/hungry');
+      case 'ai':
+        router.push('/features/voice-assistant');
         break;
-      case 'briefCry':
-        router.push('/features/soothing-music/brief-cry');
+      case 'map':
+        router.push('/features/friendly-nursing-map');
         break;
-      case 'longCry':
-        router.push('/features/soothing-music/long-cry');
+      case 'music':
+        router.push('/features/soothing-music');
+        break;
+      case 'tutorial':
+        router.push('/features/Tutorial');
         break;
       default:
         break;
@@ -36,29 +39,29 @@ const SoothingMusicPage = () => {
 
         <nav className={styles.navbar}>
           <button 
-            className={`${styles.navButton} ${currentMode === 'hungry' ? styles.activeNav : ''}`}
-            onClick={() => handleModeChange('hungry')}
+            className={`${styles.navButton} ${currentMode === 'ai' ? styles.activeNav : ''}`}
+            onClick={() => handleModeChange('ai')}
           >
             <Image src="/06.png" alt="AI助手" width={40} height={40} />
             <span className={styles.navText}>AI助手</span>
           </button>
           <button 
-            className={`${styles.navButton} ${currentMode === 'briefCry' ? styles.activeNav : ''}`}
-            onClick={() => handleModeChange('briefCry')}
+            className={`${styles.navButton} ${currentMode === 'map' ? styles.activeNav : ''}`}
+            onClick={() => handleModeChange('map')}
           >
             <Image src="/07.png" alt="友善地圖" width={40} height={40} />
             <span className={styles.navText}>友善地圖</span>
           </button>
           <button 
-            className={`${styles.navButton} ${currentMode === 'longCry' ? styles.activeNav : ''}`}
-            onClick={() => handleModeChange('longCry')}
+            className={`${styles.navButton} ${currentMode === 'music' ? styles.activeNav : ''}`}
+            onClick={() => handleModeChange('music')}
           >
             <Image src="/08.png" alt="安撫音樂" width={40} height={40} />
             <span className={styles.navText}>安撫音樂</span>
           </button>
           <button 
-            className={`${styles.navButton} ${currentMode === 'hungry' ? styles.activeNav : ''}`}
-            onClick={() => handleModeChange('hungry')}
+            className={`${styles.navButton} ${currentMode === 'tutorial' ? styles.activeNav : ''}`}
+            onClick={() => handleModeChange('tutorial')}
           >
             <Image src="/09.png" alt="背帶教學" width={40} height={40} />
             <span className={styles.navText}>背帶教學</span>
