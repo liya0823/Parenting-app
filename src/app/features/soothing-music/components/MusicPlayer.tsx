@@ -45,13 +45,16 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       audioRef.current = audio;
       
       // 播放聲音
-      audio.play().catch(error => {
-        console.error('播放聲音失敗:', error);
-        // 如果播放失敗，嘗試重新播放
-        setTimeout(() => {
-          audio.play().catch(console.error);
-        }, 1000);
-      });
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.error('播放聲音失敗:', error);
+          // 如果播放失敗，嘗試重新播放
+          setTimeout(() => {
+            audio.play().catch(console.error);
+          }, 100);
+        });
+      }
       
       // 設置計時器，4000毫秒後跳轉
       redirectTimerRef.current = setTimeout(() => {
