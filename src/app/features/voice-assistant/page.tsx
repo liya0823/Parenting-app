@@ -24,6 +24,79 @@ export default function VoiceAssistantPage() {
     isLoading: false,
   });
 
+  // 預設育兒問題
+  const parentingQuestions = [
+    "寶寶發燒了，該如何處理？",
+    "如何培養寶寶的閱讀習慣？",
+    "寶寶挑食怎麼辦？",
+    "如何訓練寶寶自主入睡？",
+    "寶寶情緒不穩定時該如何安撫？",
+    "如何培養寶寶的社交能力？",
+    "寶寶語言發展遲緩怎麼辦？",
+    "如何處理寶寶的分離焦慮？",
+    "寶寶不愛運動怎麼辦？",
+    "如何培養寶寶的自理能力？"
+  ];
+
+  // 隨機發送育兒問題
+  const sendRandomParentingQuestion = async () => {
+    const randomIndex = Math.floor(Math.random() * parentingQuestions.length);
+    const randomQuestion = parentingQuestions[randomIndex];
+    setInputMessage(randomQuestion);
+    
+    // 自動發送問題
+    const userMessage: Message = {
+      role: 'user',
+      content: randomQuestion,
+    };
+
+    setChatState(prev => ({
+      ...prev,
+      messages: [...prev.messages, userMessage],
+      isLoading: true,
+      error: undefined,
+    }));
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: [...chatState.messages, userMessage],
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      const assistantMessage: Message = {
+        role: 'assistant',
+        content: data.message,
+      };
+
+      setChatState(prev => ({
+        ...prev,
+        messages: [...prev.messages, assistantMessage],
+        isLoading: false,
+      }));
+    } catch (error: any) {
+      setChatState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: error.message || '發送訊息失敗，請稍後再試',
+      }));
+
+      setTimeout(() => {
+        setChatState(prev => ({ ...prev, error: undefined }));
+      }, 3000);
+    }
+  };
+
   // 播放打招呼聲音
   useEffect(() => {
     // 創建音頻元素
@@ -304,6 +377,10 @@ export default function VoiceAssistantPage() {
   };
 
   const handleButtonClick = (index: number) => {
+    setActiveButton(index);
+    if (index === 0) { // 假設育兒知識按鈕的索引是 0
+      sendRandomParentingQuestion();
+    }
     switch(index) {
       case 0: // 尋找友善空間
         router.push('/features/friendly-nursing-map');
