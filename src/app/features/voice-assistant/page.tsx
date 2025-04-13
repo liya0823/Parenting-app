@@ -118,40 +118,46 @@ export default function VoiceAssistantPage() {
 
   // 修改播放打招呼聲音的 useEffect
   useEffect(() => {
-    // 創建音頻元素
-    audioRef.current = new Audio('/audio/嗨 ! 我是.mp3');
+    let isComponentMounted = true;
     
-    // 播放聲音
-    if (audioRef.current) {
-      audioRef.current.play()
-        .then(() => {
+    const initWelcomeAudio = async () => {
+      try {
+        // 創建音頻元素
+        audioRef.current = new Audio('/audio/嗨 ! 我是.mp3');
+        
+        // 播放聲音
+        if (audioRef.current) {
           console.log('開始播放歡迎音效');
-        })
-        .catch(error => {
-          console.error('播放聲音失敗:', error);
-          // 如果播放失敗，仍然初始化音頻
+          await audioRef.current.play();
+          
+          // 監聽播放結束事件
+          audioRef.current.addEventListener('ended', () => {
+            console.log('歡迎音效播放完畢');
+            if (isComponentMounted) {
+              setIsWelcomeAudioFinished(true);
+              // 確保在音效播放完畢後初始化麥克風
+              setTimeout(() => {
+                console.log('開始初始化麥克風');
+                initAudio();
+              }, 500); // 增加延遲時間以確保狀態已更新
+            }
+          }, { once: true });
+        }
+      } catch (error) {
+        console.error('播放聲音失敗:', error);
+        if (isComponentMounted) {
           setIsWelcomeAudioFinished(true);
           initAudio();
-        });
-      
-      // 監聽播放結束事件
-      audioRef.current.addEventListener('ended', () => {
-        console.log('歡迎音效播放完畢，開始初始化音頻');
-        setIsWelcomeAudioFinished(true);
-        // 確保在音效播放完畢後初始化麥克風
-        setTimeout(() => {
-          initAudio();
-        }, 100); // 添加小延遲以確保狀態已更新
-      });
-    }
+        }
+      }
+    };
+    
+    initWelcomeAudio();
     
     // 組件卸載時清理
     return () => {
+      isComponentMounted = false;
       if (audioRef.current) {
-        audioRef.current.removeEventListener('ended', () => {
-          setIsWelcomeAudioFinished(true);
-          initAudio();
-        });
         audioRef.current.pause();
         audioRef.current = null;
       }
