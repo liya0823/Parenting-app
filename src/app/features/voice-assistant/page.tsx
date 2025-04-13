@@ -139,7 +139,7 @@ export default function VoiceAssistantPage() {
               setTimeout(() => {
                 console.log('開始初始化麥克風');
                 initAudio();
-              }, 500); // 增加延遲時間以確保狀態已更新
+              }, 1000); // 增加延遲時間到 1 秒
             }
           }, { once: true });
         }
@@ -188,13 +188,30 @@ export default function VoiceAssistantPage() {
     
     try {
       console.log('開始初始化麥克風...');
+      
+      // 確保之前的麥克風實例已經清理
+      if (mediaStreamRef.current) {
+        mediaStreamRef.current.getTracks().forEach(track => track.stop());
+        mediaStreamRef.current = null;
+      }
+      
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaStreamRef.current = stream;
+      
+      // 確保麥克風是啟用的
+      stream.getAudioTracks().forEach(track => {
+        track.enabled = true;
+      });
+      
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       const source = audioContext.createMediaStreamSource(stream);
       const analyser = audioContext.createAnalyser();
       analyser.fftSize = 256;
       source.connect(analyser);
+      
+      // 設置初始狀態
+      isListeningRef.current = true;
+      isPlayingRef.current = false;
       
       const bufferLength = analyser.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
@@ -212,6 +229,7 @@ export default function VoiceAssistantPage() {
       // 暫停麥克風的函數
       const pauseMicrophone = () => {
         if (mediaStreamRef.current && !isPlayingRef.current) {
+          console.log('暫停麥克風');
           mediaStreamRef.current.getTracks().forEach(track => {
             track.enabled = false;
           });
@@ -223,6 +241,7 @@ export default function VoiceAssistantPage() {
       // 恢復麥克風的函數
       const resumeMicrophone = () => {
         if (mediaStreamRef.current && isPlayingRef.current) {
+          console.log('恢復麥克風');
           mediaStreamRef.current.getTracks().forEach(track => {
             track.enabled = true;
           });
