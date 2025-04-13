@@ -527,36 +527,48 @@
 
 .soundAlert {
   position: fixed;
-  top: 20px;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 300px;
   background: rgba(255, 255, 255, 0.95);
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 1001;
   animation: fadeInDown 0.5s ease-out;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 280px;
 }
 
 .alertContent {
+  gap: 11px;
+  padding: 13px 22px;
+  border-radius: 13px;
+  max-width: 380px;
+  width: 90%;
+  min-height: 160px;
   display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 12px;
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(200, 169, 154, 0.3);
 }
 
 .alertIcon {
+  font-size: 32px;
+  margin-bottom: 15px;
   animation: pulse 1.5s infinite;
 }
 
 .alertText {
-  color: #333;
   font-size: 16px;
-  line-height: 1.4;
-  text-align: left;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0 15px;
+  color: #7C695B;
+  font-weight: 500;
 }
 
 @keyframes fadeInDown {
@@ -566,7 +578,7 @@
   }
   to {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translate(-50%, -50%);
   }
 }
 

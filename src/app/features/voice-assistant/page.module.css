@@ -960,30 +960,41 @@
 }
 
 .alertContent {
-  padding: 20px;
+  gap: 11px;
+  padding: 13px 22px;
+  border-radius: 13px;
+  max-width: 380px;
+  width: 90%;
+  min-height: 160px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 15px;
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(200, 169, 154, 0.3);
 }
 
 .alertIcon {
-  width: 40px;
-  height: 40px;
-  animation: pulse 1s infinite;
+  font-size: 32px;
+  margin-bottom: 15px;
+  animation: pulse 1.5s infinite;
 }
 
 .alertText {
-  color: #7C695B;
   font-size: 16px;
-  text-align: center;
-  line-height: 1.5;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0 15px;
+  color: #7C695B;
+  font-weight: 500;
 }
 
 @keyframes fadeInDown {
   from {
     opacity: 0;
-    transform: translate(-50%, -60%);
+    transform: translate(-50%, -20px);
   }
   to {
     opacity: 1;

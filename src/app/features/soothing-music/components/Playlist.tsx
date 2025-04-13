@@ -385,18 +385,8 @@ const Playlist = () => {
       {showSoundAlert && (
         <div className={styles.soundAlert}>
           <div className={styles.alertContent}>
-            <Image
-              src="/images/crying.png"
-              alt="crying"
-              width={40}
-              height={40}
-              className={styles.alertIcon}
-            />
-            <div className={styles.alertText}>
-              檢測到寶寶哭聲
-              <br />
-              正在播放安撫音樂...
-            </div>
+            <span className={styles.alertIcon}>🍼</span>
+            <span className={styles.alertText}>偵測到可能的寶寶哭聲，幫您確認中…</span>
           </div>
         </div>
       )}

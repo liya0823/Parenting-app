@@ -123,10 +123,15 @@ export default function VoiceAssistantPage() {
     if (audioRef.current) {
       audioRef.current.play().catch(error => {
         console.error('播放聲音失敗:', error);
+        // 如果播放失敗，仍然初始化音頻
+        initAudio();
       });
       
       // 監聽播放結束事件
-      audioRef.current.addEventListener('ended', initAudio);
+      audioRef.current.addEventListener('ended', () => {
+        console.log('歡迎音效播放完畢，開始初始化音頻');
+        initAudio();
+      });
     }
     
     // 組件卸載時清理
@@ -597,18 +602,8 @@ export default function VoiceAssistantPage() {
       {showSoundAlert && (
         <div className={styles.soundAlert}>
           <div className={styles.alertContent}>
-            <Image
-              src="/images/crying.png"
-              alt="crying"
-              width={40}
-              height={40}
-              className={styles.alertIcon}
-            />
-            <div className={styles.alertText}>
-              檢測到寶寶哭聲
-              <br />
-              即將為您跳轉到舒緩音樂頁面...
-            </div>
+            <span className={styles.alertIcon}>🍼</span>
+            <span className={styles.alertText}>偵測到可能的寶寶哭聲，幫您確認中…</span>
           </div>
         </div>
       )}
