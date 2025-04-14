@@ -746,6 +746,9 @@ export default function FriendlyNursingMap() {
                         .then(() => {
                           if (!isComponentMounted) return;
                           
+                          // 播放完成後導航到 MusicPlayer 組件
+                          router.push('/features/soothing-music');
+                          
                           // 播放完成後恢復麥克風
                           resumeMicrophone();
                           setIsPlayingNotification(false);
@@ -827,7 +830,7 @@ export default function FriendlyNursingMap() {
         cleanupFunction();
       }
     };
-  }, []);
+  }, [router]);
 
   return (
     <div className={styles.phoneContainer}>
