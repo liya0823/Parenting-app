@@ -24,89 +24,62 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   const [fadeOut, setFadeOut] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
   const [detectedSituation, setDetectedSituation] = useState<keyof typeof situationMusicMap | null>(null);
-  const detectionAudioRef = useRef<HTMLAudioElement | null>(null);
-  const alertAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [isAudioLoaded, setIsAudioLoaded] = useState(false);
+  const detectionAudio = useRef(new Audio('/audio/哭聲偵測中.mp3'));
+  const alertAudio = useRef(new Audio('/audio/偵測提示.mp3'));
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 初始化音頻元素
   useEffect(() => {
-    // 創建音頻元素
-    detectionAudioRef.current = new Audio('/audio/哭聲偵測中.mp3');
-    alertAudioRef.current = new Audio('/audio/偵測提示.mp3');
+    const detection = detectionAudio.current;
+    const alert = alertAudio.current;
 
-    // 預加載音頻
-    if (detectionAudioRef.current) {
-      detectionAudioRef.current.preload = 'auto';
-      detectionAudioRef.current.load();
-      detectionAudioRef.current.volume = 1.0;
-    }
-    
-    if (alertAudioRef.current) {
-      alertAudioRef.current.preload = 'auto';
-      alertAudioRef.current.load();
-      alertAudioRef.current.volume = 1.0;
-    }
+    // 設置音量
+    detection.volume = 1.0;
+    alert.volume = 1.0;
+
+    // 監聽加載完成事件
+    const handleLoaded = () => {
+      console.log('音頻加載完成');
+      setIsAudioLoaded(true);
+    };
+
+    detection.addEventListener('canplaythrough', handleLoaded);
+    alert.addEventListener('canplaythrough', handleLoaded);
+
+    // 預加載
+    detection.load();
+    alert.load();
 
     return () => {
-      // 清理音頻資源
-      if (detectionAudioRef.current) {
-        detectionAudioRef.current.pause();
-        detectionAudioRef.current = null;
-      }
-      if (alertAudioRef.current) {
-        alertAudioRef.current.pause();
-        alertAudioRef.current = null;
-      }
+      detection.removeEventListener('canplaythrough', handleLoaded);
+      alert.removeEventListener('canplaythrough', handleLoaded);
+      detection.pause();
+      alert.pause();
       if (redirectTimerRef.current) {
         clearTimeout(redirectTimerRef.current);
       }
     };
   }, []);
 
-  const playAudio = async (audio: HTMLAudioElement | null) => {
-    if (!audio) return;
-
-    try {
-      // 重置音頻
-      audio.currentTime = 0;
-      
-      // 確保音頻已加載
-      if (audio.readyState < 4) {
-        await new Promise((resolve) => {
-          audio.addEventListener('canplaythrough', resolve, { once: true });
-          audio.load();
-        });
-      }
-      
-      // 播放音頻
-      await audio.play();
-      console.log('音頻播放成功');
-    } catch (error) {
-      console.error('音頻播放失敗:', error);
-    }
-  };
-
-  const handleModeChange = (mode: string) => {
-    setActiveMode(mode);
-    onModeChange?.(mode);
-    if (mode === 'manual') {
-      router.push('/features/soothing-music/playlist');
-    }
-  };
-
-  const startDetection = async () => {
-    if (!isDetecting) {
+  const startDetection = () => {
+    if (!isDetecting && isAudioLoaded) {
       setIsDetecting(true);
-      console.log('開始偵測流程...');
+      console.log('開始偵測流程');
 
       // 播放偵測音效
-      await playAudio(detectionAudioRef.current);
-      
-      // 設置計時器，4000毫秒後播放提示音並跳轉
-      redirectTimerRef.current = setTimeout(async () => {
+      detectionAudio.current.currentTime = 0;
+      detectionAudio.current.play().catch(error => {
+        console.error('偵測音效播放失敗:', error);
+      });
+
+      // 設置計時器
+      redirectTimerRef.current = setTimeout(() => {
         if (activeMode === 'auto') {
           // 播放提示音
-          await playAudio(alertAudioRef.current);
+          alertAudio.current.currentTime = 0;
+          alertAudio.current.play().catch(error => {
+            console.error('提示音播放失敗:', error);
+          });
 
           const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
           const randomSituation = situations[Math.floor(Math.random() * situations.length)];
@@ -121,6 +94,16 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
           }, 500);
         }
       }, 4000);
+    } else if (!isAudioLoaded) {
+      console.log('音頻還未加載完成，請稍候...');
+    }
+  };
+
+  const handleModeChange = (mode: string) => {
+    setActiveMode(mode);
+    onModeChange?.(mode);
+    if (mode === 'manual') {
+      router.push('/features/soothing-music/playlist');
     }
   };
 
