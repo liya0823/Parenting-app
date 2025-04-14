@@ -85,12 +85,26 @@ export default function BabyPage() {
         
         <div className={styles.header}>
           <h1>寶寶檔案</h1>
+          <button
+            className={styles.logoutButton}
+            onClick={() => router.push('/welcome')}
+            aria-label="登出"
+          >
+            <Image
+              src="/Logout.png"
+              alt="登出"
+              width={40}
+              height={40}
+              priority
+              style={{ objectFit: 'contain' }}
+            />
+          </button>
         </div>
 
         <div className={styles.profileContent}>
           <div className={styles.avatarSection}>
-            <div className={styles.avatarContainer} onClick={handleImageClick}>
-              <div className={styles.avatarWrapper}>
+            <div className={styles.avatarContainer}>
+              <div className={styles.avatarWrapper} onClick={handleImageClick}>
                 <Image
                   src={profile.image}
                   alt="Baby Profile Picture"
@@ -100,15 +114,15 @@ export default function BabyPage() {
                   priority
                 />
               </div>
-              <div className={styles.addButton}>
-                <Image 
-                  src="/Add Image.png"
-                  alt="Add Image"
-                  width={30}
-                  height={30}
-                  priority
-                />
-              </div>
+              <Image 
+                src="/Add Image.png"
+                alt="Add Image"
+                width={30}
+                height={30}
+                className={styles.addImageButton}
+                onClick={handleImageClick}
+                priority
+              />
             </div>
             <div className={styles.babyInfo}>
               <div className={styles.babyName}>{profile.name}</div>
@@ -131,21 +145,6 @@ export default function BabyPage() {
             </button>
           </div>
         </div>
-
-        <button
-          className={styles.logoutButton}
-          onClick={() => router.push('/welcome')}
-          aria-label="登出"
-        >
-          <Image
-            src="/Logout.png"
-            alt="登出"
-            width={50}
-            height={50}
-            priority
-            style={{ objectFit: 'contain' }}
-          />
-        </button>
 
         <input
           type="file"
