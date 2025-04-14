@@ -24,13 +24,11 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   const [fadeOut, setFadeOut] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
   const [detectedSituation, setDetectedSituation] = useState<keyof typeof situationMusicMap | null>(null);
-  const [isAudioInitialized, setIsAudioInitialized] = useState(false);
-  
   const audioContextRef = useRef<AudioContext | null>(null);
-  const audioBufferRef = useRef<AudioBuffer | null>(null);
-  const gainNodeRef = useRef<GainNode | null>(null);
+  const detectionBufferRef = useRef<AudioBuffer | null>(null);
   const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isLoadingRef = useRef(false);
 
   // 初始化 AudioContext
   const initAudioContext = async () => {
@@ -38,91 +36,146 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       if (!audioContextRef.current) {
         const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
         audioContextRef.current = new AudioContextClass();
-        gainNodeRef.current = audioContextRef.current.createGain();
-        gainNodeRef.current.connect(audioContextRef.current.destination);
         console.log('AudioContext 初始化成功');
       }
 
-      // 確保 AudioContext 是運行狀態
+      // 確保 AudioContext 是活躍的
       if (audioContextRef.current.state === 'suspended') {
         await audioContextRef.current.resume();
-        console.log('AudioContext 已恢復運行');
+        console.log('AudioContext 已恢復');
       }
 
-      // 檢查並載入音效
-      if (!audioBufferRef.current) {
-        console.log('開始載入音效...');
-        const response = await fetch('/audio/哭聲偵測中.mp3');
-        console.log('音效載入狀態:', response.status);
-        if (!response.ok) {
-          throw new Error(`音效載入失敗: ${response.status}`);
-        }
-        const arrayBuffer = await response.arrayBuffer();
-        audioBufferRef.current = await audioContextRef.current.decodeAudioData(arrayBuffer);
-        console.log('音效載入成功');
-      }
-
-      setIsAudioInitialized(true);
+      return true;
     } catch (error) {
-      console.error('音效初始化失敗:', error);
-      setIsAudioInitialized(false);
+      console.error('初始化 AudioContext 失敗:', error);
+      return false;
+    }
+  };
+
+  // 加載音效
+  const loadDetectionSound = async () => {
+    if (isLoadingRef.current || detectionBufferRef.current) return;
+    
+    try {
+      isLoadingRef.current = true;
+      console.log('開始加載音效...');
+      
+      const response = await fetch('/audio/哭聲偵測中.mp3');
+      console.log('音效檔案狀態:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const arrayBuffer = await response.arrayBuffer();
+      console.log('音效檔案已下載');
+
+      if (!audioContextRef.current) {
+        await initAudioContext();
+      }
+
+      if (audioContextRef.current) {
+        const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+        detectionBufferRef.current = audioBuffer;
+        console.log('音效解碼成功');
+      }
+    } catch (error) {
+      console.error('加載音效失敗:', error);
+    } finally {
+      isLoadingRef.current = false;
+    }
+  };
+
+  // 播放音效
+  const playDetectionSound = async () => {
+    try {
+      // 確保 AudioContext 已初始化且活躍
+      const isReady = await initAudioContext();
+      if (!isReady || !audioContextRef.current) {
+        throw new Error('AudioContext 未就緒');
+      }
+
+      // 如果音效尚未加載，先加載
+      if (!detectionBufferRef.current) {
+        await loadDetectionSound();
+      }
+
+      if (!detectionBufferRef.current) {
+        throw new Error('音效未能成功加載');
+      }
+
+      // 停止之前的音效（如果有）
+      if (sourceNodeRef.current) {
+        sourceNodeRef.current.stop();
+        sourceNodeRef.current.disconnect();
+      }
+
+      // 創建新的音源
+      const source = audioContextRef.current.createBufferSource();
+      source.buffer = detectionBufferRef.current;
+      
+      // 創建音量控制
+      const gainNode = audioContextRef.current.createGain();
+      gainNode.gain.value = 1.0;
+
+      // 連接節點
+      source.connect(gainNode);
+      gainNode.connect(audioContextRef.current.destination);
+      
+      // 保存音源引用
+      sourceNodeRef.current = source;
+
+      // 監聽播放結束
+      source.onended = () => {
+        console.log('音效播放結束');
+        if (sourceNodeRef.current) {
+          sourceNodeRef.current.disconnect();
+          sourceNodeRef.current = null;
+        }
+      };
+
+      // 開始播放
+      source.start(0);
+      console.log('音效開始播放');
+
+    } catch (error) {
+      console.error('播放音效失敗:', error);
+      throw error;
     }
   };
 
   // 清理函數
   const cleanup = () => {
     if (sourceNodeRef.current) {
-      sourceNodeRef.current.stop();
-      sourceNodeRef.current.disconnect();
-      sourceNodeRef.current = null;
+      try {
+        sourceNodeRef.current.stop();
+        sourceNodeRef.current.disconnect();
+        sourceNodeRef.current = null;
+      } catch (error) {
+        console.error('停止音效時發生錯誤:', error);
+      }
     }
+
     if (redirectTimerRef.current) {
       clearTimeout(redirectTimerRef.current);
       redirectTimerRef.current = null;
     }
   };
 
-  // 播放音效
-  const playAudioBuffer = async () => {
-    if (!audioContextRef.current || !audioBufferRef.current || !gainNodeRef.current) {
-      console.error('音效系統未初始化');
-      return;
-    }
+  const handleRedirect = () => {
+    if (activeMode !== 'auto') return;
 
-    try {
-      // 確保 AudioContext 是運行狀態
-      if (audioContextRef.current.state === 'suspended') {
-        await audioContextRef.current.resume();
-      }
-
-      // 停止之前的音效（如果有）
-      cleanup();
-
-      // 創建新的音源
-      sourceNodeRef.current = audioContextRef.current.createBufferSource();
-      sourceNodeRef.current.buffer = audioBufferRef.current;
-
-      // 設置音量（確保不是 0）
-      gainNodeRef.current.gain.value = 1.0;
-
-      // 連接音源
-      sourceNodeRef.current.connect(gainNodeRef.current);
-
-      // 監聽播放結束
-      sourceNodeRef.current.onended = () => {
-        console.log('音效播放結束');
-        cleanup();
-      };
-
-      // 開始播放
-      sourceNodeRef.current.start(0);
-      console.log('音效開始播放');
-
-    } catch (error) {
-      console.error('音效播放失敗:', error);
-      cleanup();
-      setIsDetecting(false);
-    }
+    const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
+    const randomSituation = situations[Math.floor(Math.random() * situations.length)];
+    setDetectedSituation(randomSituation);
+    
+    const musicType = situationMusicMap[randomSituation];
+    console.log('準備跳轉到音樂播放頁面:', musicType);
+    
+    setFadeOut(true);
+    setTimeout(() => {
+      router.push(`/features/soothing-music/${musicType}?autoplay=true`);
+    }, 500);
   };
 
   const startDetection = async () => {
@@ -132,43 +185,14 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     setIsDetecting(true);
     console.log('開始偵測流程');
 
-    // 先設置跳轉計時器，確保一定會跳轉
-    console.log('設置 4 秒後跳轉');
-    redirectTimerRef.current = setTimeout(() => {
-      console.log('4 秒時間到，執行跳轉');
-      handleRedirect();
-    }, 4000);
-
-    // 嘗試播放音效，但不影響跳轉
     try {
-      if (!isAudioInitialized) {
-        await initAudioContext();
-      }
-      await playAudioBuffer();
+      await playDetectionSound();
+      redirectTimerRef.current = setTimeout(handleRedirect, 4000);
     } catch (error) {
-      console.error('音效播放失敗，但會繼續跳轉:', error);
-      // 不需要清理 redirectTimerRef，讓它繼續計時
+      console.error('偵測過程發生錯誤:', error);
+      cleanup();
+      setIsDetecting(false);
     }
-  };
-
-  const handleRedirect = () => {
-    console.log('準備跳轉，當前模式:', activeMode);
-    
-    // 確保一定會跳轉
-    const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
-    const randomSituation = situations[Math.floor(Math.random() * situations.length)];
-    setDetectedSituation(randomSituation);
-    
-    const musicType = situationMusicMap[randomSituation];
-    console.log('即將跳轉到音樂播放頁面:', musicType);
-    
-    setFadeOut(true);
-    
-    // 使用 window.location 直接跳轉，確保一定會跳轉
-    setTimeout(() => {
-      console.log('執行跳轉到:', `/features/soothing-music/${musicType}?autoplay=true`);
-      window.location.href = `/features/soothing-music/${musicType}?autoplay=true`;
-    }, 500);
   };
 
   const handleModeChange = (mode: string) => {
@@ -181,14 +205,10 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     }
   };
 
-  // 組件卸載時清理
+  // 預加載音效
   useEffect(() => {
-    return () => {
-      cleanup();
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-      }
-    };
+    loadDetectionSound();
+    return cleanup;
   }, []);
 
   return (
