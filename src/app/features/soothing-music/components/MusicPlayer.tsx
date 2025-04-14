@@ -24,86 +24,79 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   const [fadeOut, setFadeOut] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
   const [detectedSituation, setDetectedSituation] = useState<keyof typeof situationMusicMap | null>(null);
-  const [isAudioLoaded, setIsAudioLoaded] = useState(false);
-  const detectionAudio = useRef<HTMLAudioElement | null>(null);
-  const alertAudio = useRef<HTMLAudioElement | null>(null);
+  const detectionAudioRef = useRef<HTMLAudioElement | null>(null);
+  const alertAudioRef = useRef<HTMLAudioElement | null>(null);
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    // 只在客戶端創建音頻元素
-    detectionAudio.current = new Audio('/audio/哭聲偵測中.mp3');
-    alertAudio.current = new Audio('/audio/偵測提示.mp3');
-
-    const detection = detectionAudio.current;
-    const alert = alertAudio.current;
-
-    // 設置音量
-    detection.volume = 1.0;
-    alert.volume = 1.0;
-
-    // 監聽加載完成事件
-    const handleLoaded = () => {
-      console.log('音頻加載完成');
-      setIsAudioLoaded(true);
-    };
-
-    detection.addEventListener('canplaythrough', handleLoaded);
-    alert.addEventListener('canplaythrough', handleLoaded);
-
-    // 預加載
-    detection.load();
-    alert.load();
-
-    return () => {
-      detection.removeEventListener('canplaythrough', handleLoaded);
-      alert.removeEventListener('canplaythrough', handleLoaded);
-      detection.pause();
-      if (redirectTimerRef.current) {
-        clearTimeout(redirectTimerRef.current);
-      }
-    };
-  }, []);
-
-  const startDetection = () => {
-    if (!isDetecting && isAudioLoaded && detectionAudio.current && alertAudio.current) {
-      setIsDetecting(true);
-      console.log('開始偵測流程');
-
-      // 播放偵測音效
-      detectionAudio.current.currentTime = 0;
-      detectionAudio.current.play().catch(error => {
-        console.error('偵測音效播放失敗:', error);
-      });
-
-      // 設置計時器
-      redirectTimerRef.current = setTimeout(() => {
-        if (activeMode === 'auto' && alertAudio.current) {
-          // 播放提示音
-          alertAudio.current.currentTime = 0;
-          alertAudio.current.play().catch(error => {
-            console.error('提示音播放失敗:', error);
-          });
-
-          const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
-          const randomSituation = situations[Math.floor(Math.random() * situations.length)];
-          setDetectedSituation(randomSituation);
-          
-          const musicType = situationMusicMap[randomSituation];
-          console.log('準備跳轉到音樂播放頁面:', musicType);
-          
-          setFadeOut(true);
-          setTimeout(() => {
-            router.push(`/features/soothing-music/${musicType}?autoplay=true`);
-          }, 500);
-        }
-      }, 4000);
-    } else if (!isAudioLoaded) {
-      console.log('音頻還未加載完成，請稍候...');
+  // 清理函數
+  const cleanup = () => {
+    if (detectionAudioRef.current) {
+      detectionAudioRef.current.pause();
+      detectionAudioRef.current.currentTime = 0;
+    }
+    if (alertAudioRef.current) {
+      alertAudioRef.current.pause();
+      alertAudioRef.current.currentTime = 0;
+    }
+    if (redirectTimerRef.current) {
+      clearTimeout(redirectTimerRef.current);
     }
   };
 
+  // 組件卸載時清理
+  useEffect(() => {
+    return cleanup;
+  }, []);
+
+  const startDetection = () => {
+    if (isDetecting) return;
+    
+    cleanup(); // 先清理之前的狀態
+    setIsDetecting(true);
+    console.log('開始偵測流程');
+
+    // 創建新的音頻元素（每次都創建新的以避免 iOS 的緩存問題）
+    const detectionAudio = new Audio('/audio/哭聲偵測中.mp3');
+    detectionAudio.volume = 1.0;
+    detectionAudioRef.current = detectionAudio;
+
+    // 播放偵測音效
+    detectionAudio.play().catch(error => {
+      console.error('偵測音效播放失敗:', error);
+    });
+
+    // 設置計時器
+    redirectTimerRef.current = setTimeout(() => {
+      if (activeMode === 'auto') {
+        // 創建新的提示音元素
+        const alertAudio = new Audio('/audio/偵測提示.mp3');
+        alertAudio.volume = 1.0;
+        alertAudioRef.current = alertAudio;
+
+        // 播放提示音
+        alertAudio.play().catch(error => {
+          console.error('提示音播放失敗:', error);
+        });
+
+        const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
+        const randomSituation = situations[Math.floor(Math.random() * situations.length)];
+        setDetectedSituation(randomSituation);
+        
+        const musicType = situationMusicMap[randomSituation];
+        console.log('準備跳轉到音樂播放頁面:', musicType);
+        
+        setFadeOut(true);
+        setTimeout(() => {
+          router.push(`/features/soothing-music/${musicType}?autoplay=true`);
+        }, 500);
+      }
+    }, 4000);
+  };
+
   const handleModeChange = (mode: string) => {
+    cleanup(); // 切換模式時清理音頻
     setActiveMode(mode);
+    setIsDetecting(false);
     onModeChange?.(mode);
     if (mode === 'manual') {
       router.push('/features/soothing-music/playlist');
