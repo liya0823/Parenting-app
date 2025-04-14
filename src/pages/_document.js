@@ -4,12 +4,39 @@ export default function Document() {
   return (
     <Html lang="zh-TW">
       <Head>
-        <meta name="theme-color" content="#FACFC5" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        <meta name="theme-color" content="#4A90E2" />
+        <meta name="description" content="智能寶寶安撫助手，提供音樂、語音互動等功能" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="安心衛" />
+        
+        {/* iOS 圖標 */}
+        <link rel="apple-touch-icon" href="/icons/icon-152x152.png" />
+        <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180x180.png" />
+        <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-167x167.png" />
+        
+        {/* iOS 啟動畫面 */}
+        <link rel="apple-touch-startup-image" href="/screenshots/splash.png" />
+        
+        {/* PWA manifest */}
         <link rel="manifest" href="/manifest.json" />
-        <link rel="apple-touch-icon" href="/logo.png" />
+        
+        {/* Favicon */}
+        <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
+        <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#4A90E2" />
+        
+        {/* Microsoft Tiles */}
+        <meta name="msapplication-TileColor" content="#4A90E2" />
+        <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
+        
+        {/* 其他 meta 標籤 */}
+        <meta name="application-name" content="安心衛" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <script src="/fullscreen.js" defer></script>
         <style>
           {`

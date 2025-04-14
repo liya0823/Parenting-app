@@ -28,6 +28,7 @@
     "@types/googlemaps": "^3.43.3",
     "@types/node": "22.13.4",
     "@types/uuid": "^10.0.0",
+    "sharp": "^0.34.1",
     "typescript": "5.7.3"
   }
 }

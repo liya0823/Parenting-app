@@ -1,38 +1,87 @@
 {
-  "name": "安心餵 - 您的哺育小助手",
-  "short_name": "安心餵",
-  "description": "您的哺育小助手",
+  "name": "安心衛 - 寶寶安撫助手",
+  "short_name": "安心衛",
+  "description": "智能寶寶安撫助手，提供音樂、語音互動等功能",
   "start_url": "/",
-  "id": "/",
-  "scope": "/",
   "display": "standalone",
-  "display_override": ["fullscreen", "standalone"],
+  "background_color": "#ffffff",
+  "theme_color": "#4A90E2",
   "orientation": "portrait",
-  "background_color": "#FACFC5",
-  "theme_color": "#FACFC5",
   "icons": [
     {
-      "src": "/logo.png",
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/512.png",
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
   ],
-  "shortcuts": [
+  "screenshots": [
     {
-      "name": "首頁",
-      "short_name": "首頁",
-      "description": "回到首頁",
-      "url": "/",
-      "icons": [{ "src": "/logo.png", "sizes": "192x192" }]
+      "src": "/screenshots/screenshot1.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "安心衛主頁面"
     }
   ],
-  "related_applications": [],
+  "shortcuts": [
+    {
+      "name": "安撫音樂",
+      "short_name": "音樂",
+      "description": "快速進入安撫音樂頁面",
+      "url": "/features/soothing-music",
+      "icons": [{ "src": "/icons/music-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "語音助手",
+      "short_name": "助手",
+      "description": "快速進入語音助手頁面",
+      "url": "/features/voice-assistant",
+      "icons": [{ "src": "/icons/voice-96x96.png", "sizes": "96x96" }]
+    }
+  ],
+  "categories": ["lifestyle", "utilities"],
   "prefer_related_applications": false
 } 
