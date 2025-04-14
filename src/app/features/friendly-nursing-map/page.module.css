@@ -570,36 +570,51 @@
   color: #666;
 }
 
+
 /* 聲音檢測提示窗 */
 .soundAlert {
   position: fixed;
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgba(255, 255, 255, 0.95);
-  padding: 12px 24px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  z-index: 9999;
-  animation: slideDown 0.3s ease-out;
+  z-index: 1000;
+  animation: fadeInDown 0.5s ease-out;
+  width: 90%;
+  max-width: 500px;
 }
 
 .alertContent {
+  background-color: white;
+  border-radius: 15px;
+  padding: 15px 20px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-width: 350px;
+  max-width: 90%;
+  pointer-events: auto;
 }
 
 .alertIcon {
-  font-size: 24px;
+  animation: pulse 2s infinite;
 }
 
 .alertText {
-  font-size: 16px;
+  flex: 1;
+}
+
+.alertTitle {
+  font-size: 18px;
+  font-weight: bold;
   color: #333;
+  margin: 0 0 5px 0;
+}
+
+.alertMessage {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
 }
 
 @keyframes slideDown {
