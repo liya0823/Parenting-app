@@ -40,54 +40,34 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       setIsDetecting(true);
       
       // 立即播放偵測音效
-      const detectionAudio = new Audio();
-      detectionAudio.src = '/audio/哭聲偵測中.mp3';
+      const detectionAudio = new Audio('/audio/哭聲偵測中.mp3');
       detectionAudio.volume = 1.0;
+      detectionAudio.play()
+        .then(() => {
+          console.log('偵測音效播放成功');
+        })
+        .catch(error => {
+          console.error('偵測音效播放失敗:', error);
+        });
       
-      // 確保音頻加載完成後再播放
-      detectionAudio.addEventListener('canplaythrough', () => {
-        detectionAudio.play()
-          .then(() => {
-            console.log('偵測音效播放成功');
-          })
-          .catch(error => {
-            console.error('偵測音效播放失敗:', error);
-            // 如果播放失敗，立即重試一次
-            setTimeout(() => {
-              detectionAudio.play().catch(err => console.error('偵測音效重試失敗:', err));
-            }, 100);
-          });
-      }, { once: true });
+      // 預先創建提示音元素
+      const alertAudio = new Audio('/audio/提示音.mp3');
+      alertAudio.volume = 1.0;
+      audioRef.current = alertAudio;
 
-      // 開始加載音頻
-      detectionAudio.load();
-      
       // 設置計時器，4000毫秒後播放提示音並跳轉
       redirectTimerRef.current = setTimeout(() => {
         if (activeMode === 'auto') {
-          // 創建提示音頻元素
-          const alertAudio = new Audio();
-          alertAudio.src = '/audio/提示音.mp3';
-          alertAudio.volume = 1.0;
-          audioRef.current = alertAudio;
-          
-          // 確保提示音加載完成後再播放
-          alertAudio.addEventListener('canplaythrough', () => {
-            alertAudio.play()
-              .then(() => {
-                console.log('提示音播放成功');
-              })
-              .catch(error => {
-                console.error('提示音播放失敗:', error);
-                // 如果播放失敗，立即重試一次
-                setTimeout(() => {
-                  alertAudio.play().catch(err => console.error('提示音重試失敗:', err));
-                }, 100);
-              });
-          }, { once: true });
-
-          // 開始加載提示音
-          alertAudio.load();
+          // 播放提示音
+          alertAudio.play()
+            .then(() => {
+              console.log('提示音播放成功');
+            })
+            .catch(error => {
+              console.error('提示音播放失敗:', error);
+              // 如果播放失敗，立即重試一次
+              alertAudio.play().catch(err => console.error('提示音重試失敗:', err));
+            });
 
           const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
           const randomSituation = situations[Math.floor(Math.random() * situations.length)];
