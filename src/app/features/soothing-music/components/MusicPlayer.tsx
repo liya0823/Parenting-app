@@ -24,8 +24,39 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   const [fadeOut, setFadeOut] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
   const [detectedSituation, setDetectedSituation] = useState<keyof typeof situationMusicMap | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const detectionAudioRef = useRef<HTMLAudioElement | null>(null);
+  const alertAudioRef = useRef<HTMLAudioElement | null>(null);
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // 預加載音頻
+  useEffect(() => {
+    // 創建並預加載偵測音效
+    const detectionAudio = new Audio('/audio/哭聲偵測中.mp3');
+    detectionAudio.volume = 1.0;
+    detectionAudio.preload = 'auto';
+    detectionAudioRef.current = detectionAudio;
+
+    // 創建並預加載提示音
+    const alertAudio = new Audio('/audio/提示音.mp3');
+    alertAudio.volume = 1.0;
+    alertAudio.preload = 'auto';
+    alertAudioRef.current = alertAudio;
+
+    // 組件卸載時清理
+    return () => {
+      if (detectionAudioRef.current) {
+        detectionAudioRef.current.pause();
+        detectionAudioRef.current = null;
+      }
+      if (alertAudioRef.current) {
+        alertAudioRef.current.pause();
+        alertAudioRef.current = null;
+      }
+      if (redirectTimerRef.current) {
+        clearTimeout(redirectTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleModeChange = (mode: string) => {
     setActiveMode(mode);
@@ -35,39 +66,38 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     }
   };
 
+  const playAudio = async (audio: HTMLAudioElement | null) => {
+    if (!audio) return;
+    
+    try {
+      // 重置音頻
+      audio.currentTime = 0;
+      await audio.play();
+      console.log('音頻播放成功');
+    } catch (error) {
+      console.error('音頻播放失敗:', error);
+      // 如果播放失敗，立即重試一次
+      try {
+        await audio.play();
+        console.log('重試播放成功');
+      } catch (retryError) {
+        console.error('重試播放失敗:', retryError);
+      }
+    }
+  };
+
   const startDetection = () => {
     if (!isDetecting) {
       setIsDetecting(true);
       
-      // 立即播放偵測音效
-      const detectionAudio = new Audio('/audio/哭聲偵測中.mp3');
-      detectionAudio.volume = 1.0;
-      detectionAudio.play()
-        .then(() => {
-          console.log('偵測音效播放成功');
-        })
-        .catch(error => {
-          console.error('偵測音效播放失敗:', error);
-        });
+      // 播放偵測音效
+      playAudio(detectionAudioRef.current);
       
-      // 預先創建提示音元素
-      const alertAudio = new Audio('/audio/提示音.mp3');
-      alertAudio.volume = 1.0;
-      audioRef.current = alertAudio;
-
       // 設置計時器，4000毫秒後播放提示音並跳轉
       redirectTimerRef.current = setTimeout(() => {
         if (activeMode === 'auto') {
           // 播放提示音
-          alertAudio.play()
-            .then(() => {
-              console.log('提示音播放成功');
-            })
-            .catch(error => {
-              console.error('提示音播放失敗:', error);
-              // 如果播放失敗，立即重試一次
-              alertAudio.play().catch(err => console.error('提示音重試失敗:', err));
-            });
+          playAudio(alertAudioRef.current);
 
           const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
           const randomSituation = situations[Math.floor(Math.random() * situations.length)];
@@ -78,10 +108,12 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
           
           setFadeOut(true);
           setTimeout(() => {
-            // 在跳轉前停止音頻播放
-            if (audioRef.current) {
-              audioRef.current.pause();
-              audioRef.current = null;
+            // 在跳轉前停止所有音頻播放
+            if (detectionAudioRef.current) {
+              detectionAudioRef.current.pause();
+            }
+            if (alertAudioRef.current) {
+              alertAudioRef.current.pause();
             }
             router.push(`/features/soothing-music/${musicType}?autoplay=true`);
           }, 500);
@@ -89,19 +121,6 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       }, 4000);
     }
   };
-
-  // 組件卸載時清理
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-      if (redirectTimerRef.current) {
-        clearTimeout(redirectTimerRef.current);
-      }
-    };
-  }, []);
 
   return (
     <div className={`${styles.container} ${fadeOut ? styles.fadeOut : ''}`}>
