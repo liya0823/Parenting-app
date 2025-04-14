@@ -128,6 +128,9 @@ export default function Tutorial() {
                         console.log('Audio finished playing');
                         if (!isComponentMounted) return;
                         
+                        // 播放完成後導航到 MusicPlayer 組件
+                        router.push('/features/soothing-music');
+                        
                         // 播放完成後恢復麥克風
                         resumeMicrophone();
                         // 清理音頻實例
@@ -160,12 +163,6 @@ export default function Tutorial() {
                         audio.play().catch(console.error);
                       }, 1000);
                     });
-                  
-                  // 顯示提示後，延遲 2 秒跳轉到舒緩音樂頁面
-                  setTimeout(() => {
-                    if (!isComponentMounted) return;
-                    router.push('/features/soothing-music');
-                  }, 4000);
                   
                   // 5 秒後隱藏提示
                   setTimeout(() => {

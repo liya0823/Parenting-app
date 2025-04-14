@@ -2,7 +2,7 @@ import { Html, Head, Main, NextScript } from 'next/document';
 
 export default function Document() {
   return (
-    <Html lang="zh">
+    <Html lang="zh-TW">
       <Head>
         <meta name="theme-color" content="#FACFC5" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />

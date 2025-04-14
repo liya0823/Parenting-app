@@ -319,7 +319,7 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
           audio.removeEventListener('ended', handleEnded);
           console.log(`音效播放超時: ${soundFile}`);
           resolve();
-        }, 3000);
+        }, 4000);
       });
     } catch (error) {
       console.error(`音效播放錯誤: ${soundFile}`, error);

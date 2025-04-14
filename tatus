@@ -18,3 +18,20 @@ Author: liya0823 <a0926206129-@gmail.com>
 Date:   Mon Apr 14 03:39:22 2025 +0800
 
     feat: 更新 Playlist.module.css 的樣式
+[33mcommit a4d5280e431e51f59dbb89260615328b1de4c727[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Author: liya0823 <a0926206129-@gmail.com>
+Date:   Mon Apr 14 06:19:13 2025 +0800
+
+    feat: 添加更多手機尺寸的適配
+
+[33mcommit 8c245f930fbbb207ed05eaeee37447da535aa9f4[m
+Author: liya0823 <a0926206129-@gmail.com>
+Date:   Mon Apr 14 06:06:01 2025 +0800
+
+    fix: 優化歡迎音效播放和麥克風初始化的邏輯
+
+[33mcommit c68685ab5db7af336333a719e35ceeab9e5bba9e[m
+Author: liya0823 <a0926206129-@gmail.com>
+Date:   Mon Apr 14 05:54:17 2025 +0800
+
+    style: 更新所有頁面的 CSS 樣式

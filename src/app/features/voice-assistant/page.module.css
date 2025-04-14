@@ -856,3 +856,70 @@
     transform: scale(1);
   }
 }
+/* 聲音檢測提示窗 */
+.soundAlert {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  animation: fadeInDown 0.5s ease-out;
+  width: 90%;
+  max-width: 500px;
+}
+
+.alertContent {
+  background-color: white;
+  border-radius: 15px;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-width: 350px;
+  max-width: 90%;
+  pointer-events: auto;
+}
+
+.alertIcon {
+  animation: pulse 2s infinite;
+}
+
+.alertText {
+  flex: 1;
+}
+
+.alertTitle {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin: 0 0 5px 0;
+}
+
+.alertMessage {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
