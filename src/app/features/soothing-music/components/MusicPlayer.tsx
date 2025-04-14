@@ -24,15 +24,47 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   const [fadeOut, setFadeOut] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
   const [detectedSituation, setDetectedSituation] = useState<keyof typeof situationMusicMap | null>(null);
-  const detectionAudioRef = useRef<HTMLAudioElement | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const audioBufferRef = useRef<AudioBuffer | null>(null);
+  const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // 初始化 AudioContext
+  useEffect(() => {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    audioContextRef.current = new AudioContextClass();
+
+    // 預加載音效
+    const loadAudio = async () => {
+      try {
+        const response = await fetch('/audio/哭聲偵測中.mp3');
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await audioContextRef.current?.decodeAudioData(arrayBuffer);
+        if (audioBuffer) {
+          audioBufferRef.current = audioBuffer;
+          console.log('音效加載成功');
+        }
+      } catch (error) {
+        console.error('音效加載失敗:', error);
+      }
+    };
+
+    loadAudio();
+
+    return () => {
+      cleanup();
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+    };
+  }, []);
 
   // 清理函數
   const cleanup = () => {
-    if (detectionAudioRef.current) {
-      detectionAudioRef.current.pause();
-      detectionAudioRef.current.currentTime = 0;
-      detectionAudioRef.current = null;
+    if (sourceNodeRef.current) {
+      sourceNodeRef.current.stop();
+      sourceNodeRef.current.disconnect();
+      sourceNodeRef.current = null;
     }
     if (redirectTimerRef.current) {
       clearTimeout(redirectTimerRef.current);
@@ -40,10 +72,39 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     }
   };
 
-  // 組件卸載時清理
-  useEffect(() => {
-    return cleanup;
-  }, []);
+  const playAudioBuffer = async () => {
+    if (!audioContextRef.current || !audioBufferRef.current) {
+      console.error('AudioContext 或 AudioBuffer 未初始化');
+      return;
+    }
+
+    try {
+      // 如果 AudioContext 被暫停，恢復它
+      if (audioContextRef.current.state === 'suspended') {
+        await audioContextRef.current.resume();
+      }
+
+      // 創建新的音頻源
+      const source = audioContextRef.current.createBufferSource();
+      source.buffer = audioBufferRef.current;
+      source.connect(audioContextRef.current.destination);
+      sourceNodeRef.current = source;
+
+      // 播放音頻
+      source.start(0);
+      console.log('音效播放成功');
+
+      // 監聽播放結束
+      source.onended = () => {
+        console.log('音效播放結束');
+        sourceNodeRef.current = null;
+      };
+    } catch (error) {
+      console.error('音效播放失敗:', error);
+      cleanup();
+      setIsDetecting(false);
+    }
+  };
 
   const handleRedirect = () => {
     if (activeMode !== 'auto') return;
@@ -61,7 +122,7 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     }, 500);
   };
 
-  const startDetection = () => {
+  const startDetection = async () => {
     if (isDetecting) return;
     
     cleanup(); // 先清理之前的狀態
@@ -69,17 +130,8 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     console.log('開始偵測流程');
 
     try {
-      // 創建新的音頻元素
-      const detectionAudio = new Audio('/audio/哭聲偵測中.mp3');
-      detectionAudio.volume = 1.0;
-      detectionAudioRef.current = detectionAudio;
-
       // 播放偵測音效
-      detectionAudio.play().catch(error => {
-        console.error('偵測音效播放失敗:', error);
-        cleanup();
-        setIsDetecting(false);
-      });
+      await playAudioBuffer();
 
       // 設置計時器
       redirectTimerRef.current = setTimeout(handleRedirect, 4000);
