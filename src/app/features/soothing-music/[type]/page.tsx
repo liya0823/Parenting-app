@@ -163,6 +163,95 @@ export default function MusicTypePage({ params }: { params: { type: string } }) 
   const mainAudioRef = useRef<HTMLAudioElement | null>(null);
   const [isNotificationPlayed, setIsNotificationPlayed] = useState(false);
   const [isMainAudioReady, setIsMainAudioReady] = useState(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
+
+  // 初始化 AudioContext
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      audioContextRef.current = new AudioContextClass();
+    }
+    return () => {
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+    };
+  }, []);
+
+  // 處理音頻播放
+  useEffect(() => {
+    if (autoplay && mainAudioRef.current) {
+      const playAudio = async () => {
+        try {
+          // 確保 AudioContext 已經初始化
+          if (!audioContextRef.current) {
+            const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+            audioContextRef.current = new AudioContextClass();
+          }
+
+          // 如果 AudioContext 被暫停，恢復它
+          if (audioContextRef.current.state === 'suspended') {
+            await audioContextRef.current.resume();
+          }
+
+          // 播放音頻
+          if (mainAudioRef.current) {
+            await mainAudioRef.current.play();
+            console.log('主音樂開始播放');
+          }
+        } catch (error) {
+          console.error('播放音樂失敗:', error);
+          
+          // 如果是 iOS 設備，特別處理
+          if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+            console.log('檢測到 iOS 設備，使用特殊處理');
+            // 嘗試在用戶交互後播放
+            const playOnInteraction = async () => {
+              try {
+                await mainAudioRef.current?.play();
+                document.removeEventListener('touchstart', playOnInteraction);
+              } catch (err) {
+                console.error('iOS 播放失敗:', err);
+              }
+            };
+            document.addEventListener('touchstart', playOnInteraction);
+          }
+        }
+      };
+
+      // 如果提示音已經播放完或沒有提示音，直接播放主音樂
+      if (!showNotification || isNotificationPlayed) {
+        playAudio();
+      }
+    }
+  }, [autoplay, isNotificationPlayed, showNotification]);
+
+  // 處理提示音結束後的邏輯
+  const handleNotificationEnded = () => {
+    console.log('提示音播放結束，開始播放主音樂');
+    setIsNotificationPlayed(true);
+    
+    setTimeout(() => {
+      setShowNotification(false);
+    }, 1000);
+    
+    // 確保主音樂已準備好再播放
+    if (mainAudioRef.current && isMainAudioReady) {
+      const playMainAudio = async () => {
+        try {
+          if (audioContextRef.current?.state === 'suspended') {
+            await audioContextRef.current.resume();
+          }
+          if (mainAudioRef.current) {
+            await mainAudioRef.current.play();
+          }
+        } catch (error) {
+          console.error('播放主音樂失敗:', error);
+        }
+      };
+      playMainAudio();
+    }
+  };
 
   // 判斷是否為動畫音樂
   const isAnimationMusic = ['dog', 'sheep', 'elephant', 'rattle', 'cat', 'duck', 'bear', 'frog'].includes(params.type);
@@ -183,23 +272,6 @@ export default function MusicTypePage({ params }: { params: { type: string } }) 
   };
 
   const notificationMessage = getNotificationMessage();
-
-  // 處理提示音結束後的邏輯
-  const handleNotificationEnded = () => {
-    console.log('提示音播放結束，開始播放主音樂');
-    setIsNotificationPlayed(true);
-    
-    setTimeout(() => {
-      setShowNotification(false);
-    }, 1000);
-    
-    // 確保主音樂已準備好再播放
-    if (mainAudioRef.current && isMainAudioReady) {
-      mainAudioRef.current.play().catch(error => {
-        console.error('播放主音樂失敗:', error);
-      });
-    }
-  };
 
   // 初始化主音樂
   useEffect(() => {
