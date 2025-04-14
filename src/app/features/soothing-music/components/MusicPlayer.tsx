@@ -4,6 +4,40 @@ import Image from 'next/image';
 import styles from './MusicPlayer.module.css';
 import { useRouter } from 'next/navigation';
 
+// 定義不同情況的提示窗文案
+const notificationMessages = {
+  hungry: {
+    title: '媽媽 / 爸爸，我需要你 🥺',
+    message: '偵測到寶寶的哭聲，可能是餓了或想要抱抱。已幫您播放「溫柔的雨聲」🌧️，希望能讓寶寶安心入睡～',
+    sound: '偵測到寶寶的.mp3'
+  },
+  briefCry: {
+    title: '寶寶短暫哭了一下，但現在安靜了 😊',
+    message: '或許只是睡夢中小小驚醒，已播放輕柔的搖籃曲 🎶，幫助寶寶再次入眠～',
+    sound: '寶寶短暫哭了.mp3'
+  },
+  longCry: {
+    title: '別擔心，我來幫你安撫寶寶 🍼',
+    message: '寶寶哭了一段時間，可能是想要您的關心。建議查看是否需要餵奶、換尿布或輕輕拍背安撫，我們也已播放舒緩的噓聲 🎶',
+    sound: '寶寶哭了一段.mp3'
+  },
+  morning: {
+    title: '寶寶早晨的哭聲，是想要開始新的一天嗎？🌞',
+    message: '聽起來是醒來的聲音，您可以溫柔地抱起寶寶，和他說早安 👶💛 如果還想讓他多睡一會兒，已幫您播放「輕柔的鳥鳴聲」🕊️',
+    sound: '聽起來是醒來.mp3'
+  },
+  night: {
+    title: '夜深了，寶寶還有些不安嗎？💤',
+    message: '有時候，夜晚會讓寶寶感到沒有安全感。已播放安眠曲 💓，希望能讓他像回到媽媽懷裡一樣安心～',
+    sound: '有時候，夜晚.mp3'
+  },
+  default: {
+    title: '偵測到哭聲',
+    message: '正在為您播放音樂，希望能讓寶寶安心～',
+    sound: '偵測到哭聲.mp3'
+  }
+} as const;
+
 // 定義不同情況對應的音樂類型
 const situationMusicMap = {
   hungry: 'rain', // 餓了或想要抱抱
@@ -12,7 +46,10 @@ const situationMusicMap = {
   morning: 'bird', // 早晨的哭聲
   night: 'cradle', // 夜晚的不安
   default: 'ocean' // 默認情況
-};
+} as const;
+
+type SituationType = keyof typeof situationMusicMap;
+type NotificationType = keyof typeof notificationMessages;
 
 export interface MusicPlayerProps {
   onModeChange?: (mode: string) => void;
@@ -23,12 +60,15 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   const [activeMode, setActiveMode] = useState('auto');
   const [fadeOut, setFadeOut] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
-  const [detectedSituation, setDetectedSituation] = useState<keyof typeof situationMusicMap | null>(null);
+  const [detectedSituation, setDetectedSituation] = useState<SituationType | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const detectionBufferRef = useRef<AudioBuffer | null>(null);
   const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isLoadingRef = useRef(false);
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState<typeof notificationMessages[NotificationType] | null>(null);
+  const [notificationBufferRef, setNotificationBufferRef] = useState<AudioBuffer | null>(null);
 
   // 初始化 AudioContext
   const initAudioContext = async () => {
@@ -53,16 +93,11 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   };
 
   // 加載音效
-  const loadDetectionSound = async () => {
-    if (isLoadingRef.current || detectionBufferRef.current) return;
-    
+  const loadAudio = async (url: string): Promise<AudioBuffer | null> => {
     try {
-      isLoadingRef.current = true;
-      console.log('開始加載音效...');
+      console.log(`開始加載音效: ${url}`);
       
-      const response = await fetch('/audio/哭聲偵測中.mp3');
-      console.log('音效檔案狀態:', response.status);
-      
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -76,32 +111,22 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
 
       if (audioContextRef.current) {
         const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
-        detectionBufferRef.current = audioBuffer;
         console.log('音效解碼成功');
+        return audioBuffer;
       }
+      return null;
     } catch (error) {
       console.error('加載音效失敗:', error);
-    } finally {
-      isLoadingRef.current = false;
+      return null;
     }
   };
 
   // 播放音效
-  const playDetectionSound = async () => {
+  const playAudio = async (buffer: AudioBuffer): Promise<void> => {
     try {
-      // 確保 AudioContext 已初始化且活躍
       const isReady = await initAudioContext();
       if (!isReady || !audioContextRef.current) {
         throw new Error('AudioContext 未就緒');
-      }
-
-      // 如果音效尚未加載，先加載
-      if (!detectionBufferRef.current) {
-        await loadDetectionSound();
-      }
-
-      if (!detectionBufferRef.current) {
-        throw new Error('音效未能成功加載');
       }
 
       // 停止之前的音效（如果有）
@@ -112,7 +137,7 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
 
       // 創建新的音源
       const source = audioContextRef.current.createBufferSource();
-      source.buffer = detectionBufferRef.current;
+      source.buffer = buffer;
       
       // 創建音量控制
       const gainNode = audioContextRef.current.createGain();
@@ -125,23 +150,61 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       // 保存音源引用
       sourceNodeRef.current = source;
 
-      // 監聽播放結束
-      source.onended = () => {
-        console.log('音效播放結束');
-        if (sourceNodeRef.current) {
-          sourceNodeRef.current.disconnect();
-          sourceNodeRef.current = null;
-        }
-      };
+      return new Promise((resolve) => {
+        source.onended = () => {
+          console.log('音效播放結束');
+          if (sourceNodeRef.current) {
+            sourceNodeRef.current.disconnect();
+            sourceNodeRef.current = null;
+          }
+          resolve();
+        };
 
-      // 開始播放
-      source.start(0);
-      console.log('音效開始播放');
-
+        // 開始播放
+        source.start(0);
+        console.log('音效開始播放');
+      });
     } catch (error) {
       console.error('播放音效失敗:', error);
       throw error;
     }
+  };
+
+  // 加載偵測音效
+  const loadDetectionSound = async () => {
+    if (isLoadingRef.current || detectionBufferRef.current) return;
+    isLoadingRef.current = true;
+    try {
+      const buffer = await loadAudio('/audio/哭聲偵測中.mp3');
+      if (buffer) {
+        detectionBufferRef.current = buffer;
+      }
+    } finally {
+      isLoadingRef.current = false;
+    }
+  };
+
+  // 播放偵測音效
+  const playDetectionSound = () => {
+    return new Promise<void>((resolve, reject) => {
+      try {
+        const audio = new Audio('/audio/哭聲偵測中.mp3');
+        audio.onended = () => {
+          resolve();
+        };
+        audio.onerror = (error) => {
+          console.error('播放偵測音效失敗:', error);
+          reject(error);
+        };
+        audio.play().catch(error => {
+          console.error('播放偵測音效失敗:', error);
+          reject(error);
+        });
+      } catch (error) {
+        console.error('播放偵測音效失敗:', error);
+        reject(error);
+      }
+    });
   };
 
   // 清理函數
@@ -162,32 +225,42 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     }
   };
 
-  const handleRedirect = () => {
-    if (activeMode !== 'auto') return;
-
-    const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
-    const randomSituation = situations[Math.floor(Math.random() * situations.length)];
-    setDetectedSituation(randomSituation);
-    
-    const musicType = situationMusicMap[randomSituation];
-    console.log('準備跳轉到音樂播放頁面:', musicType);
-    
-    setFadeOut(true);
-    setTimeout(() => {
-      router.push(`/features/soothing-music/${musicType}?autoplay=true`);
-    }, 500);
-  };
-
   const startDetection = async () => {
     if (isDetecting) return;
     
     cleanup();
     setIsDetecting(true);
-    console.log('開始偵測流程');
 
     try {
       await playDetectionSound();
-      redirectTimerRef.current = setTimeout(handleRedirect, 4000);
+      
+      redirectTimerRef.current = setTimeout(async () => {
+        const situations: SituationType[] = ['hungry', 'briefCry', 'longCry', 'morning', 'night', 'default'];
+        const randomSituation = situations[Math.floor(Math.random() * situations.length)];
+        setDetectedSituation(randomSituation);
+        
+        const musicType = situationMusicMap[randomSituation];
+        const message = notificationMessages[randomSituation];
+        setNotificationMessage(message);
+        setShowNotification(true);
+        
+        try {
+          const audio = new Audio(`/audio/${message.sound}`);
+          await audio.play();
+          audio.onended = () => {
+            setFadeOut(true);
+            setTimeout(() => {
+              router.push(`/features/soothing-music/${musicType}?autoplay=true`);
+            }, 500);
+          };
+        } catch (error) {
+          console.error('播放提示音失敗:', error);
+          setFadeOut(true);
+          setTimeout(() => {
+            router.push(`/features/soothing-music/${musicType}?autoplay=true`);
+          }, 500);
+        }
+      }, 3000);
     } catch (error) {
       console.error('偵測過程發生錯誤:', error);
       cleanup();
@@ -213,6 +286,23 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
 
   return (
     <div className={`${styles.container} ${fadeOut ? styles.fadeOut : ''}`}>
+      {showNotification && notificationMessage && (
+        <div className={styles.notification}>
+          <div className={styles.notificationContent}>
+            <Image
+              src="/CryBaby.png"
+              alt="CryBaby"
+              width={45}
+              height={45}
+              className={styles.notificationIcon}
+            />
+            <div className={styles.notificationText}>
+              <p className={styles.notificationTitle}>{notificationMessage.title}</p>
+              <p className={styles.notificationMessage}>{notificationMessage.message}</p>
+            </div>
+          </div>
+        </div>
+      )}
       <div className={styles.header}>
         <div className={styles.logoWrapper}>
           <span className={styles.anxinwei}>安撫音樂</span>

@@ -158,100 +158,80 @@ export default function MusicTypePage({ params }: { params: { type: string } }) 
   const router = useRouter();
   const searchParams = useSearchParams();
   const autoplay = searchParams?.get('autoplay') === 'true';
-  const [showNotification, setShowNotification] = useState(autoplay);
   const [fadeOut, setFadeOut] = useState(false);
   const mainAudioRef = useRef<HTMLAudioElement | null>(null);
-  const [isNotificationPlayed, setIsNotificationPlayed] = useState(false);
   const [isMainAudioReady, setIsMainAudioReady] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const isIOS = typeof navigator !== 'undefined' && /iPhone|iPad|iPod/.test(navigator.userAgent);
 
-  // 初始化 AudioContext
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
+  // 初始化音頻上下文
+  const initAudioContext = async () => {
+    if (!audioContextRef.current) {
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
       audioContextRef.current = new AudioContextClass();
     }
-    return () => {
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-      }
-    };
-  }, []);
-
-  // 處理音頻播放
-  useEffect(() => {
-    if (autoplay && mainAudioRef.current) {
-      const playAudio = async () => {
-        try {
-          // 確保 AudioContext 已經初始化
-          if (!audioContextRef.current) {
-            const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-            audioContextRef.current = new AudioContextClass();
-          }
-
-          // 如果 AudioContext 被暫停，恢復它
-          if (audioContextRef.current.state === 'suspended') {
-            await audioContextRef.current.resume();
-          }
-
-          // 播放音頻
-          if (mainAudioRef.current) {
-            await mainAudioRef.current.play();
-            console.log('主音樂開始播放');
-          }
-        } catch (error) {
-          console.error('播放音樂失敗:', error);
-          
-          // 如果是 iOS 設備，特別處理
-          if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-            console.log('檢測到 iOS 設備，使用特殊處理');
-            // 嘗試在用戶交互後播放
-            const playOnInteraction = async () => {
-              try {
-                await mainAudioRef.current?.play();
-                document.removeEventListener('touchstart', playOnInteraction);
-              } catch (err) {
-                console.error('iOS 播放失敗:', err);
-              }
-            };
-            document.addEventListener('touchstart', playOnInteraction);
-          }
-        }
-      };
-
-      // 如果提示音已經播放完或沒有提示音，直接播放主音樂
-      if (!showNotification || isNotificationPlayed) {
-        playAudio();
-      }
-    }
-  }, [autoplay, isNotificationPlayed, showNotification]);
-
-  // 處理提示音結束後的邏輯
-  const handleNotificationEnded = () => {
-    console.log('提示音播放結束，開始播放主音樂');
-    setIsNotificationPlayed(true);
-    
-    setTimeout(() => {
-      setShowNotification(false);
-    }, 1000);
-    
-    // 確保主音樂已準備好再播放
-    if (mainAudioRef.current && isMainAudioReady) {
-      const playMainAudio = async () => {
-        try {
-          if (audioContextRef.current?.state === 'suspended') {
-            await audioContextRef.current.resume();
-          }
-          if (mainAudioRef.current) {
-            await mainAudioRef.current.play();
-          }
-        } catch (error) {
-          console.error('播放主音樂失敗:', error);
-        }
-      };
-      playMainAudio();
+    if (audioContextRef.current.state === 'suspended') {
+      await audioContextRef.current.resume();
     }
   };
+
+  // 播放音頻
+  const playAudio = async () => {
+    if (!mainAudioRef.current) return;
+    
+    try {
+      await initAudioContext();
+      const playPromise = mainAudioRef.current.play();
+      if (playPromise !== undefined) {
+        await playPromise;
+        console.log('音頻播放成功');
+      }
+    } catch (error) {
+      console.error('播放音頻失敗:', error);
+      if (isIOS) {
+        // 為 iOS 設備添加點擊事件監聽器
+        const playOnTouch = async () => {
+          try {
+            await mainAudioRef.current?.play();
+            document.removeEventListener('touchstart', playOnTouch);
+          } catch (e) {
+            console.error('iOS 觸摸播放失敗:', e);
+          }
+        };
+        document.addEventListener('touchstart', playOnTouch);
+      }
+    }
+  };
+
+  // 初始化主音樂
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const musicData = getMusicData();
+    const audio = new Audio(musicData.audioSrc);
+    audio.loop = true;
+    mainAudioRef.current = audio;
+
+    const handleCanPlay = async () => {
+      console.log('音頻已準備就緒');
+      setIsMainAudioReady(true);
+      if (autoplay) {
+        await playAudio();
+      }
+    };
+
+    audio.addEventListener('canplaythrough', handleCanPlay);
+    audio.load();
+
+    return () => {
+      audio.removeEventListener('canplaythrough', handleCanPlay);
+      if (mainAudioRef.current) {
+        mainAudioRef.current.pause();
+        mainAudioRef.current.src = '';
+      }
+    };
+  }, [autoplay]);
 
   // 判斷是否為動畫音樂
   const isAnimationMusic = ['dog', 'sheep', 'elephant', 'rattle', 'cat', 'duck', 'bear', 'frog'].includes(params.type);
@@ -259,61 +239,6 @@ export default function MusicTypePage({ params }: { params: { type: string } }) 
   // 根據當前音樂類型選擇對應的列表
   const currentList = isAnimationMusic ? animationMusicList : naturalMusicList;
   const currentIndex = currentList.findIndex(music => music.type === params.type);
-
-  // 獲取對應的提示窗文案
-  const getNotificationMessage = () => {
-    if (autoplay) {
-      if (params.type in notificationMessages) {
-        return notificationMessages[params.type as keyof typeof notificationMessages];
-      }
-      return notificationMessages.default;
-    }
-    return notificationMessages.default;
-  };
-
-  const notificationMessage = getNotificationMessage();
-
-  // 初始化主音樂
-  useEffect(() => {
-    if (autoplay) {
-      const musicData = getMusicData();
-      
-      // 停止之前的音頻（如果有）
-      if (mainAudioRef.current) {
-        mainAudioRef.current.pause();
-        mainAudioRef.current.currentTime = 0;
-        mainAudioRef.current = null;
-      }
-      
-      // 創建新的主音樂音頻
-      const audio = new Audio(musicData.audioSrc);
-      audio.addEventListener('canplaythrough', () => {
-        setIsMainAudioReady(true);
-      });
-      
-      mainAudioRef.current = audio;
-      mainAudioRef.current.pause();
-      
-      return () => {
-        if (mainAudioRef.current) {
-          mainAudioRef.current.pause();
-          mainAudioRef.current.currentTime = 0;
-          mainAudioRef.current = null;
-        }
-        setIsMainAudioReady(false);
-      };
-    }
-  }, [autoplay]);
-
-  const handlePrevious = () => {
-    const prevIndex = currentIndex > 0 ? currentIndex - 1 : currentList.length - 1;
-    router.push(`/features/soothing-music/${currentList[prevIndex].type}`);
-  };
-
-  const handleNext = () => {
-    const nextIndex = currentIndex < currentList.length - 1 ? currentIndex + 1 : 0;
-    router.push(`/features/soothing-music/${currentList[nextIndex].type}`);
-  };
 
   const getMusicData = () => {
     const music = musicList.find(m => m.type === params.type);
@@ -329,6 +254,16 @@ export default function MusicTypePage({ params }: { params: { type: string } }) 
 
   const musicData = getMusicData();
 
+  const handlePrevious = () => {
+    const prevIndex = currentIndex > 0 ? currentIndex - 1 : currentList.length - 1;
+    router.push(`/features/soothing-music/${currentList[prevIndex].type}`);
+  };
+
+  const handleNext = () => {
+    const nextIndex = currentIndex < currentList.length - 1 ? currentIndex + 1 : 0;
+    router.push(`/features/soothing-music/${currentList[nextIndex].type}`);
+  };
+
   const handleBack = () => {
     setFadeOut(true);
     setTimeout(() => {
@@ -338,30 +273,6 @@ export default function MusicTypePage({ params }: { params: { type: string } }) 
 
   return (
     <div className={`${styles.container} ${fadeOut ? styles.fadeOut : ''}`}>
-      {showNotification && (
-        <div className={styles.notification}>
-          <div className={styles.notificationContent}>
-            <Image
-              src="/CryBaby.png"
-              alt="CryBaby"
-              width={45}
-              height={45}
-              className={styles.notificationIcon}
-            />
-            <div className={styles.notificationText}>
-              <p className={styles.notificationTitle}>{notificationMessage.title}</p>
-              <p className={styles.notificationMessage}>{notificationMessage.message}</p>
-            </div>
-          </div>
-          <NotificationAudio
-            sound={notificationMessage.sound}
-            onEnded={handleNotificationEnded}
-            isModalVisible={showNotification}
-            isPageReady={true}
-          />
-        </div>
-      )}
-
       {/* 根據類型返回不同的播放器 */}
       {isAnimationMusic ? (
         <AnimationPlayer

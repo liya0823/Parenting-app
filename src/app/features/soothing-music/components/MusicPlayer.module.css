@@ -405,6 +405,8 @@
 .startButton {
   background-color: #FACFC5;
   color: white;
+  z-index: 1001;
+  box-shadow: 0 3px 4px rgba(200, 169, 154, 0.511);
 }
 
 .detectingText {
@@ -559,5 +561,45 @@
   }
   100% {
     transform: scaleY(0.5);
+  }
+}
+
+.notification {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  width: 80%;
+  max-width: 320px;
+  text-align: center;
+  animation: slideIn 0.3s ease-out;
+}
+
+.notificationTitle {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.notificationMessage {
+  font-size: 16px;
+  color: #666;
+  line-height: 1.5;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -40%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
   }
 }
