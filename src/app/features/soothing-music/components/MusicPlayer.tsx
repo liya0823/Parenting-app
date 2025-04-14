@@ -79,20 +79,10 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       }
       
       // 播放音頻
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        await playPromise;
-        console.log('音頻播放成功');
-      }
+      await audio.play();
+      console.log('音頻播放成功');
     } catch (error) {
       console.error('音頻播放失敗:', error);
-      // 如果播放失敗，立即重試一次
-      try {
-        await audio.play();
-        console.log('重試播放成功');
-      } catch (retryError) {
-        console.error('重試播放失敗:', retryError);
-      }
     }
   };
 
@@ -109,22 +99,14 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       setIsDetecting(true);
       console.log('開始偵測流程...');
 
-      try {
-        // 播放偵測音效
-        await playAudio(detectionAudioRef.current);
-      } catch (error) {
-        console.error('偵測音效播放失敗:', error);
-      }
+      // 播放偵測音效
+      await playAudio(detectionAudioRef.current);
       
       // 設置計時器，4000毫秒後播放提示音並跳轉
       redirectTimerRef.current = setTimeout(async () => {
         if (activeMode === 'auto') {
-          try {
-            // 播放提示音
-            await playAudio(alertAudioRef.current);
-          } catch (error) {
-            console.error('提示音播放失敗:', error);
-          }
+          // 播放提示音
+          await playAudio(alertAudioRef.current);
 
           const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
           const randomSituation = situations[Math.floor(Math.random() * situations.length)];
