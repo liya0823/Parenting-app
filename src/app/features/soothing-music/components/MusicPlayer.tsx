@@ -131,8 +131,12 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
 
       // 停止之前的音效（如果有）
       if (sourceNodeRef.current) {
-        sourceNodeRef.current.stop();
-        sourceNodeRef.current.disconnect();
+        try {
+          sourceNodeRef.current.stop();
+          sourceNodeRef.current.disconnect();
+        } catch (error) {
+          console.log('停止之前的音效時發生錯誤:', error);
+        }
       }
 
       // 創建新的音源
@@ -232,6 +236,9 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     setIsDetecting(true);
 
     try {
+      // 確保 AudioContext 已初始化並處於活躍狀態
+      await initAudioContext();
+      
       console.log('開始偵測流程:', new Date().toISOString());
       
       // 立即播放偵測音效
@@ -249,20 +256,42 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       const message = notificationMessages[randomSituation];
 
       try {
-        // 使用 AudioContext 播放提示音
-        const notificationBuffer = await loadAudio(`/audio/${message.sound}`);
-        if (!notificationBuffer) {
-          throw new Error('提示音加載失敗');
-        }
-
         // 顯示提示窗
         setDetectedSituation(randomSituation);
         setNotificationMessage(message);
         setShowNotification(true);
 
+        // 使用 Audio 元素播放提示音（更適合移動設備）
+        const audio = new Audio(`/audio/${message.sound}`);
+        audio.volume = 1.0;
+
         console.log('提示音開始播放:', new Date().toISOString());
-        await playAudio(notificationBuffer);
-        console.log('提示音播放完成:', new Date().toISOString());
+        
+        // 在播放前先加載音效
+        await new Promise<void>((resolve, reject) => {
+          audio.oncanplaythrough = () => resolve();
+          audio.onerror = () => reject(new Error('音效加載失敗'));
+          audio.load();
+        });
+
+        // 播放音效
+        await audio.play();
+
+        // 等待提示音播放完成
+        await new Promise<void>((resolve) => {
+          const handleEnded = () => {
+            console.log('提示音播放完成:', new Date().toISOString());
+            resolve();
+          };
+          
+          audio.addEventListener('ended', handleEnded);
+          
+          // 設置超時，避免無限等待
+          setTimeout(() => {
+            audio.removeEventListener('ended', handleEnded);
+            resolve();
+          }, 5000);
+        });
 
         // 開始淡出動畫
         console.log('開始頁面淡出:', new Date().toISOString());
