@@ -84,52 +84,50 @@ const Playlist = () => {
   // 播放音效函數
   const playSound = async (soundFile: string): Promise<void> => {
     try {
-      // 嘗試預加載音效
-      await preloadAudio(soundFile);
-      
-      // 獲取音效元素
-      const audio = audioElementsRef.current[soundFile];
-      if (!audio) {
-        throw new Error(`音效未加載: ${soundFile}`);
-      }
-      
-      // 重置音效
-      audio.currentTime = 0;
+      // 創建新的音頻元素
+      const audio = new Audio();
       audio.volume = 1.0;
       
-      // 播放音效
-      await audio.play();
+      // 設置音源並播放
+      audio.src = soundFile;
       
-      // 等待音效播放完成或超時
-      await new Promise<void>((resolve) => {
-        const handleEnded = () => {
-          console.log(`音效播放完成: ${soundFile}`);
-          audio.removeEventListener('ended', handleEnded);
+      // 返回一個 Promise，在音頻播放完成或出錯時解析
+      return new Promise((resolve, reject) => {
+        audio.onended = () => {
+          console.log('音效播放完成');
           resolve();
         };
         
-        audio.addEventListener('ended', handleEnded);
+        audio.onerror = (error) => {
+          console.error('音效播放錯誤:', error);
+          reject(error);
+        };
+        
+        // 嘗試播放
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.error('播放失敗:', error);
+            reject(error);
+          });
+        }
         
         // 設置超時保護（3秒）
         setTimeout(() => {
-          audio.removeEventListener('ended', handleEnded);
-          console.log(`音效播放超時: ${soundFile}`);
-          resolve();
+          if (audio.currentTime === 0) {
+            console.log('音效播放超時');
+            reject(new Error('播放超時'));
+          }
         }, 3000);
       });
     } catch (error) {
-      console.error(`音效播放錯誤: ${soundFile}`, error);
-      // 即使出錯也繼續執行
+      console.error('音效播放過程發生錯誤:', error);
+      throw error;
     }
   };
 
-  // 在組件掛載時預加載所有音效
+  // 在組件掛載時初始化音效
   useEffect(() => {
-    // 預加載提示音效
-    preloadAudio('/audio/偵測提示.mp3').catch(() => {
-      console.log('提示音效預加載失敗，將在播放時重試');
-    });
-    
     // 清理函數
     return () => {
       // 清理所有音效元素
@@ -138,7 +136,6 @@ const Playlist = () => {
         audio.src = '';
       });
       audioElementsRef.current = {};
-      loadingPromisesRef.current = {};
     };
   }, []);
 
