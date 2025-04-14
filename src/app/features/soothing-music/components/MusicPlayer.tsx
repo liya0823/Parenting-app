@@ -256,7 +256,12 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       await playDetectionSound();
       console.log('偵測音效播放完成:', new Date().toISOString());
 
-      // 選擇情境和準備音效（1秒）
+      // 等待 5 秒
+      console.log('等待 5 秒延遲:', new Date().toISOString());
+      await new Promise<void>(resolve => setTimeout(resolve, 4000));
+      console.log('5 秒延遲結束:', new Date().toISOString());
+
+      // 選擇情境和準備音效
       const situations: SituationType[] = ['hungry', 'briefCry', 'longCry', 'morning', 'night', 'default'];
       const randomSituation = situations[Math.floor(Math.random() * situations.length)];
       const musicType = situationMusicMap[randomSituation];
@@ -270,36 +275,46 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       const notificationAudio = new Audio(`/audio/${message.sound}`);
       notificationAudio.volume = 1.0;
 
-      // 等待提示音加載完成
-      await new Promise<void>((resolve) => {
-        notificationAudio.oncanplaythrough = () => resolve();
-        notificationAudio.load();
-      });
-
-      console.log('提示音加載完成:', new Date().toISOString());
-
-      // 播放提示音並準備跳轉
       try {
+        // 等待提示音加載完成
+        await new Promise<void>((resolve, reject) => {
+          notificationAudio.oncanplaythrough = () => resolve();
+          notificationAudio.onerror = () => reject();
+          notificationAudio.load();
+        });
+
+        console.log('提示音加載完成:', new Date().toISOString());
+
+        // 播放提示音
         await notificationAudio.play();
         console.log('提示音開始播放:', new Date().toISOString());
 
-        // 設定跳轉計時器（提示音播放 3 秒後）
-        setTimeout(() => {
-          console.log('開始頁面跳轉:', new Date().toISOString());
-          setFadeOut(true);
-          
-          // 預加載目標頁面的音樂（0.5秒淡出動畫）
-          setTimeout(() => {
-            router.push(`/features/soothing-music/${musicType}?autoplay=true&timestamp=${Date.now()}`);
-          }, 500);
-        }, 3000);
+        // 等待提示音完整播放完成
+        await new Promise<void>((resolve) => {
+          notificationAudio.onended = () => {
+            console.log('提示音播放完成:', new Date().toISOString());
+            resolve();
+          };
+        });
+
+        // 提示音播放完成後，開始淡出動畫
+        console.log('開始頁面淡出:', new Date().toISOString());
+        setFadeOut(true);
+
+        // 等待淡出動畫完成後跳轉（1秒）
+        await new Promise<void>(resolve => setTimeout(resolve, 1000));
+        
+        // 跳轉到音樂頁面，添加 autoplay 參數
+        console.log('執行頁面跳轉:', new Date().toISOString());
+        router.push(`/features/soothing-music/${musicType}?autoplay=true&start=${Date.now()}`);
 
       } catch (error) {
-        console.error('提示音播放失敗，直接跳轉:', error);
+        console.error('提示音播放過程發生錯誤:', error);
+        // 發生錯誤時也確保跳轉
         setFadeOut(true);
         setTimeout(() => {
-          router.push(`/features/soothing-music/${musicType}?autoplay=true&timestamp=${Date.now()}`);
-        }, 500);
+          router.push(`/features/soothing-music/${musicType}?autoplay=true&start=${Date.now()}`);
+        }, 1000);
       }
 
     } catch (error) {
@@ -332,17 +347,27 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
           const audio = new Audio(audioFile);
           audio.preload = 'auto';
           
-          // 強制加載
+          // 強制加載並等待
           await new Promise<void>((resolve) => {
-            audio.oncanplaythrough = () => resolve();
+            const timeoutId = setTimeout(() => {
+              console.log(`音效預加載超時: ${audioFile}`);
+              resolve();
+            }, 5000); // 設置 5 秒超時
+
+            audio.oncanplaythrough = () => {
+              clearTimeout(timeoutId);
+              console.log(`音效預加載成功: ${audioFile}`);
+              resolve();
+            };
+
             audio.onerror = () => {
+              clearTimeout(timeoutId);
               console.error(`音效預加載失敗: ${audioFile}`);
               resolve();
             };
+
             audio.load();
           });
-          
-          console.log(`音效預加載成功: ${audioFile}`);
         } catch (error) {
           console.error(`音效預加載失敗: ${audioFile}`, error);
         }
