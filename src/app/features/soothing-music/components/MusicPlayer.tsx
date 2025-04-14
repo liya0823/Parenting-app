@@ -69,6 +69,8 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState<typeof notificationMessages[NotificationType] | null>(null);
   const [notificationBufferRef, setNotificationBufferRef] = useState<AudioBuffer | null>(null);
+  const audioElementsRef = useRef<{ [key: string]: HTMLAudioElement }>({});
+  const maxRetries = 3;
 
   // 初始化 AudioContext
   const initAudioContext = async () => {
@@ -229,6 +231,121 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     }
   };
 
+  // 預加載單個音效
+  const preloadSingleAudio = async (audioFile: string, retryCount = 0): Promise<HTMLAudioElement | null> => {
+    try {
+      const audio = new Audio(audioFile);
+      audio.preload = 'auto';
+      
+      await new Promise<void>((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+          console.log(`音效預加載超時: ${audioFile}`);
+          reject(new Error('預加載超時'));
+        }, 5000);
+
+        audio.oncanplaythrough = () => {
+          clearTimeout(timeoutId);
+          console.log(`音效預加載成功: ${audioFile}`);
+          resolve();
+        };
+
+        audio.onerror = () => {
+          clearTimeout(timeoutId);
+          console.error(`音效預加載失敗: ${audioFile}`);
+          reject(new Error('預加載失敗'));
+        };
+
+        audio.load();
+      });
+
+      return audio;
+    } catch (error) {
+      console.error(`音效預加載失敗 (嘗試 ${retryCount + 1}/${maxRetries}):`, error);
+      if (retryCount < maxRetries - 1) {
+        console.log(`重試預加載: ${audioFile}`);
+        return preloadSingleAudio(audioFile, retryCount + 1);
+      }
+      return null;
+    }
+  };
+
+  // 播放音效的通用函數
+  const playAudioWithRetry = async (audio: HTMLAudioElement, retryCount = 0): Promise<void> => {
+    try {
+      audio.currentTime = 0;
+      await audio.play();
+      
+      return new Promise<void>((resolve) => {
+        const handleEnded = () => {
+          console.log('音效播放完成');
+          audio.removeEventListener('ended', handleEnded);
+          resolve();
+        };
+        
+        const handleError = async (error: Event) => {
+          console.error('音效播放出錯:', error);
+          audio.removeEventListener('error', handleError);
+          if (retryCount < maxRetries - 1) {
+            console.log('重試播放音效');
+            await playAudioWithRetry(audio, retryCount + 1);
+          }
+          resolve();
+        };
+
+        audio.addEventListener('ended', handleEnded);
+        audio.addEventListener('error', handleError);
+
+        // 設置超時保護
+        setTimeout(() => {
+          audio.removeEventListener('ended', handleEnded);
+          audio.removeEventListener('error', handleError);
+          console.log('音效播放超時，繼續執行');
+          resolve();
+        }, 10000);
+      });
+    } catch (error) {
+      console.error(`音效播放失敗 (嘗試 ${retryCount + 1}/${maxRetries}):`, error);
+      if (retryCount < maxRetries - 1) {
+        return playAudioWithRetry(audio, retryCount + 1);
+      }
+    }
+  };
+
+  // 預加載所有音效
+  useEffect(() => {
+    const preloadAllAudio = async () => {
+      try {
+        // 預加載偵測音效
+        const detectionAudio = await preloadSingleAudio('/audio/哭聲偵測中.mp3');
+        if (detectionAudio) {
+          audioElementsRef.current['detection'] = detectionAudio;
+        }
+
+        // 預加載其他音效
+        const audioFiles = Object.values(notificationMessages).map(msg => `/audio/${msg.sound}`);
+        for (const audioFile of audioFiles) {
+          const audio = await preloadSingleAudio(audioFile);
+          if (audio) {
+            audioElementsRef.current[audioFile] = audio;
+          }
+        }
+      } catch (error) {
+        console.error('預加載音效失敗:', error);
+      }
+    };
+
+    preloadAllAudio();
+    
+    return () => {
+      // 清理所有音效元素
+      Object.values(audioElementsRef.current).forEach(audio => {
+        audio.pause();
+        audio.src = '';
+      });
+      audioElementsRef.current = {};
+    };
+  }, []);
+
   const startDetection = async () => {
     if (isDetecting) return;
     
@@ -236,13 +353,14 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     setIsDetecting(true);
 
     try {
-      // 確保 AudioContext 已初始化並處於活躍狀態
-      await initAudioContext();
-      
       console.log('開始偵測流程:', new Date().toISOString());
       
-      // 立即播放偵測音效
-      await playDetectionSound();
+      // 播放偵測音效
+      const detectionAudio = audioElementsRef.current['detection'];
+      if (detectionAudio) {
+        await playAudioWithRetry(detectionAudio);
+      }
+      
       console.log('偵測音效播放完成:', new Date().toISOString());
 
       // 等待 4 秒
@@ -261,37 +379,13 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
         setNotificationMessage(message);
         setShowNotification(true);
 
-        // 使用 Audio 元素播放提示音（更適合移動設備）
-        const audio = new Audio(`/audio/${message.sound}`);
-        audio.volume = 1.0;
-
-        console.log('提示音開始播放:', new Date().toISOString());
-        
-        // 在播放前先加載音效
-        await new Promise<void>((resolve, reject) => {
-          audio.oncanplaythrough = () => resolve();
-          audio.onerror = () => reject(new Error('音效加載失敗'));
-          audio.load();
-        });
-
-        // 播放音效
-        await audio.play();
-
-        // 等待提示音播放完成
-        await new Promise<void>((resolve) => {
-          const handleEnded = () => {
-            console.log('提示音播放完成:', new Date().toISOString());
-            resolve();
-          };
-          
-          audio.addEventListener('ended', handleEnded);
-          
-          // 設置超時，避免無限等待
-          setTimeout(() => {
-            audio.removeEventListener('ended', handleEnded);
-            resolve();
-          }, 5000);
-        });
+        // 播放提示音
+        const notificationAudio = audioElementsRef.current[`/audio/${message.sound}`];
+        if (notificationAudio) {
+          console.log('提示音開始播放:', new Date().toISOString());
+          await playAudioWithRetry(notificationAudio);
+          console.log('提示音播放完成:', new Date().toISOString());
+        }
 
         // 開始淡出動畫
         console.log('開始頁面淡出:', new Date().toISOString());
@@ -306,7 +400,6 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
 
       } catch (error) {
         console.error('提示音播放過程發生錯誤:', error);
-        // 發生錯誤時也確保跳轉
         setFadeOut(true);
         setTimeout(() => {
           router.push(`/features/soothing-music/${musicType}?autoplay=true&start=${Date.now()}`);
@@ -329,57 +422,6 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       router.push('/features/soothing-music/playlist');
     }
   };
-
-  // 預加載所有音效
-  useEffect(() => {
-    const preloadAllAudio = async () => {
-      try {
-        // 預加載偵測音效
-        if (!detectionBufferRef.current) {
-          detectionBufferRef.current = await loadAudio('/audio/哭聲偵測中.mp3');
-        }
-
-        // 預加載其他音效
-        const audioFiles = Object.values(notificationMessages).map(msg => `/audio/${msg.sound}`);
-        for (const audioFile of audioFiles) {
-          try {
-            const audio = new Audio(audioFile);
-            audio.preload = 'auto';
-            
-            await new Promise<void>((resolve) => {
-              const timeoutId = setTimeout(() => {
-                console.log(`音效預加載超時: ${audioFile}`);
-                resolve();
-              }, 5000);
-
-              audio.oncanplaythrough = () => {
-                clearTimeout(timeoutId);
-                console.log(`音效預加載成功: ${audioFile}`);
-                resolve();
-              };
-
-              audio.onerror = () => {
-                clearTimeout(timeoutId);
-                console.error(`音效預加載失敗: ${audioFile}`);
-                resolve();
-              };
-
-              audio.load();
-            });
-          } catch (error) {
-            console.error(`音效預加載失敗: ${audioFile}`, error);
-          }
-        }
-      } catch (error) {
-        console.error('預加載音效失敗:', error);
-      }
-    };
-
-    // 立即開始預加載
-    preloadAllAudio();
-    
-    return cleanup;
-  }, []);
 
   return (
     <div className={`${styles.container} ${fadeOut ? styles.fadeOut : ''}`}>
