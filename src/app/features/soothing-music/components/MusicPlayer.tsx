@@ -60,81 +60,361 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   const [activeMode, setActiveMode] = useState('auto');
   const [fadeOut, setFadeOut] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
+  const [detectedSituation, setDetectedSituation] = useState<SituationType | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const detectionBufferRef = useRef<AudioBuffer | null>(null);
+  const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
+  const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isLoadingRef = useRef(false);
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState<typeof notificationMessages[NotificationType] | null>(null);
-  
-  // 簡化的音效播放函數
-  const playSound = async (soundFile: string): Promise<void> => {
+  const [notificationBufferRef, setNotificationBufferRef] = useState<AudioBuffer | null>(null);
+  const audioElementsRef = useRef<{ [key: string]: HTMLAudioElement }>({});
+  const maxRetries = 3;
+
+  // 初始化 AudioContext
+  const initAudioContext = async () => {
     try {
-      const audio = new Audio(soundFile);
-      audio.volume = 1.0;
-      
-      // 設置超時保護（3秒）
-      const timeoutPromise = new Promise<void>((resolve) => {
-        setTimeout(() => {
-          console.log(`音效播放超時: ${soundFile}`);
-          resolve();
-        }, 3000);
-      });
-      
-      // 播放音效
-      const playPromise = audio.play().then(() => {
-        return new Promise<void>((resolve) => {
-          audio.onended = () => resolve();
-        });
-      });
-      
-      // 使用 Promise.race 來處理超時
-      await Promise.race([playPromise, timeoutPromise]);
+      if (!audioContextRef.current) {
+        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        audioContextRef.current = new AudioContextClass();
+        console.log('AudioContext 初始化成功');
+      }
+
+      // 確保 AudioContext 是活躍的
+      if (audioContextRef.current.state === 'suspended') {
+        await audioContextRef.current.resume();
+        console.log('AudioContext 已恢復');
+      }
+
+      return true;
     } catch (error) {
-      console.error('音效播放錯誤:', error);
-      // 即使出錯也繼續執行
+      console.error('初始化 AudioContext 失敗:', error);
+      return false;
     }
   };
 
+  // 加載音效
+  const loadAudio = async (url: string): Promise<AudioBuffer | null> => {
+    try {
+      console.log(`開始加載音效: ${url}`);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const arrayBuffer = await response.arrayBuffer();
+      console.log('音效檔案已下載');
+
+      if (!audioContextRef.current) {
+        await initAudioContext();
+      }
+
+      if (audioContextRef.current) {
+        const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+        console.log('音效解碼成功');
+        return audioBuffer;
+      }
+      return null;
+    } catch (error) {
+      console.error('加載音效失敗:', error);
+      return null;
+    }
+  };
+
+  // 播放音效
+  const playAudio = async (buffer: AudioBuffer): Promise<void> => {
+    try {
+      const isReady = await initAudioContext();
+      if (!isReady || !audioContextRef.current) {
+        throw new Error('AudioContext 未就緒');
+      }
+
+      // 停止之前的音效（如果有）
+      if (sourceNodeRef.current) {
+        try {
+          sourceNodeRef.current.stop();
+          sourceNodeRef.current.disconnect();
+        } catch (error) {
+          console.log('停止之前的音效時發生錯誤:', error);
+        }
+      }
+
+      // 創建新的音源
+      const source = audioContextRef.current.createBufferSource();
+      source.buffer = buffer;
+      
+      // 創建音量控制
+      const gainNode = audioContextRef.current.createGain();
+      gainNode.gain.value = 1.0;
+
+      // 連接節點
+      source.connect(gainNode);
+      gainNode.connect(audioContextRef.current.destination);
+      
+      // 保存音源引用
+      sourceNodeRef.current = source;
+
+      return new Promise((resolve) => {
+        source.onended = () => {
+          console.log('音效播放結束');
+          if (sourceNodeRef.current) {
+            sourceNodeRef.current.disconnect();
+            sourceNodeRef.current = null;
+          }
+          resolve();
+        };
+
+        // 開始播放
+        source.start(0);
+        console.log('音效開始播放');
+      });
+    } catch (error) {
+      console.error('播放音效失敗:', error);
+      throw error;
+    }
+  };
+
+  // 加載偵測音效
+  const loadDetectionSound = async () => {
+    if (isLoadingRef.current || detectionBufferRef.current) return;
+    isLoadingRef.current = true;
+    try {
+      const buffer = await loadAudio('/audio/哭聲偵測中.mp3');
+      if (buffer) {
+        detectionBufferRef.current = buffer;
+      }
+    } finally {
+      isLoadingRef.current = false;
+    }
+  };
+
+  // 播放偵測音效
+  const playDetectionSound = async () => {
+    try {
+      if (!audioContextRef.current) {
+        await initAudioContext();
+      }
+
+      if (!detectionBufferRef.current) {
+        detectionBufferRef.current = await loadAudio('/audio/哭聲偵測中.mp3');
+      }
+
+      if (audioContextRef.current && detectionBufferRef.current) {
+        await playAudio(detectionBufferRef.current);
+        console.log('偵測音效播放完成');
+      } else {
+        throw new Error('無法播放音效：AudioContext 或音效緩衝區未就緒');
+      }
+    } catch (error) {
+      console.error('播放偵測音效失敗:', error);
+      throw error;
+    }
+  };
+
+  // 清理函數
+  const cleanup = () => {
+    if (sourceNodeRef.current) {
+      try {
+        sourceNodeRef.current.stop();
+        sourceNodeRef.current.disconnect();
+        sourceNodeRef.current = null;
+      } catch (error) {
+        console.error('停止音效時發生錯誤:', error);
+      }
+    }
+
+    if (redirectTimerRef.current) {
+      clearTimeout(redirectTimerRef.current);
+      redirectTimerRef.current = null;
+    }
+  };
+
+  // 預加載單個音效
+  const preloadSingleAudio = async (audioFile: string, retryCount = 0): Promise<HTMLAudioElement | null> => {
+    try {
+      const audio = new Audio(audioFile);
+      audio.preload = 'auto';
+      
+      await new Promise<void>((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+          console.log(`音效預加載超時: ${audioFile}`);
+          reject(new Error('預加載超時'));
+        }, 5000);
+
+        audio.oncanplaythrough = () => {
+          clearTimeout(timeoutId);
+          console.log(`音效預加載成功: ${audioFile}`);
+          resolve();
+        };
+
+        audio.onerror = () => {
+          clearTimeout(timeoutId);
+          console.error(`音效預加載失敗: ${audioFile}`);
+          reject(new Error('預加載失敗'));
+        };
+
+        audio.load();
+      });
+
+      return audio;
+    } catch (error) {
+      console.error(`音效預加載失敗 (嘗試 ${retryCount + 1}/${maxRetries}):`, error);
+      if (retryCount < maxRetries - 1) {
+        console.log(`重試預加載: ${audioFile}`);
+        return preloadSingleAudio(audioFile, retryCount + 1);
+      }
+      return null;
+    }
+  };
+
+  // 播放音效的通用函數
+  const playAudioWithRetry = async (audio: HTMLAudioElement, retryCount = 0): Promise<void> => {
+    try {
+      audio.currentTime = 0;
+      await audio.play();
+      
+      return new Promise<void>((resolve) => {
+        const handleEnded = () => {
+          console.log('音效播放完成');
+          audio.removeEventListener('ended', handleEnded);
+          resolve();
+        };
+        
+        const handleError = async (error: Event) => {
+          console.error('音效播放出錯:', error);
+          audio.removeEventListener('error', handleError);
+          if (retryCount < maxRetries - 1) {
+            console.log('重試播放音效');
+            await playAudioWithRetry(audio, retryCount + 1);
+          }
+          resolve();
+        };
+
+        audio.addEventListener('ended', handleEnded);
+        audio.addEventListener('error', handleError);
+
+        // 設置超時保護
+        setTimeout(() => {
+          audio.removeEventListener('ended', handleEnded);
+          audio.removeEventListener('error', handleError);
+          console.log('音效播放超時，繼續執行');
+          resolve();
+        }, 10000);
+      });
+    } catch (error) {
+      console.error(`音效播放失敗 (嘗試 ${retryCount + 1}/${maxRetries}):`, error);
+      if (retryCount < maxRetries - 1) {
+        return playAudioWithRetry(audio, retryCount + 1);
+      }
+    }
+  };
+
+  // 預加載所有音效
+  useEffect(() => {
+    const preloadAllAudio = async () => {
+      try {
+        // 預加載偵測音效
+        const detectionAudio = await preloadSingleAudio('/audio/哭聲偵測中.mp3');
+        if (detectionAudio) {
+          audioElementsRef.current['detection'] = detectionAudio;
+        }
+
+        // 預加載其他音效
+        const audioFiles = Object.values(notificationMessages).map(msg => `/audio/${msg.sound}`);
+        for (const audioFile of audioFiles) {
+          const audio = await preloadSingleAudio(audioFile);
+          if (audio) {
+            audioElementsRef.current[audioFile] = audio;
+          }
+        }
+      } catch (error) {
+        console.error('預加載音效失敗:', error);
+      }
+    };
+
+    preloadAllAudio();
+    
+    return () => {
+      // 清理所有音效元素
+      Object.values(audioElementsRef.current).forEach(audio => {
+        audio.pause();
+        audio.src = '';
+      });
+      audioElementsRef.current = {};
+    };
+  }, []);
+
   const startDetection = async () => {
     if (isDetecting) return;
+    
+    cleanup();
     setIsDetecting(true);
 
     try {
-      // 播放偵測音效（不等待完成）
-      playSound('/audio/哭聲偵測中.mp3').catch(() => {
-        console.log('偵測音效播放失敗，繼續執行');
-      });
+      console.log('開始偵測流程:', new Date().toISOString());
       
-      // 等待 2 秒（縮短等待時間）
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // 播放偵測音效
+      const detectionAudio = audioElementsRef.current['detection'];
+      if (detectionAudio) {
+        await playAudioWithRetry(detectionAudio);
+      }
+      
+      console.log('偵測音效播放完成:', new Date().toISOString());
 
-      // 選擇情境
+      // 等待 4 秒
+      await new Promise<void>(resolve => setTimeout(resolve, 4000));
+      console.log('4 秒延遲結束:', new Date().toISOString());
+
+      // 選擇情境和準備音效
       const situations: SituationType[] = ['hungry', 'briefCry', 'longCry', 'morning', 'night', 'default'];
       const randomSituation = situations[Math.floor(Math.random() * situations.length)];
       const musicType = situationMusicMap[randomSituation];
       const message = notificationMessages[randomSituation];
 
-      // 顯示提示窗
-      setShowNotification(true);
-      setNotificationMessage(message);
+      try {
+        // 顯示提示窗
+        setDetectedSituation(randomSituation);
+        setNotificationMessage(message);
+        setShowNotification(true);
 
-      // 播放提示音（不等待完成）
-      playSound(`/audio/${message.sound}`).catch(() => {
-        console.log('提示音播放失敗，繼續執行');
-      });
+        // 播放提示音
+        const notificationAudio = audioElementsRef.current[`/audio/${message.sound}`];
+        if (notificationAudio) {
+          console.log('提示音開始播放:', new Date().toISOString());
+          await playAudioWithRetry(notificationAudio);
+          console.log('提示音播放完成:', new Date().toISOString());
+        }
 
-      // 立即開始淡出動畫
-      setFadeOut(true);
+        // 開始淡出動畫
+        console.log('開始頁面淡出:', new Date().toISOString());
+        setFadeOut(true);
 
-      // 0.5秒後跳轉（縮短跳轉時間）
-      setTimeout(() => {
+        // 等待淡出動畫完成後跳轉（1秒）
+        await new Promise<void>(resolve => setTimeout(resolve, 1000));
+        
+        // 跳轉到音樂頁面
+        console.log('執行頁面跳轉:', new Date().toISOString());
         router.push(`/features/soothing-music/${musicType}?autoplay=true&start=${Date.now()}`);
-      }, 500);
+
+      } catch (error) {
+        console.error('提示音播放過程發生錯誤:', error);
+        setFadeOut(true);
+        setTimeout(() => {
+          router.push(`/features/soothing-music/${musicType}?autoplay=true&start=${Date.now()}`);
+        }, 1000);
+      }
 
     } catch (error) {
       console.error('偵測過程發生錯誤:', error);
+      cleanup();
       setIsDetecting(false);
     }
   };
 
   const handleModeChange = (mode: string) => {
+    cleanup();
     setActiveMode(mode);
     setIsDetecting(false);
     onModeChange?.(mode);
