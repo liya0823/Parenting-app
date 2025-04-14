@@ -235,12 +235,12 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   // 預加載音效
   const preloadAudio = async (soundFile: string): Promise<void> => {
     // 如果已經在加載中，返回現有的 Promise
-    if (loadingPromisesRef.current[soundFile]) {
+    if (soundFile in loadingPromisesRef.current) {
       return loadingPromisesRef.current[soundFile];
     }
     
     // 如果已經加載完成，直接返回
-    if (audioElementsRef.current[soundFile]) {
+    if (soundFile in audioElementsRef.current) {
       return Promise.resolve();
     }
     
