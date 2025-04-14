@@ -42,19 +42,19 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       // 創建音頻元素
       const audio = new Audio();
       audio.src = '/audio/哭聲偵測中.mp3';
+      audio.volume = 1.0;
       audioRef.current = audio;
       
-      // 播放聲音
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(error => {
-          console.error('播放聲音失敗:', error);
-          // 如果播放失敗，嘗試重新播放
-          setTimeout(() => {
-            audio.play().catch(console.error);
-          }, 100);
+      // 立即播放提示音
+      audio.play()
+        .then(() => {
+          console.log('音頻播放成功');
+        })
+        .catch(error => {
+          console.error('播放失敗:', error);
+          // 如果播放失敗，立即重試一次
+          audio.play().catch(err => console.error('重試失敗:', err));
         });
-      }
       
       // 設置計時器，4000毫秒後跳轉
       redirectTimerRef.current = setTimeout(() => {
@@ -64,10 +64,15 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
           setDetectedSituation(randomSituation);
           
           const musicType = situationMusicMap[randomSituation];
-          console.log('4000毫秒後跳轉到音樂播放頁面:', musicType);
+          console.log('準備跳轉到音樂播放頁面:', musicType);
           
           setFadeOut(true);
           setTimeout(() => {
+            // 在跳轉前停止音頻播放
+            if (audioRef.current) {
+              audioRef.current.pause();
+              audioRef.current = null;
+            }
             router.push(`/features/soothing-music/${musicType}?autoplay=true`);
           }, 500);
         }
