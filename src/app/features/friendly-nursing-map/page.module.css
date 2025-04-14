@@ -489,8 +489,7 @@
   }
   
   .header::before {
-    top: -30px;
-    height: 45px;
+    display: none;
   }
   
   .headerContent {
@@ -714,8 +713,7 @@
   }
   
   .header::before {
-    top: -45px;
-    height: 70px;
+    display: none;
   }
   
   .headerContent {
@@ -872,8 +870,7 @@
   }
   
   .header::before {
-    top: -42px;
-    height: 65px;
+    display: none;
   }
   
   .headerContent {
@@ -1030,8 +1027,7 @@
   }
   
   .header::before {
-    top: -43px;
-    height: 67px;
+    display: none;
   }
   
   .headerContent {
