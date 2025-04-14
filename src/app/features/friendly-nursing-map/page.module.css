@@ -482,6 +482,22 @@
   }
   
 
+  
+  .header {
+    top: 30px;
+    padding: 0 15px;
+  }
+  
+  .header::before {
+    display: none;
+  }
+  
+  .headerContent {
+    max-width: 300px;
+    gap: 6px;
+    padding-right: 2px;
+  }
+  
   .searchBar {
     width: 280px;
     height: 40px;
@@ -506,7 +522,6 @@
   
   .mapContainer {
     height: calc(100% - 50px);
-    padding-top: 100px;
   }
   
   .markerLabel {
@@ -691,7 +706,20 @@
     height: 40px;
   }
   
-
+  .header {
+    top: 45px;
+    padding: 0 25px;
+  }
+  
+  .header::before {
+    display: none;
+  }
+  
+  .headerContent {
+    max-width: 380px;
+    gap: 10px;
+    padding-right: 4px;
+  }
   
   .searchBar {
     width: 320px;
@@ -711,7 +739,6 @@
   
   .mapContainer {
     height: calc(100% - 70px);
-    padding-top: 140px;
   }
   
   .markerLabel {
@@ -835,7 +862,21 @@
     height: 38px;
   }
   
-
+  .header {
+    top: 42px;
+    padding: 0 22px;
+  }
+  
+  .header::before {
+    display: none;
+  }
+  
+  .headerContent {
+    max-width: 360px;
+    gap: 9px;
+    padding-right: 3px;
+  }
+  
   .searchBar {
     width: 310px;
     height: 48px;
@@ -854,7 +895,6 @@
   
   .mapContainer {
     height: calc(100% - 65px);
-    padding-top: 130px;
   }
   
   .markerLabel {
@@ -978,7 +1018,21 @@
     height: 39px;
   }
   
-
+  .header {
+    top: 43px;
+    padding: 0 23px;
+  }
+  
+  .header::before {
+    display: none;
+  }
+  
+  .headerContent {
+    max-width: 370px;
+    gap: 9px;
+    padding-right: 3px;
+  }
+  
   .searchBar {
     width: 315px;
     height: 49px;
@@ -997,7 +1051,6 @@
   
   .mapContainer {
     height: calc(100% - 67px);
-    padding-top: 135px;
   }
   
   .markerLabel {
