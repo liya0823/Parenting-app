@@ -25,9 +25,7 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   const [isDetecting, setIsDetecting] = useState(false);
   const [detectedSituation, setDetectedSituation] = useState<keyof typeof situationMusicMap | null>(null);
   const detectionAudioRef = useRef<HTMLAudioElement | null>(null);
-  const alertAudioRef = useRef<HTMLAudioElement | null>(null);
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const isPlayingAlertRef = useRef(false);
 
   // 清理函數
   const cleanup = () => {
@@ -36,16 +34,10 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       detectionAudioRef.current.currentTime = 0;
       detectionAudioRef.current = null;
     }
-    if (alertAudioRef.current) {
-      alertAudioRef.current.pause();
-      alertAudioRef.current.currentTime = 0;
-      alertAudioRef.current = null;
-    }
     if (redirectTimerRef.current) {
       clearTimeout(redirectTimerRef.current);
       redirectTimerRef.current = null;
     }
-    isPlayingAlertRef.current = false;
   };
 
   // 組件卸載時清理
@@ -53,59 +45,20 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     return cleanup;
   }, []);
 
-  const playAlertAndRedirect = () => {
-    if (isPlayingAlertRef.current || activeMode !== 'auto') return;
-    
-    try {
-      isPlayingAlertRef.current = true;
-      
-      // 創建新的提示音元素
-      const alertAudio = new Audio('/audio/偵測提示.mp3');
-      alertAudio.volume = 1.0;
-      
-      // 設置播放結束事件，在播放結束後執行跳轉
-      alertAudio.onended = () => {
-        isPlayingAlertRef.current = false;
-        alertAudio.onended = null;
+  const handleRedirect = () => {
+    if (activeMode !== 'auto') return;
 
-        // 在提示音播放完成後才執行跳轉邏輯
-        const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
-        const randomSituation = situations[Math.floor(Math.random() * situations.length)];
-        setDetectedSituation(randomSituation);
-        
-        const musicType = situationMusicMap[randomSituation];
-        console.log('準備跳轉到音樂播放頁面:', musicType);
-        
-        setFadeOut(true);
-        setTimeout(() => {
-          router.push(`/features/soothing-music/${musicType}?autoplay=true`);
-        }, 500);
-      };
-      
-      // 保存引用並播放
-      alertAudioRef.current = alertAudio;
-      alertAudio.play().catch(error => {
-        console.error('提示音播放失敗:', error);
-        isPlayingAlertRef.current = false;
-        
-        // 如果播放失敗，也執行跳轉
-        const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
-        const randomSituation = situations[Math.floor(Math.random() * situations.length)];
-        setDetectedSituation(randomSituation);
-        
-        const musicType = situationMusicMap[randomSituation];
-        console.log('提示音播放失敗，直接跳轉到音樂播放頁面:', musicType);
-        
-        setFadeOut(true);
-        setTimeout(() => {
-          router.push(`/features/soothing-music/${musicType}?autoplay=true`);
-        }, 500);
-      });
-    } catch (error) {
-      console.error('播放提示音時發生錯誤:', error);
-      isPlayingAlertRef.current = false;
-      cleanup();
-    }
+    const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
+    const randomSituation = situations[Math.floor(Math.random() * situations.length)];
+    setDetectedSituation(randomSituation);
+    
+    const musicType = situationMusicMap[randomSituation];
+    console.log('準備跳轉到音樂播放頁面:', musicType);
+    
+    setFadeOut(true);
+    setTimeout(() => {
+      router.push(`/features/soothing-music/${musicType}?autoplay=true`);
+    }, 500);
   };
 
   const startDetection = () => {
@@ -129,7 +82,7 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       });
 
       // 設置計時器
-      redirectTimerRef.current = setTimeout(playAlertAndRedirect, 4000);
+      redirectTimerRef.current = setTimeout(handleRedirect, 4000);
     } catch (error) {
       console.error('開始偵測時發生錯誤:', error);
       cleanup();
