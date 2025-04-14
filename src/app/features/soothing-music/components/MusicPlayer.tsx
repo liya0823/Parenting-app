@@ -185,44 +185,26 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   };
 
   // 播放偵測音效
-  const playDetectionSound = () => {
-    return new Promise<void>((resolve, reject) => {
-      try {
-        const audio = new Audio('/audio/哭聲偵測中.mp3');
-        audio.volume = 1.0;
-        
-        // 確保音頻已加載
-        audio.addEventListener('canplaythrough', () => {
-          const playPromise = audio.play();
-          if (playPromise !== undefined) {
-            playPromise
-              .then(() => {
-                console.log('偵測音效開始播放');
-              })
-              .catch(error => {
-                console.error('播放偵測音效失敗:', error);
-                reject(error);
-              });
-          }
-        });
-
-        audio.onended = () => {
-          console.log('偵測音效播放完成');
-          resolve();
-        };
-
-        audio.onerror = (error) => {
-          console.error('播放偵測音效失敗:', error);
-          reject(error);
-        };
-
-        // 開始加載音頻
-        audio.load();
-      } catch (error) {
-        console.error('播放偵測音效失敗:', error);
-        reject(error);
+  const playDetectionSound = async () => {
+    try {
+      if (!audioContextRef.current) {
+        await initAudioContext();
       }
-    });
+
+      if (!detectionBufferRef.current) {
+        detectionBufferRef.current = await loadAudio('/audio/哭聲偵測中.mp3');
+      }
+
+      if (audioContextRef.current && detectionBufferRef.current) {
+        await playAudio(detectionBufferRef.current);
+        console.log('偵測音效播放完成');
+      } else {
+        throw new Error('無法播放音效：AudioContext 或音效緩衝區未就緒');
+      }
+    } catch (error) {
+      console.error('播放偵測音效失敗:', error);
+      throw error;
+    }
   };
 
   // 清理函數
@@ -252,46 +234,61 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     try {
       console.log('開始偵測流程:', new Date().toISOString());
       
-      // 播放偵測音效（約 2 秒）
+      // 立即播放偵測音效
       await playDetectionSound();
       console.log('偵測音效播放完成:', new Date().toISOString());
 
-      // 等待 5 秒
-      console.log('等待 5 秒延遲:', new Date().toISOString());
+      // 等待 4 秒
       await new Promise<void>(resolve => setTimeout(resolve, 4000));
-      console.log('5 秒延遲結束:', new Date().toISOString());
+      console.log('4 秒延遲結束:', new Date().toISOString());
 
       // 選擇情境和準備音效
       const situations: SituationType[] = ['hungry', 'briefCry', 'longCry', 'morning', 'night', 'default'];
       const randomSituation = situations[Math.floor(Math.random() * situations.length)];
       const musicType = situationMusicMap[randomSituation];
       const message = notificationMessages[randomSituation];
-      
-      setDetectedSituation(randomSituation);
-      setNotificationMessage(message);
-      setShowNotification(true);
-
-      // 提前加載提示音
-      const notificationAudio = new Audio(`/audio/${message.sound}`);
-      notificationAudio.volume = 1.0;
 
       try {
+        // 提前加載提示音
+        const notificationAudio = new Audio(`/audio/${message.sound}`);
+        notificationAudio.volume = 1.0;
+
         // 等待提示音加載完成
         await new Promise<void>((resolve, reject) => {
-          notificationAudio.oncanplaythrough = () => resolve();
-          notificationAudio.onerror = () => reject();
+          const loadTimeout = setTimeout(() => {
+            console.log('提示音加載超時，繼續執行');
+            resolve();
+          }, 5000);
+
+          notificationAudio.oncanplaythrough = () => {
+            clearTimeout(loadTimeout);
+            resolve();
+          };
+          notificationAudio.onerror = () => {
+            clearTimeout(loadTimeout);
+            console.error('提示音加載失敗');
+            reject();
+          };
           notificationAudio.load();
         });
 
-        console.log('提示音加載完成:', new Date().toISOString());
+        // 同時顯示提示窗和播放提示音
+        setDetectedSituation(randomSituation);
+        setNotificationMessage(message);
+        setShowNotification(true);
 
-        // 播放提示音
-        await notificationAudio.play();
         console.log('提示音開始播放:', new Date().toISOString());
+        await notificationAudio.play();
 
         // 等待提示音完整播放完成
         await new Promise<void>((resolve) => {
+          const playTimeout = setTimeout(() => {
+            console.log('提示音播放超時，繼續執行');
+            resolve();
+          }, 10000); // 設置 10 秒超時
+
           notificationAudio.onended = () => {
+            clearTimeout(playTimeout);
             console.log('提示音播放完成:', new Date().toISOString());
             resolve();
           };
@@ -337,40 +334,45 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   // 預加載所有音效
   useEffect(() => {
     const preloadAllAudio = async () => {
-      const audioFiles = [
-        '/audio/哭聲偵測中.mp3',
-        ...Object.values(notificationMessages).map(msg => `/audio/${msg.sound}`)
-      ];
-
-      for (const audioFile of audioFiles) {
-        try {
-          const audio = new Audio(audioFile);
-          audio.preload = 'auto';
-          
-          // 強制加載並等待
-          await new Promise<void>((resolve) => {
-            const timeoutId = setTimeout(() => {
-              console.log(`音效預加載超時: ${audioFile}`);
-              resolve();
-            }, 5000); // 設置 5 秒超時
-
-            audio.oncanplaythrough = () => {
-              clearTimeout(timeoutId);
-              console.log(`音效預加載成功: ${audioFile}`);
-              resolve();
-            };
-
-            audio.onerror = () => {
-              clearTimeout(timeoutId);
-              console.error(`音效預加載失敗: ${audioFile}`);
-              resolve();
-            };
-
-            audio.load();
-          });
-        } catch (error) {
-          console.error(`音效預加載失敗: ${audioFile}`, error);
+      try {
+        // 預加載偵測音效
+        if (!detectionBufferRef.current) {
+          detectionBufferRef.current = await loadAudio('/audio/哭聲偵測中.mp3');
         }
+
+        // 預加載其他音效
+        const audioFiles = Object.values(notificationMessages).map(msg => `/audio/${msg.sound}`);
+        for (const audioFile of audioFiles) {
+          try {
+            const audio = new Audio(audioFile);
+            audio.preload = 'auto';
+            
+            await new Promise<void>((resolve) => {
+              const timeoutId = setTimeout(() => {
+                console.log(`音效預加載超時: ${audioFile}`);
+                resolve();
+              }, 5000);
+
+              audio.oncanplaythrough = () => {
+                clearTimeout(timeoutId);
+                console.log(`音效預加載成功: ${audioFile}`);
+                resolve();
+              };
+
+              audio.onerror = () => {
+                clearTimeout(timeoutId);
+                console.error(`音效預加載失敗: ${audioFile}`);
+                resolve();
+              };
+
+              audio.load();
+            });
+          } catch (error) {
+            console.error(`音效預加載失敗: ${audioFile}`, error);
+          }
+        }
+      } catch (error) {
+        console.error('預加載音效失敗:', error);
       }
     };
 

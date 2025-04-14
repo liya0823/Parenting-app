@@ -140,9 +140,10 @@ export default function BabyPage() {
           <Image
             src="/Logout.png"
             alt="登出"
-            width={40}
-            height={40}
+            width={50}
+            height={50}
             priority
+            style={{ objectFit: 'contain' }}
           />
         </button>
 
