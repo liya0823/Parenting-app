@@ -102,44 +102,50 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     }
   };
 
-  const startDetection = async () => {
+  const startDetection = () => {
     if (!isDetecting) {
       setIsDetecting(true);
+      
+      // 立即播放偵測音效
+      const detectionAudio = new Audio();
+      detectionAudio.src = '/audio/哭聲偵測中.mp3';
+      detectionAudio.volume = 1.0;
+      detectionAudio.play()
+        .then(() => {
+          console.log('偵測音效播放成功');
+        })
+        .catch(error => {
+          console.error('偵測音效播放失敗:', error);
+        });
+      
+      // 設置計時器，4000毫秒後播放提示音並跳轉
+      redirectTimerRef.current = setTimeout(() => {
+        if (activeMode === 'auto') {
+          // 播放提示音
+          const alertAudio = new Audio();
+          alertAudio.src = '/audio/提示音.mp3';
+          alertAudio.volume = 1.0;
+          alertAudio.play()
+            .then(() => {
+              console.log('提示音播放成功');
+            })
+            .catch(error => {
+              console.error('提示音播放失敗:', error);
+            });
 
-      try {
-        // 初始化音頻上下文和加載音頻
-        const initialized = await initAudioContext();
-        if (!initialized) {
-          console.error('音頻初始化失敗');
-          return;
+          const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
+          const randomSituation = situations[Math.floor(Math.random() * situations.length)];
+          setDetectedSituation(randomSituation);
+          
+          const musicType = situationMusicMap[randomSituation];
+          console.log('準備跳轉到音樂播放頁面:', musicType);
+          
+          setFadeOut(true);
+          setTimeout(() => {
+            router.push(`/features/soothing-music/${musicType}?autoplay=true`);
+          }, 500);
         }
-
-        // 播放偵測音效
-        await playAudioBuffer(detectionBufferRef.current);
-        
-        // 設置計時器，4000毫秒後播放提示音並跳轉
-        redirectTimerRef.current = setTimeout(async () => {
-          if (activeMode === 'auto') {
-            // 播放提示音
-            await playAudioBuffer(alertBufferRef.current);
-
-            const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
-            const randomSituation = situations[Math.floor(Math.random() * situations.length)];
-            setDetectedSituation(randomSituation);
-            
-            const musicType = situationMusicMap[randomSituation];
-            console.log('準備跳轉到音樂播放頁面:', musicType);
-            
-            setFadeOut(true);
-            setTimeout(() => {
-              router.push(`/features/soothing-music/${musicType}?autoplay=true`);
-            }, 500);
-          }
-        }, 4000);
-      } catch (error) {
-        console.error('播放過程中出錯:', error);
-        setIsDetecting(false);
-      }
+      }, 4000);
     }
   };
 
