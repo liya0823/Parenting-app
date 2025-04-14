@@ -37,6 +37,11 @@ export default function VoiceAssistantPage() {
   const [isPlayingNotification, setIsPlayingNotification] = useState(false);
   // 添加一個狀態變量來跟踪歡迎音效是否已播放完畢
   const [isWelcomeAudioFinished, setIsWelcomeAudioFinished] = useState(false);
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
+  const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
+  const [isAudioSupported, setIsAudioSupported] = useState(true);
+  const audioLoadRetryCount = useRef(0);
+  const maxRetries = 3;
 
   const [chatState, setChatState] = useState<ChatState>({
     messages: [],
@@ -116,40 +121,117 @@ export default function VoiceAssistantPage() {
     }
   };
 
+  // 檢測是否為移動設備
+  useEffect(() => {
+    const checkMobileDevice = () => {
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      setIsMobileDevice(isMobile);
+    };
+    
+    checkMobileDevice();
+    window.addEventListener('resize', checkMobileDevice);
+    
+    return () => {
+      window.removeEventListener('resize', checkMobileDevice);
+    };
+  }, []);
+
+  // 初始化音頻上下文
+  const initAudioContext = () => {
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioContext) {
+        const context = new AudioContext();
+        setAudioContext(context);
+        return context;
+      }
+    } catch (error) {
+      console.error('無法創建音頻上下文:', error);
+      setIsAudioSupported(false);
+    }
+    return null;
+  };
+
   // 修改播放打招呼聲音的 useEffect
   useEffect(() => {
     let isComponentMounted = true;
     
     const initWelcomeAudio = async () => {
       try {
+        // 確保音頻上下文已初始化
+        if (!audioContext) {
+          initAudioContext();
+        }
+
         // 創建音頻元素
         audioRef.current = new Audio('/audio/嗨 ! 我是.mp3');
         
-        // 播放聲音
+        // 設置音頻屬性
         if (audioRef.current) {
-          console.log('開始播放歡迎音效');
-          await audioRef.current.play();
+          audioRef.current.preload = 'auto';
+          audioRef.current.volume = isMobileDevice ? 1.0 : 0.8; // 移動設備使用最大音量
           
-          // 監聽播放結束事件
-          audioRef.current.addEventListener('ended', () => {
-            console.log('歡迎音效播放完畢');
-            if (isComponentMounted) {
-              setIsWelcomeAudioFinished(true);
-              // 確保在音效播放完畢後初始化麥克風
-              setTimeout(async () => {
-                console.log('開始初始化麥克風');
-                await initAudio();
-              }, 1500); // 增加延遲時間到 1.5 秒
+          // 添加錯誤處理
+          audioRef.current.onerror = (e) => {
+            console.error('音頻加載錯誤:', e);
+            if (audioLoadRetryCount.current < maxRetries) {
+              audioLoadRetryCount.current++;
+              console.log(`重試加載音頻 (${audioLoadRetryCount.current}/${maxRetries})`);
+              setTimeout(initWelcomeAudio, 1000);
+            } else {
+              console.error('音頻加載失敗，跳過歡迎音效');
+              if (isComponentMounted) {
+                setIsWelcomeAudioFinished(true);
+                setTimeout(async () => {
+                  await initAudio();
+                }, isMobileDevice ? 2000 : 1500);
+              }
             }
-          }, { once: true });
+          };
+          
+          // 播放聲音
+          try {
+            console.log('開始播放歡迎音效');
+            await audioRef.current.play();
+            
+            // 監聽播放結束事件
+            audioRef.current.addEventListener('ended', () => {
+              console.log('歡迎音效播放完畢');
+              if (isComponentMounted) {
+                setIsWelcomeAudioFinished(true);
+                // 確保在音效播放完畢後初始化麥克風
+                setTimeout(async () => {
+                  console.log('開始初始化麥克風');
+                  await initAudio();
+                }, isMobileDevice ? 2000 : 1500); // 移動設備增加延遲時間
+              }
+            }, { once: true });
+          } catch (playError) {
+            console.error('播放聲音失敗:', playError);
+            // 如果是移動設備，嘗試使用用戶交互觸發播放
+            if (isMobileDevice) {
+              const playOnInteraction = async () => {
+                try {
+                  await audioRef.current?.play();
+                } catch (error) {
+                  console.error('移動設備播放失敗:', error);
+                }
+                document.removeEventListener('touchstart', playOnInteraction);
+                document.removeEventListener('click', playOnInteraction);
+              };
+              
+              document.addEventListener('touchstart', playOnInteraction);
+              document.addEventListener('click', playOnInteraction);
+            }
+          }
         }
       } catch (error) {
-        console.error('播放聲音失敗:', error);
+        console.error('初始化音頻失敗:', error);
         if (isComponentMounted) {
           setIsWelcomeAudioFinished(true);
           setTimeout(async () => {
             await initAudio();
-          }, 1500);
+          }, isMobileDevice ? 2000 : 1500);
         }
       }
     };
@@ -162,6 +244,11 @@ export default function VoiceAssistantPage() {
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
+      }
+      
+      // 清理音頻上下文
+      if (audioContext) {
+        audioContext.close();
       }
       
       // 清理哭聲檢測相關資源
@@ -178,7 +265,7 @@ export default function VoiceAssistantPage() {
         clearTimeout(alertTimeoutRef.current);
       }
     };
-  }, []);
+  }, [isMobileDevice, audioContext]);
 
   // 初始化音頻處理
   const initAudio = async () => {

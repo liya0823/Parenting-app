@@ -1,0 +1,79 @@
+warning: in the working copy of 'src/app/features/voice-assistant/page.module.css', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/src/app/features/voice-assistant/page.module.css b/src/app/features/voice-assistant/page.module.css[m
+[1mindex ca022ce..a643fa9 100644[m
+[1m--- a/src/app/features/voice-assistant/page.module.css[m
+[1m+++ b/src/app/features/voice-assistant/page.module.css[m
+[36m@@ -845,73 +845,6 @@[m
+   }[m
+ }[m
+ [m
+[31m-@keyframes pulse {[m
+[31m-  0% {[m
+[31m-    transform: scale(1);[m
+[31m-  }[m
+[31m-  50% {[m
+[31m-    transform: scale(1.1);[m
+[31m-  }[m
+[31m-  100% {[m
+[31m-    transform: scale(1);[m
+[31m-  }[m
+[31m-}[m
+[31m-/* 聲音檢測提示窗 */[m
+[31m-.soundAlert {[m
+[31m-  position: fixed;[m
+[31m-  top: 20px;[m
+[31m-  left: 50%;[m
+[31m-  transform: translateX(-50%);[m
+[31m-  z-index: 1000;[m
+[31m-  animation: fadeInDown 0.5s ease-out;[m
+[31m-  width: 90%;[m
+[31m-  max-width: 500px;[m
+[31m-}[m
+[31m-[m
+[31m-.alertContent {[m
+[31m-  background-color: white;[m
+[31m-  border-radius: 15px;[m
+[31m-  padding: 15px 20px;[m
+[31m-  display: flex;[m
+[31m-  align-items: center;[m
+[31m-  gap: 15px;[m
+[31m-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);[m
+[31m-  min-width: 350px;[m
+[31m-  max-width: 90%;[m
+[31m-  pointer-events: auto;[m
+[31m-}[m
+[31m-[m
+[31m-.alertIcon {[m
+[31m-  animation: pulse 2s infinite;[m
+[31m-}[m
+[31m-[m
+[31m-.alertText {[m
+[31m-  flex: 1;[m
+[31m-}[m
+[31m-[m
+[31m-.alertTitle {[m
+[31m-  font-size: 18px;[m
+[31m-  font-weight: bold;[m
+[31m-  color: #333;[m
+[31m-  margin: 0 0 5px 0;[m
+[31m-}[m
+[31m-[m
+[31m-.alertMessage {[m
+[31m-  font-size: 14px;[m
+[31m-  color: #666;[m
+[31m-  margin: 0;[m
+[31m-}[m
+[31m-@keyframes fadeInDown {[m
+[31m-  from {[m
+[31m-    opacity: 0;[m
+[31m-    transform: translate(-50%, -20px);[m
+[31m-  }[m
+[31m-  to {[m
+[31m-    opacity: 1;[m
+[31m-    transform: translate(-50%, 0);[m
+[31m-  }[m
+[31m-}[m
+[31m-[m
+ @keyframes pulse {[m
+   0% {[m
+     transform: scale(1);[m

@@ -1,0 +1,251 @@
+warning: in the working copy of 'src/app/features/voice-assistant/page.module.css', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/features/voice-assistant/page.tsx', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/src/app/features/voice-assistant/page.module.css b/src/app/features/voice-assistant/page.module.css[m
+[1mindex ca022ce..a643fa9 100644[m
+[1m--- a/src/app/features/voice-assistant/page.module.css[m
+[1m+++ b/src/app/features/voice-assistant/page.module.css[m
+[36m@@ -845,73 +845,6 @@[m
+   }[m
+ }[m
+ [m
+[31m-@keyframes pulse {[m
+[31m-  0% {[m
+[31m-    transform: scale(1);[m
+[31m-  }[m
+[31m-  50% {[m
+[31m-    transform: scale(1.1);[m
+[31m-  }[m
+[31m-  100% {[m
+[31m-    transform: scale(1);[m
+[31m-  }[m
+[31m-}[m
+[31m-/* 聲音檢測提示窗 */[m
+[31m-.soundAlert {[m
+[31m-  position: fixed;[m
+[31m-  top: 20px;[m
+[31m-  left: 50%;[m
+[31m-  transform: translateX(-50%);[m
+[31m-  z-index: 1000;[m
+[31m-  animation: fadeInDown 0.5s ease-out;[m
+[31m-  width: 90%;[m
+[31m-  max-width: 500px;[m
+[31m-}[m
+[31m-[m
+[31m-.alertContent {[m
+[31m-  background-color: white;[m
+[31m-  border-radius: 15px;[m
+[31m-  padding: 15px 20px;[m
+[31m-  display: flex;[m
+[31m-  align-items: center;[m
+[31m-  gap: 15px;[m
+[31m-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);[m
+[31m-  min-width: 350px;[m
+[31m-  max-width: 90%;[m
+[31m-  pointer-events: auto;[m
+[31m-}[m
+[31m-[m
+[31m-.alertIcon {[m
+[31m-  animation: pulse 2s infinite;[m
+[31m-}[m
+[31m-[m
+[31m-.alertText {[m
+[31m-  flex: 1;[m
+[31m-}[m
+[31m-[m
+[31m-.alertTitle {[m
+[31m-  font-size: 18px;[m
+[31m-  font-weight: bold;[m
+[31m-  color: #333;[m
+[31m-  margin: 0 0 5px 0;[m
+[31m-}[m
+[31m-[m
+[31m-.alertMessage {[m
+[31m-  font-size: 14px;[m
+[31m-  color: #666;[m
+[31m-  margin: 0;[m
+[31m-}[m
+[31m-@keyframes fadeInDown {[m
+[31m-  from {[m
+[31m-    opacity: 0;[m
+[31m-    transform: translate(-50%, -20px);[m
+[31m-  }[m
+[31m-  to {[m
+[31m-    opacity: 1;[m
+[31m-    transform: translate(-50%, 0);[m
+[31m-  }[m
+[31m-}[m
+[31m-[m
+ @keyframes pulse {[m
+   0% {[m
+     transform: scale(1);[m
+[1mdiff --git a/src/app/features/voice-assistant/page.tsx b/src/app/features/voice-assistant/page.tsx[m
+[1mindex 164ae0a..a41257c 100644[m
+[1m--- a/src/app/features/voice-assistant/page.tsx[m
+[1m+++ b/src/app/features/voice-assistant/page.tsx[m
+[36m@@ -37,6 +37,11 @@[m [mexport default function VoiceAssistantPage() {[m
+   const [isPlayingNotification, setIsPlayingNotification] = useState(false);[m
+   // 添加一個狀態變量來跟踪歡迎音效是否已播放完畢[m
+   const [isWelcomeAudioFinished, setIsWelcomeAudioFinished] = useState(false);[m
+[32m+[m[32m  const [isMobileDevice, setIsMobileDevice] = useState(false);[m
+[32m+[m[32m  const [audioContext, setAudioContext] = useState<AudioContext | null>(null);[m
+[32m+[m[32m  const [isAudioSupported, setIsAudioSupported] = useState(true);[m
+[32m+[m[32m  const audioLoadRetryCount = useRef(0);[m
+[32m+[m[32m  const maxRetries = 3;[m
+ [m
+   const [chatState, setChatState] = useState<ChatState>({[m
+     messages: [],[m
+[36m@@ -116,40 +121,117 @@[m [mexport default function VoiceAssistantPage() {[m
+     }[m
+   };[m
+ [m
+[32m+[m[32m  // 檢測是否為移動設備[m
+[32m+[m[32m  useEffect(() => {[m
+[32m+[m[32m    const checkMobileDevice = () => {[m
+[32m+[m[32m      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);[m
+[32m+[m[32m      setIsMobileDevice(isMobile);[m
+[32m+[m[32m    };[m
+[32m+[m[41m    [m
+[32m+[m[32m    checkMobileDevice();[m
+[32m+[m[32m    window.addEventListener('resize', checkMobileDevice);[m
+[32m+[m[41m    [m
+[32m+[m[32m    return () => {[m
+[32m+[m[32m      window.removeEventListener('resize', checkMobileDevice);[m
+[32m+[m[32m    };[m
+[32m+[m[32m  }, []);[m
+[32m+[m
+[32m+[m[32m  // 初始化音頻上下文[m
+[32m+[m[32m  const initAudioContext = () => {[m
+[32m+[m[32m    try {[m
+[32m+[m[32m      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;[m
+[32m+[m[32m      if (AudioContext) {[m
+[32m+[m[32m        const context = new AudioContext();[m
+[32m+[m[32m        setAudioContext(context);[m
+[32m+[m[32m        return context;[m
+[32m+[m[32m      }[m
+[32m+[m[32m    } catch (error) {[m
+[32m+[m[32m      console.error('無法創建音頻上下文:', error);[m
+[32m+[m[32m      setIsAudioSupported(false);[m
+[32m+[m[32m    }[m
+[32m+[m[32m    return null;[m
+[32m+[m[32m  };[m
+[32m+[m
+   // 修改播放打招呼聲音的 useEffect[m
+   useEffect(() => {[m
+     let isComponentMounted = true;[m
+     [m
+     const initWelcomeAudio = async () => {[m
+       try {[m
+[32m+[m[32m        // 確保音頻上下文已初始化[m
+[32m+[m[32m        if (!audioContext) {[m
+[32m+[m[32m          initAudioContext();[m
+[32m+[m[32m        }[m
+[32m+[m
+         // 創建音頻元素[m
+         audioRef.current = new Audio('/audio/嗨 ! 我是.mp3');[m
+         [m
+[31m-        // 播放聲音[m
+[32m+[m[32m        // 設置音頻屬性[m
+         if (audioRef.current) {[m
+[31m-          console.log('開始播放歡迎音效');[m
+[31m-          await audioRef.current.play();[m
+[32m+[m[32m          audioRef.current.preload = 'auto';[m
+[32m+[m[32m          audioRef.current.volume = isMobileDevice ? 1.0 : 0.8; // 移動設備使用最大音量[m
+           [m
+[31m-          // 監聽播放結束事件[m
+[31m-          audioRef.current.addEventListener('ended', () => {[m
+[31m-            console.log('歡迎音效播放完畢');[m
+[31m-            if (isComponentMounted) {[m
+[31m-              setIsWelcomeAudioFinished(true);[m
+[31m-              // 確保在音效播放完畢後初始化麥克風[m
+[31m-              setTimeout(async () => {[m
+[31m-                console.log('開始初始化麥克風');[m
+[31m-                await initAudio();[m
+[31m-              }, 1500); // 增加延遲時間到 1.5 秒[m
+[32m+[m[32m          // 添加錯誤處理[m
+[32m+[m[32m          audioRef.current.onerror = (e) => {[m
+[32m+[m[32m            console.error('音頻加載錯誤:', e);[m
+[32m+[m[32m            if (audioLoadRetryCount.current < maxRetries) {[m
+[32m+[m[32m              audioLoadRetryCount.current++;[m
+[32m+[m[32m              console.log(`重試加載音頻 (${audioLoadRetryCount.current}/${maxRetries})`);[m
+[32m+[m[32m              setTimeout(initWelcomeAudio, 1000);[m
+[32m+[m[32m            } else {[m
+[32m+[m[32m              console.error('音頻加載失敗，跳過歡迎音效');[m
+[32m+[m[32m              if (isComponentMounted) {[m
+[32m+[m[32m                setIsWelcomeAudioFinished(true);[m
+[32m+[m[32m                setTimeout(async () => {[m
+[32m+[m[32m                  await initAudio();[m
+[32m+[m[32m                }, isMobileDevice ? 2000 : 1500);[m
+[32m+[m[32m              }[m
+             }[m
+[31m-          }, { once: true });[m
+[32m+[m[32m          };[m
+[32m+[m[41m          [m
+[32m+[m[32m          // 播放聲音[m
+[32m+[m[32m          try {[m
+[32m+[m[32m            console.log('開始播放歡迎音效');[m
+[32m+[m[32m            await audioRef.current.play();[m
+[32m+[m[41m            [m
+[32m+[m[32m            // 監聽播放結束事件[m
+[32m+[m[32m            audioRef.current.addEventListener('ended', () => {[m
+[32m+[m[32m              console.log('歡迎音效播放完畢');[m
+[32m+[m[32m              if (isComponentMounted) {[m
+[32m+[m[32m                setIsWelcomeAudioFinished(true);[m
+[32m+[m[32m                // 確保在音效播放完畢後初始化麥克風[m
+[32m+[m[32m                setTimeout(async () => {[m
+[32m+[m[32m                  console.log('開始初始化麥克風');[m
+[32m+[m[32m                  await initAudio();[m
+[32m+[m[32m                }, isMobileDevice ? 2000 : 1500); // 移動設備增加延遲時間[m
+[32m+[m[32m              }[m
+[32m+[m[32m            }, { once: true });[m
+[32m+[m[32m          } catch (playError) {[m
+[32m+[m[32m            console.error('播放聲音失敗:', playError);[m
+[32m+[m[32m            // 如果是移動設備，嘗試使用用戶交互觸發播放[m
+[32m+[m[32m            if (isMobileDevice) {[m
+[32m+[m[32m              const playOnInteraction = async () => {[m
+[32m+[m[32m                try {[m
+[32m+[m[32m                  await audioRef.current?.play();[m
+[32m+[m[32m                } catch (error) {[m
+[32m+[m[32m                  console.error('移動設備播放失敗:', error);[m
+[32m+[m[32m                }[m
+[32m+[m[32m                document.removeEventListener('touchstart', playOnInteraction);[m
+[32m+[m[32m                document.removeEventListener('click', playOnInteraction);[m
+[32m+[m[32m              };[m
+[32m+[m[41m              [m
+[32m+[m[32m              document.addEventListener('touchstart', playOnInteraction);[m
+[32m+[m[32m              document.addEventListener('click', playOnInteraction);[m
+[32m+[m[32m            }[m
+[32m+[m[32m          }[m
+         }[m
+       } catch (error) {[m
+[31m-        console.error('播放聲音失敗:', error);[m
+[32m+[m[32m        console.error('初始化音頻失敗:', error);[m
+         if (isComponentMounted) {[m
+           setIsWelcomeAudioFinished(true);[m
+           setTimeout(async () => {[m
+             await initAudio();[m
+[31m-          }, 1500);[m
+[32m+[m[32m          }, isMobileDevice ? 2000 : 1500);[m
+         }[m
+       }[m
+     };[m
+[36m@@ -164,6 +246,11 @@[m [mexport default function VoiceAssistantPage() {[m
+         audioRef.current = null;[m
+       }[m
+       [m
+[32m+[m[32m      // 清理音頻上下文[m
+[32m+[m[32m      if (audioContext) {[m
+[32m+[m[32m        audioContext.close();[m
+[32m+[m[32m      }[m
+[32m+[m[41m      [m
+       // 清理哭聲檢測相關資源[m
+       if (mediaStreamRef.current) {[m
+         mediaStreamRef.current.getTracks().forEach(track => track.stop());[m
+[36m@@ -178,7 +265,7 @@[m [mexport default function VoiceAssistantPage() {[m
+         clearTimeout(alertTimeoutRef.current);[m
+       }[m
+     };[m
+[31m-  }, []);[m
+[32m+[m[32m  }, [isMobileDevice, audioContext]);[m
+ [m
+   // 初始化音頻處理[m
+   const initAudio = async () => {[m
