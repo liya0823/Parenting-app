@@ -39,24 +39,38 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     if (!isDetecting) {
       setIsDetecting(true);
       
+      // 立即播放偵測音效
+      const detectionAudio = new Audio();
+      detectionAudio.src = '/audio/哭聲偵測中.mp3';
+      detectionAudio.volume = 1.0;
+      detectionAudio.play()
+        .then(() => {
+          console.log('偵測音效播放成功');
+        })
+        .catch(error => {
+          console.error('偵測音效播放失敗:', error);
+          // 如果播放失敗，立即重試一次
+          detectionAudio.play().catch(err => console.error('偵測音效重試失敗:', err));
+        });
+      
       // 設置計時器，4000毫秒後播放提示音並跳轉
       redirectTimerRef.current = setTimeout(() => {
         if (activeMode === 'auto') {
-          // 創建音頻元素
-          const audio = new Audio();
-          audio.src = '/audio/哭聲偵測中.mp3';
-          audio.volume = 1.0;
-          audioRef.current = audio;
+          // 創建提示音頻元素
+          const alertAudio = new Audio();
+          alertAudio.src = '/audio/提示音.mp3';
+          alertAudio.volume = 1.0;
+          audioRef.current = alertAudio;
           
           // 播放提示音
-          audio.play()
+          alertAudio.play()
             .then(() => {
-              console.log('音頻播放成功');
+              console.log('提示音播放成功');
             })
             .catch(error => {
-              console.error('播放失敗:', error);
+              console.error('提示音播放失敗:', error);
               // 如果播放失敗，立即重試一次
-              audio.play().catch(err => console.error('重試失敗:', err));
+              alertAudio.play().catch(err => console.error('提示音重試失敗:', err));
             });
 
           const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
