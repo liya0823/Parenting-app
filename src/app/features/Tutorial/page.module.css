@@ -245,7 +245,6 @@
   align-items: center;
   z-index: 2;
   padding-bottom: env(safe-area-inset-bottom);
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .navButton {
@@ -956,10 +955,14 @@
 
 .alertIcon {
   animation: pulse 2s infinite;
+  font-size: 24px;
 }
 
 .alertText {
   flex: 1;
+  font-size: 16px;
+  color: #7C695B;
+  font-weight: 500;
 }
 
 .alertTitle {
