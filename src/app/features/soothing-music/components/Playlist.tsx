@@ -143,6 +143,8 @@ const Playlist = () => {
   useEffect(() => {
     let cleanupFunction: (() => void) | undefined;
     let isComponentMounted = true;
+    let lastDetectionTime = 0;
+    const DETECTION_COOLDOWN = 5000; // 5秒冷卻時間
     
     const initAudio = async () => {
       try {
@@ -157,13 +159,16 @@ const Playlist = () => {
         const source = audioContext.createMediaStreamSource(stream);
         const analyser = audioContext.createAnalyser();
         analyser.fftSize = 256;
+        analyser.smoothingTimeConstant = 0.8; // 增加平滑度
         source.connect(analyser);
         
         const bufferLength = analyser.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);
         
         // 降低音量閾值，使檢測更靈敏
-        const volumeThreshold = 45;
+        const volumeThreshold = 40; // 降低閾值
+        const detectionWindow = 10; // 檢測窗口大小
+        let detectionCount = 0; // 連續檢測計數
         
         // 暫停麥克風的函數
         const pauseMicrophone = () => {
@@ -193,53 +198,67 @@ const Playlist = () => {
           analyser.getByteFrequencyData(dataArray);
           const average = dataArray.reduce((a, b) => a + b) / bufferLength;
           
+          // 檢查是否超過閾值
           if (average > volumeThreshold) {
-            if (soundStartTimeRef.current === null && !isPlayingNotification) {
-              soundStartTimeRef.current = Date.now();
-              
-              soundDetectionTimeoutRef.current = setTimeout(() => {
-                if (!isComponentMounted) return;
+            detectionCount++;
+            
+            // 如果連續多次檢測到聲音，則觸發提示
+            if (detectionCount >= detectionWindow) {
+              const now = Date.now();
+              if (now - lastDetectionTime >= DETECTION_COOLDOWN) {
+                lastDetectionTime = now;
                 
-                // 如果 1.5 秒後仍然在檢測中，則觸發提示
-                if (soundStartTimeRef.current !== null && !isPlayingNotification) {
-                  setShowSoundAlert(true);
-                  setIsPlayingNotification(true);
+                if (soundStartTimeRef.current === null && !isPlayingNotification) {
+                  soundStartTimeRef.current = now;
                   
-                  // 暫停麥克風
-                  pauseMicrophone();
-                  
-                  // 播放提示音
-                  playSound('/audio/偵測提示.mp3')
-                    .then(() => {
-                      if (!isComponentMounted) return;
-                      
-                      // 播放完成後恢復麥克風
-                      resumeMicrophone();
-                      setIsPlayingNotification(false);
-                    })
-                    .catch(error => {
-                      console.error('播放提示音失敗:', error);
-                      if (!isComponentMounted) return;
-                      
-                      // 發生錯誤時也要恢復麥克風
-                      resumeMicrophone();
-                      setIsPlayingNotification(false);
-                    });
-                  
-                  // 5 秒後隱藏提示
-                  setTimeout(() => {
+                  soundDetectionTimeoutRef.current = setTimeout(() => {
                     if (!isComponentMounted) return;
-                    setShowSoundAlert(false);
-                  }, 5000);
-                  
-                  // 重置檢測狀態
-                  soundStartTimeRef.current = null;
+                    
+                    // 如果 1.5 秒後仍然在檢測中，則觸發提示
+                    if (soundStartTimeRef.current !== null && !isPlayingNotification) {
+                      setShowSoundAlert(true);
+                      setIsPlayingNotification(true);
+                      
+                      // 暫停麥克風
+                      pauseMicrophone();
+                      
+                      // 播放提示音
+                      playSound('/audio/偵測提示.mp3')
+                        .then(() => {
+                          if (!isComponentMounted) return;
+                          
+                          // 播放完成後恢復麥克風
+                          resumeMicrophone();
+                          setIsPlayingNotification(false);
+                        })
+                        .catch(error => {
+                          console.error('播放提示音失敗:', error);
+                          if (!isComponentMounted) return;
+                          
+                          // 發生錯誤時也要恢復麥克風
+                          resumeMicrophone();
+                          setIsPlayingNotification(false);
+                        });
+                      
+                      // 5 秒後隱藏提示
+                      setTimeout(() => {
+                        if (!isComponentMounted) return;
+                        setShowSoundAlert(false);
+                      }, 5000);
+                      
+                      // 重置檢測狀態
+                      soundStartTimeRef.current = null;
+                    }
+                  }, 1500);
                 }
-              }, 1500);
+              }
             }
           } else {
-            // 如果聲音低於閾值，重置計時器
-            if (soundStartTimeRef.current !== null) {
+            // 如果聲音低於閾值，重置計數器
+            detectionCount = Math.max(0, detectionCount - 1);
+            
+            // 如果聲音持續低於閾值，重置計時器
+            if (detectionCount === 0 && soundStartTimeRef.current !== null) {
               soundStartTimeRef.current = null;
               if (soundDetectionTimeoutRef.current) {
                 clearTimeout(soundDetectionTimeoutRef.current);
