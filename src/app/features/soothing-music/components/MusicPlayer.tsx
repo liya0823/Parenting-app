@@ -63,10 +63,23 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       const alertAudio = new Audio('/audio/偵測提示.mp3');
       alertAudio.volume = 1.0;
       
-      // 設置播放結束事件
+      // 設置播放結束事件，在播放結束後執行跳轉
       alertAudio.onended = () => {
         isPlayingAlertRef.current = false;
         alertAudio.onended = null;
+
+        // 在提示音播放完成後才執行跳轉邏輯
+        const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
+        const randomSituation = situations[Math.floor(Math.random() * situations.length)];
+        setDetectedSituation(randomSituation);
+        
+        const musicType = situationMusicMap[randomSituation];
+        console.log('準備跳轉到音樂播放頁面:', musicType);
+        
+        setFadeOut(true);
+        setTimeout(() => {
+          router.push(`/features/soothing-music/${musicType}?autoplay=true`);
+        }, 500);
       };
       
       // 保存引用並播放
@@ -74,23 +87,24 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       alertAudio.play().catch(error => {
         console.error('提示音播放失敗:', error);
         isPlayingAlertRef.current = false;
+        
+        // 如果播放失敗，也執行跳轉
+        const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
+        const randomSituation = situations[Math.floor(Math.random() * situations.length)];
+        setDetectedSituation(randomSituation);
+        
+        const musicType = situationMusicMap[randomSituation];
+        console.log('提示音播放失敗，直接跳轉到音樂播放頁面:', musicType);
+        
+        setFadeOut(true);
+        setTimeout(() => {
+          router.push(`/features/soothing-music/${musicType}?autoplay=true`);
+        }, 500);
       });
-
-      // 準備跳轉
-      const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
-      const randomSituation = situations[Math.floor(Math.random() * situations.length)];
-      setDetectedSituation(randomSituation);
-      
-      const musicType = situationMusicMap[randomSituation];
-      console.log('準備跳轉到音樂播放頁面:', musicType);
-      
-      setFadeOut(true);
-      setTimeout(() => {
-        router.push(`/features/soothing-music/${musicType}?autoplay=true`);
-      }, 500);
     } catch (error) {
       console.error('播放提示音時發生錯誤:', error);
       isPlayingAlertRef.current = false;
+      cleanup();
     }
   };
 
