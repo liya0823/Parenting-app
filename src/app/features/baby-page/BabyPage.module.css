@@ -20,7 +20,13 @@
   z-index: 1000;
   cursor: pointer;
 }
+.backIcon:hover {
+  transform: scale(1.1);
+}
 
+.backIcon:active {
+  transform: scale(0.95);
+}
 .header {
   padding: 30px 0;
   text-align: center;
@@ -58,10 +64,36 @@
 
 .avatarContainer {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.avatarWrapper {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
 }
 
 .avatar {
-  border-radius: 52.5px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.addImageButton {
+  cursor: pointer;
+  transition: transform 0.2s;
+  margin-top: 1px;
+  position: absolute;
+  right: -40px;
+  top: 80%;
+  transform: translateY(-50%);
+}
+
+.addImageButton:hover {
+  transform: translateY(-50%) scale(1.1);
 }
 
 .babyInfo {
@@ -125,16 +157,19 @@
   align-items: center;
 }
 
+.addButton:hover {
+  transform: scale(1.1);
+}
+
+.addButton:active {
+  transform: scale(0.95);
+}
 .logoutButton {
-  position: fixed;
-  bottom: 80px;
-  right: 20px;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
+  position: absolute;
+  top: 15px;
+  right: 10px;
   z-index: 1000;
-  transition: transform 0.2s ease;
+  cursor: pointer;
 }
 
 .logoutButton:hover {
