@@ -240,6 +240,7 @@
   left: 0;
   right: 0;
   height: 60px;
+  background: transparent;
 }
 
 .headerContent {
@@ -306,8 +307,9 @@
 
 .mapContainer {
   width: 100%;
-  height: calc(100% - 60px);
-  padding-top: 120px;
+  height: calc(100vh - 65px);
+  position: relative;
+  z-index: 1;
 }
 
 .markerShadow {

@@ -5,6 +5,11 @@ import Image from 'next/image';
 import styles from './page.module.css';
 import { useRouter } from 'next/navigation';
 
+// 添加类型定义
+type Libraries = ('places' | 'geometry' | 'drawing' | 'visualization')[];
+
+const libraries: Libraries = ['places'];
+
 // 定義店家資料類型
 interface Store {
   id: string;
@@ -472,9 +477,6 @@ const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: numbe
   return R * c; // 返回公里數
 };
 
-// 添加类型定义
-type Libraries = ('places' | 'geometry' | 'drawing' | 'visualization')[];
-
 export default function FriendlyNursingMap() {
   const router = useRouter();
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
@@ -487,6 +489,7 @@ export default function FriendlyNursingMap() {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [showSoundAlert, setShowSoundAlert] = useState(false);
+  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const microphoneRef = useRef<MediaStreamAudioSourceNode | null>(null);
@@ -833,6 +836,10 @@ export default function FriendlyNursingMap() {
                 placeholder="搜尋哺乳友善空間."
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  backdropFilter: 'blur(5px)'
+                }}
               />
               <button className={styles.searchIcon}>
                 <Image
@@ -857,55 +864,77 @@ export default function FriendlyNursingMap() {
         </div>
 
         {/* Google Maps */}
-        <LoadScript 
-          googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}
-          loadingElement={<div>Loading Google Maps...</div>}
-          onLoad={() => console.log('Google Maps Script loaded successfully')}
-          onError={(error) => console.error('Error loading Google Maps:', error)}
-        >
-          <GoogleMap
-            mapContainerStyle={{
-              width: '100%',
-              height: '100%'
+        <div className={styles.mapContainer}>
+          <LoadScript
+            googleMapsApiKey="AIzaSyBTNI39znpx1ahFbuEpNaqrF_mtuDWsv78"
+            libraries={libraries}
+            onLoad={() => {
+              console.log('Script loaded successfully');
+              setIsScriptLoaded(true);
             }}
-            center={center}
-            zoom={15}
-            options={{
-              disableDefaultUI: true,
-              zoomControl: true,
-              mapTypeControl: false,
-              streetViewControl: false,
-              fullscreenControl: false,
-              gestureHandling: 'greedy'
+            onError={(error) => {
+              console.error('Error loading script:', error);
             }}
-            onLoad={onMapLoad}
           >
-            {isLoaded && (
-              <>
-                {nearbyStores.map(store => (
-                  <CustomMarker
-                    key={store.id}
-                    position={{ lat: store.lat, lng: store.lng }}
-                    onClick={() => setSelectedStore(store)}
-                    name={store.name}
-                  />
-                ))}
+            <GoogleMap
+              mapContainerStyle={{
+                width: '100%',
+                height: '100%',
+                position: 'relative'
+              }}
+              center={center}
+              zoom={15}
+              options={{
+                zoomControl: false,
+                mapTypeControl: false,
+                streetViewControl: false,
+                fullscreenControl: false,
+                gestureHandling: 'greedy',
+                styles: [
+                  {
+                    featureType: "poi",
+                    elementType: "labels",
+                    stylers: [{ visibility: "off" }]
+                  }
+                ]
+              }}
+              onLoad={(map) => {
+                console.log('Map loaded successfully');
+                setIsLoaded(true);
+                onMapLoad(map);
+              }}
+            >
+              {isLoaded && nearbyStores.map(store => (
+                <MarkerF
+                  key={store.id}
+                  position={{ lat: store.lat, lng: store.lng }}
+                  onClick={() => setSelectedStore(store)}
+                  icon={{
+                    url: '/10.png',
+                    scaledSize: isScriptLoaded ? new window.google.maps.Size(89, 60) : undefined
+                  }}
+                  label={{
+                    text: store.name,
+                    color: '#7C695B',
+                    fontSize: '15px',
+                    fontFamily: 'Inter',
+                    className: styles.markerLabel
+                  }}
+                />
+              ))}
 
+              {isLoaded && (
                 <MarkerF
                   position={center}
                   icon={{
                     url: '/11.png',
-                    scaledSize: new window.google.maps.Size(50, 50),
-                    anchor: new window.google.maps.Point(25, 25),
-                  }}
-                  options={{
-                    optimized: false
+                    scaledSize: isScriptLoaded ? new window.google.maps.Size(50, 50) : undefined
                   }}
                 />
-              </>
-            )}
-          </GoogleMap>
-        </LoadScript>
+              )}
+            </GoogleMap>
+          </LoadScript>
+        </div>
 
         {selectedStore && (
           <div 
@@ -1214,7 +1243,7 @@ export default function FriendlyNursingMap() {
             onClick={() => handleNavClick(9)}
           >
             <Image src="/09.png" alt="教學" width={40} height={40} />
-            <span className={styles.navText}>教學</span>
+            <span className={styles.navText}>背帶教學</span>
           </button>
         </nav>
       </div>
