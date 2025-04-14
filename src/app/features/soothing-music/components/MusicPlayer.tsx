@@ -29,30 +29,41 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   const alertBufferRef = useRef<AudioBuffer | null>(null);
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 初始化 Web Audio API
-  useEffect(() => {
-    const initAudio = async () => {
-      try {
-        // 創建音頻上下文
+  // 初始化音頻上下文和加載音頻
+  const initAudioContext = async () => {
+    try {
+      if (!audioContextRef.current) {
         const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
         audioContextRef.current = new AudioContext();
+      }
 
-        // 加載偵測音效
+      // 如果音頻上下文被暫停，恢復它
+      if (audioContextRef.current.state === 'suspended') {
+        await audioContextRef.current.resume();
+      }
+
+      // 只有在還沒有加載音頻時才加載
+      if (!detectionBufferRef.current) {
         const detectionResponse = await fetch('/audio/哭聲偵測中.mp3');
         const detectionArrayBuffer = await detectionResponse.arrayBuffer();
         detectionBufferRef.current = await audioContextRef.current.decodeAudioData(detectionArrayBuffer);
+      }
 
-        // 加載提示音
+      if (!alertBufferRef.current) {
         const alertResponse = await fetch('/audio/提示音.mp3');
         const alertArrayBuffer = await alertResponse.arrayBuffer();
         alertBufferRef.current = await audioContextRef.current.decodeAudioData(alertArrayBuffer);
-      } catch (error) {
-        console.error('初始化音頻失敗:', error);
       }
-    };
 
-    initAudio();
+      return true;
+    } catch (error) {
+      console.error('初始化音頻失敗:', error);
+      return false;
+    }
+  };
 
+  // 清理函數
+  useEffect(() => {
     return () => {
       if (audioContextRef.current) {
         audioContextRef.current.close();
@@ -96,6 +107,13 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       setIsDetecting(true);
 
       try {
+        // 初始化音頻上下文和加載音頻
+        const initialized = await initAudioContext();
+        if (!initialized) {
+          console.error('音頻初始化失敗');
+          return;
+        }
+
         // 播放偵測音效
         await playAudioBuffer(detectionBufferRef.current);
         
@@ -120,6 +138,7 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
         }, 4000);
       } catch (error) {
         console.error('播放過程中出錯:', error);
+        setIsDetecting(false);
       }
     }
   };
