@@ -24,6 +24,124 @@ const Playlist = () => {
   const isPlayingRef = useRef<boolean>(false);
   const [isPlayingNotification, setIsPlayingNotification] = useState(false);
 
+  // 添加音效預加載和播放相關的引用
+  const audioElementsRef = useRef<{ [key: string]: HTMLAudioElement }>({});
+  const loadingPromisesRef = useRef<{ [key: string]: Promise<void> }>({});
+  
+  // 預加載音效
+  const preloadAudio = async (soundFile: string): Promise<void> => {
+    // 如果已經在加載中，返回現有的 Promise
+    if (soundFile in loadingPromisesRef.current) {
+      return loadingPromisesRef.current[soundFile];
+    }
+    
+    // 如果已經加載完成，直接返回
+    if (soundFile in audioElementsRef.current) {
+      return Promise.resolve();
+    }
+    
+    // 創建新的加載 Promise
+    const loadPromise = new Promise<void>((resolve, reject) => {
+      try {
+        const audio = new Audio();
+        audio.preload = 'auto';
+        
+        // 設置事件監聽器
+        audio.oncanplaythrough = () => {
+          console.log(`音效已加載: ${soundFile}`);
+          audioElementsRef.current[soundFile] = audio;
+          resolve();
+        };
+        
+        audio.onerror = (e) => {
+          console.error(`音效加載失敗: ${soundFile}`, e);
+          reject(e);
+        };
+        
+        // 設置音源
+        audio.src = soundFile;
+        
+        // 設置超時保護（5秒）
+        setTimeout(() => {
+          if (!(soundFile in audioElementsRef.current)) {
+            console.log(`音效加載超時: ${soundFile}`);
+            reject(new Error('加載超時'));
+          }
+        }, 5000);
+      } catch (error) {
+        console.error(`音效加載過程發生錯誤: ${soundFile}`, error);
+        reject(error);
+      }
+    });
+    
+    // 保存 Promise 引用
+    loadingPromisesRef.current[soundFile] = loadPromise;
+    
+    // 返回 Promise
+    return loadPromise;
+  };
+  
+  // 播放音效函數
+  const playSound = async (soundFile: string): Promise<void> => {
+    try {
+      // 嘗試預加載音效
+      await preloadAudio(soundFile);
+      
+      // 獲取音效元素
+      const audio = audioElementsRef.current[soundFile];
+      if (!audio) {
+        throw new Error(`音效未加載: ${soundFile}`);
+      }
+      
+      // 重置音效
+      audio.currentTime = 0;
+      audio.volume = 1.0;
+      
+      // 播放音效
+      await audio.play();
+      
+      // 等待音效播放完成或超時
+      await new Promise<void>((resolve) => {
+        const handleEnded = () => {
+          console.log(`音效播放完成: ${soundFile}`);
+          audio.removeEventListener('ended', handleEnded);
+          resolve();
+        };
+        
+        audio.addEventListener('ended', handleEnded);
+        
+        // 設置超時保護（3秒）
+        setTimeout(() => {
+          audio.removeEventListener('ended', handleEnded);
+          console.log(`音效播放超時: ${soundFile}`);
+          resolve();
+        }, 3000);
+      });
+    } catch (error) {
+      console.error(`音效播放錯誤: ${soundFile}`, error);
+      // 即使出錯也繼續執行
+    }
+  };
+
+  // 在組件掛載時預加載所有音效
+  useEffect(() => {
+    // 預加載提示音效
+    preloadAudio('/audio/偵測提示.mp3').catch(() => {
+      console.log('提示音效預加載失敗，將在播放時重試');
+    });
+    
+    // 清理函數
+    return () => {
+      // 清理所有音效元素
+      Object.values(audioElementsRef.current).forEach(audio => {
+        audio.pause();
+        audio.src = '';
+      });
+      audioElementsRef.current = {};
+      loadingPromisesRef.current = {};
+    };
+  }, []);
+
   // 初始化音頻處理
   useEffect(() => {
     let cleanupFunction: (() => void) | undefined;
@@ -49,13 +167,6 @@ const Playlist = () => {
         
         // 降低音量閾值，使檢測更靈敏
         const volumeThreshold = 45;
-        
-        // 初始化提示音
-        if (notificationAudioRef.current) {
-          notificationAudioRef.current.pause();
-          notificationAudioRef.current.currentTime = 0;
-          notificationAudioRef.current = null;
-        }
         
         // 暫停麥克風的函數
         const pauseMicrophone = () => {
@@ -100,61 +211,22 @@ const Playlist = () => {
                   // 暫停麥克風
                   pauseMicrophone();
                   
-                  // 確保清理舊的音頻實例
-                  if (notificationAudioRef.current) {
-                    notificationAudioRef.current.pause();
-                    notificationAudioRef.current.currentTime = 0;
-                    notificationAudioRef.current = null;
-                  }
-                  
-                  // 創建新的音頻實例並設置音量
-                  const audio = new Audio();
-                  audio.src = '/audio/偵測提示.mp3';
-                  audio.volume = 1.0;
-                  notificationAudioRef.current = audio;
-                  
-                  // 直接嘗試播放
-                  audio.play()
+                  // 播放提示音
+                  playSound('/audio/偵測提示.mp3')
                     .then(() => {
-                      console.log('Audio started playing');
                       if (!isComponentMounted) return;
                       
-                      // 等待音頻播放完成
-                      audio.addEventListener('ended', () => {
-                        console.log('Audio finished playing');
-                        if (!isComponentMounted) return;
-                        
-                        // 播放完成後恢復麥克風
-                        resumeMicrophone();
-                        // 清理音頻實例
-                        if (notificationAudioRef.current) {
-                          notificationAudioRef.current.pause();
-                          notificationAudioRef.current.currentTime = 0;
-                          notificationAudioRef.current = null;
-                        }
-                        setIsPlayingNotification(false);
-                      }, { once: true });
+                      // 播放完成後恢復麥克風
+                      resumeMicrophone();
+                      setIsPlayingNotification(false);
                     })
                     .catch(error => {
-                      console.error('Error playing notification sound:', error);
+                      console.error('播放提示音失敗:', error);
                       if (!isComponentMounted) return;
                       
                       // 發生錯誤時也要恢復麥克風
                       resumeMicrophone();
-                      // 清理音頻實例
-                      if (notificationAudioRef.current) {
-                        notificationAudioRef.current.pause();
-                        notificationAudioRef.current.currentTime = 0;
-                        notificationAudioRef.current = null;
-                      }
                       setIsPlayingNotification(false);
-                      
-                      // 重試播放
-                      setTimeout(() => {
-                        if (!isComponentMounted) return;
-                        console.log('Retrying audio playback');
-                        audio.play().catch(console.error);
-                      }, 1000);
                     });
                   
                   // 5 秒後隱藏提示
@@ -204,12 +276,6 @@ const Playlist = () => {
           // 清理計時器
           if (soundDetectionTimeoutRef.current) {
             clearTimeout(soundDetectionTimeoutRef.current);
-          }
-          // 清理提示音
-          if (notificationAudioRef.current) {
-            notificationAudioRef.current.pause();
-            notificationAudioRef.current.currentTime = 0;
-            notificationAudioRef.current = null;
           }
           setIsPlayingNotification(false);
         };
