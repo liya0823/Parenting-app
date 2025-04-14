@@ -114,6 +114,19 @@ export default function BabyPage() {
           style={{ display: 'none' }}
         />
 
+        <button 
+          className={styles.logoutButton}
+          onClick={() => router.push('/welcome')}
+        >
+          <Image
+            src="/Logout.png"
+            alt="登出"
+            width={40}
+            height={40}
+            priority
+          />
+        </button>
+
       </div>
     </div>
   );
