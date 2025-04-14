@@ -39,26 +39,26 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     if (!isDetecting) {
       setIsDetecting(true);
       
-      // 創建音頻元素
-      const audio = new Audio();
-      audio.src = '/audio/哭聲偵測中.mp3';
-      audio.volume = 1.0;
-      audioRef.current = audio;
-      
-      // 立即播放提示音
-      audio.play()
-        .then(() => {
-          console.log('音頻播放成功');
-        })
-        .catch(error => {
-          console.error('播放失敗:', error);
-          // 如果播放失敗，立即重試一次
-          audio.play().catch(err => console.error('重試失敗:', err));
-        });
-      
-      // 設置計時器，4000毫秒後跳轉
+      // 設置計時器，4000毫秒後播放提示音並跳轉
       redirectTimerRef.current = setTimeout(() => {
         if (activeMode === 'auto') {
+          // 創建音頻元素
+          const audio = new Audio();
+          audio.src = '/audio/哭聲偵測中.mp3';
+          audio.volume = 1.0;
+          audioRef.current = audio;
+          
+          // 播放提示音
+          audio.play()
+            .then(() => {
+              console.log('音頻播放成功');
+            })
+            .catch(error => {
+              console.error('播放失敗:', error);
+              // 如果播放失敗，立即重試一次
+              audio.play().catch(err => console.error('重試失敗:', err));
+            });
+
           const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
           const randomSituation = situations[Math.floor(Math.random() * situations.length)];
           setDetectedSituation(randomSituation);
