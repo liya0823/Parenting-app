@@ -232,8 +232,10 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     setIsDetecting(true);
 
     try {
+      // 先播放偵測音效
       await playDetectionSound();
       
+      // 等待 3 秒後顯示結果
       redirectTimerRef.current = setTimeout(async () => {
         const situations: SituationType[] = ['hungry', 'briefCry', 'longCry', 'morning', 'night', 'default'];
         const randomSituation = situations[Math.floor(Math.random() * situations.length)];
@@ -244,22 +246,43 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
         setNotificationMessage(message);
         setShowNotification(true);
         
-        try {
-          const audio = new Audio(`/audio/${message.sound}`);
-          await audio.play();
-          audio.onended = () => {
+        // 播放提示音，確保完整播放後再跳轉
+        const playNotificationAndRedirect = async () => {
+          try {
+            const audio = new Audio(`/audio/${message.sound}`);
+            
+            // 等待音頻加載完成
+            await new Promise((resolve) => {
+              audio.oncanplaythrough = resolve;
+              audio.load();
+            });
+
+            // 播放音頻
+            await audio.play();
+
+            // 等待音頻播放完成
+            await new Promise((resolve) => {
+              audio.onended = resolve;
+            });
+
+            // 音頻播放完成後，執行淡出動畫並跳轉
+            console.log('提示音播放完成，準備跳轉');
             setFadeOut(true);
             setTimeout(() => {
               router.push(`/features/soothing-music/${musicType}?autoplay=true`);
-            }, 500);
-          };
-        } catch (error) {
-          console.error('播放提示音失敗:', error);
-          setFadeOut(true);
-          setTimeout(() => {
-            router.push(`/features/soothing-music/${musicType}?autoplay=true`);
-          }, 500);
-        }
+            }, 1000);
+          } catch (error) {
+            console.error('播放提示音失敗:', error);
+            // 如果播放失敗，也執行跳轉
+            setFadeOut(true);
+            setTimeout(() => {
+              router.push(`/features/soothing-music/${musicType}?autoplay=true`);
+            }, 1000);
+          }
+        };
+
+        // 執行播放和跳轉
+        await playNotificationAndRedirect();
       }, 3000);
     } catch (error) {
       console.error('偵測過程發生錯誤:', error);
@@ -280,7 +303,25 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
 
   // 預加載音效
   useEffect(() => {
-    loadDetectionSound();
+    const preloadAudio = async () => {
+      await loadDetectionSound();
+      // 預加載所有提示音
+      for (const situation of Object.values(notificationMessages)) {
+        try {
+          const audio = new Audio(`/audio/${situation.sound}`);
+          audio.preload = 'auto';
+          await new Promise((resolve) => {
+            audio.oncanplaythrough = resolve;
+            audio.load();
+          });
+          console.log(`預加載音效成功: ${situation.sound}`);
+        } catch (error) {
+          console.error(`預加載音效失敗: ${situation.sound}`, error);
+        }
+      }
+    };
+    
+    preloadAudio();
     return cleanup;
   }, []);
 
