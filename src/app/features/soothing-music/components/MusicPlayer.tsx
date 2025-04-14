@@ -24,40 +24,50 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   const [fadeOut, setFadeOut] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
   const [detectedSituation, setDetectedSituation] = useState<keyof typeof situationMusicMap | null>(null);
+  const [isAudioInitialized, setIsAudioInitialized] = useState(false);
+  
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBufferRef = useRef<AudioBuffer | null>(null);
+  const gainNodeRef = useRef<GainNode | null>(null);
   const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // 初始化 AudioContext
-  useEffect(() => {
-    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-    audioContextRef.current = new AudioContextClass();
+  const initAudioContext = async () => {
+    try {
+      if (!audioContextRef.current) {
+        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        audioContextRef.current = new AudioContextClass();
+        gainNodeRef.current = audioContextRef.current.createGain();
+        gainNodeRef.current.connect(audioContextRef.current.destination);
+        console.log('AudioContext 初始化成功');
+      }
 
-    // 預加載音效
-    const loadAudio = async () => {
-      try {
+      // 確保 AudioContext 是運行狀態
+      if (audioContextRef.current.state === 'suspended') {
+        await audioContextRef.current.resume();
+        console.log('AudioContext 已恢復運行');
+      }
+
+      // 檢查並載入音效
+      if (!audioBufferRef.current) {
+        console.log('開始載入音效...');
         const response = await fetch('/audio/哭聲偵測中.mp3');
-        const arrayBuffer = await response.arrayBuffer();
-        const audioBuffer = await audioContextRef.current?.decodeAudioData(arrayBuffer);
-        if (audioBuffer) {
-          audioBufferRef.current = audioBuffer;
-          console.log('音效加載成功');
+        console.log('音效載入狀態:', response.status);
+        if (!response.ok) {
+          throw new Error(`音效載入失敗: ${response.status}`);
         }
-      } catch (error) {
-        console.error('音效加載失敗:', error);
+        const arrayBuffer = await response.arrayBuffer();
+        audioBufferRef.current = await audioContextRef.current.decodeAudioData(arrayBuffer);
+        console.log('音效載入成功');
       }
-    };
 
-    loadAudio();
-
-    return () => {
-      cleanup();
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-      }
-    };
-  }, []);
+      setIsAudioInitialized(true);
+    } catch (error) {
+      console.error('音效初始化失敗:', error);
+      setIsAudioInitialized(false);
+    }
+  };
 
   // 清理函數
   const cleanup = () => {
@@ -72,86 +82,63 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     }
   };
 
+  // 播放音效
   const playAudioBuffer = async () => {
-    if (!audioContextRef.current || !audioBufferRef.current) {
-      console.error('AudioContext 或 AudioBuffer 未初始化');
+    if (!audioContextRef.current || !audioBufferRef.current || !gainNodeRef.current) {
+      console.error('音效系統未初始化');
       return;
     }
 
     try {
-      // 確保之前的音頻源已經停止和斷開連接
-      if (sourceNodeRef.current) {
-        sourceNodeRef.current.stop();
-        sourceNodeRef.current.disconnect();
-        sourceNodeRef.current = null;
+      // 確保 AudioContext 是運行狀態
+      if (audioContextRef.current.state === 'suspended') {
+        await audioContextRef.current.resume();
       }
 
-      // 創建新的音頻源
-      const source = audioContextRef.current.createBufferSource();
-      source.buffer = audioBufferRef.current;
-      
-      // 創建增益節點來控制音量
-      const gainNode = audioContextRef.current.createGain();
-      gainNode.gain.value = 1.0; // 設置初始音量
-      
-      // 連接音頻節點
-      source.connect(gainNode);
-      gainNode.connect(audioContextRef.current.destination);
-      sourceNodeRef.current = source;
+      // 停止之前的音效（如果有）
+      cleanup();
+
+      // 創建新的音源
+      sourceNodeRef.current = audioContextRef.current.createBufferSource();
+      sourceNodeRef.current.buffer = audioBufferRef.current;
+
+      // 設置音量（確保不是 0）
+      gainNodeRef.current.gain.value = 1.0;
+
+      // 連接音源
+      sourceNodeRef.current.connect(gainNodeRef.current);
 
       // 監聽播放結束
-      source.onended = () => {
+      sourceNodeRef.current.onended = () => {
         console.log('音效播放結束');
-        if (sourceNodeRef.current) {
-          sourceNodeRef.current.disconnect();
-          sourceNodeRef.current = null;
-        }
+        cleanup();
       };
 
-      // 播放音效
-      source.start(0);
-      console.log('音效播放成功');
+      // 開始播放
+      sourceNodeRef.current.start(0);
+      console.log('音效開始播放');
 
     } catch (error) {
       console.error('音效播放失敗:', error);
       cleanup();
       setIsDetecting(false);
-      
-      // 如果是 iOS 設備，特別處理
-      if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-        console.log('檢測到 iOS 設備，使用特殊處理');
-        try {
-          // 嘗試重新初始化 AudioContext
-          audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-          await audioContextRef.current.resume();
-          
-          // 重新加載音效
-          const response = await fetch('/audio/哭聲偵測中.mp3');
-          const arrayBuffer = await response.arrayBuffer();
-          const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
-          audioBufferRef.current = audioBuffer;
-          
-          // 立即重試播放
-          await playAudioBuffer();
-        } catch (retryError) {
-          console.error('iOS 重試播放失敗:', retryError);
-        }
-      }
     }
   };
 
   const handleRedirect = () => {
-    if (activeMode !== 'auto') return;
-
+    console.log('準備跳轉，當前模式:', activeMode);
+    
+    // 移除模式檢查，確保一定會跳轉
     const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
     const randomSituation = situations[Math.floor(Math.random() * situations.length)];
     setDetectedSituation(randomSituation);
     
     const musicType = situationMusicMap[randomSituation];
-    console.log('準備跳轉到音樂播放頁面:', musicType);
+    console.log('即將跳轉到音樂播放頁面:', musicType);
     
     setFadeOut(true);
     setTimeout(() => {
+      console.log('執行跳轉到:', `/features/soothing-music/${musicType}?autoplay=true`);
       router.push(`/features/soothing-music/${musicType}?autoplay=true`);
     }, 500);
   };
@@ -159,42 +146,32 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   const startDetection = async () => {
     if (isDetecting) return;
     
-    cleanup(); // 先清理之前的狀態
+    cleanup();
     setIsDetecting(true);
     console.log('開始偵測流程');
 
+    // 先設置跳轉計時器，確保一定會跳轉
+    console.log('設置 4 秒後跳轉');
+    redirectTimerRef.current = setTimeout(() => {
+      console.log('4 秒時間到，執行跳轉');
+      handleRedirect();
+    }, 4000);
+
     try {
-      // 確保 AudioContext 已初始化
-      if (!audioContextRef.current) {
-        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-        audioContextRef.current = new AudioContextClass();
-        
-        // 如果是新創建的 AudioContext，需要加載音效
-        const response = await fetch('/audio/哭聲偵測中.mp3');
-        const arrayBuffer = await response.arrayBuffer();
-        const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
-        audioBufferRef.current = audioBuffer;
+      // 嘗試播放音效，但不影響跳轉
+      if (!isAudioInitialized) {
+        await initAudioContext();
       }
-
-      // 如果是 iOS 設備，確保在用戶交互時恢復 AudioContext
-      if (/iPhone|iPad|iPod/.test(navigator.userAgent) && audioContextRef.current.state === 'suspended') {
-        await audioContextRef.current.resume();
-      }
-
-      // 播放偵測音效
       await playAudioBuffer();
-
-      // 設置計時器
-      redirectTimerRef.current = setTimeout(handleRedirect, 4000);
     } catch (error) {
-      console.error('開始偵測時發生錯誤:', error);
-      cleanup();
+      console.error('音效播放失敗，但會繼續跳轉:', error);
+      // 不需要清理 redirectTimerRef，讓它繼續計時
       setIsDetecting(false);
     }
   };
 
   const handleModeChange = (mode: string) => {
-    cleanup(); // 切換模式時清理音頻
+    cleanup();
     setActiveMode(mode);
     setIsDetecting(false);
     onModeChange?.(mode);
@@ -202,6 +179,16 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       router.push('/features/soothing-music/playlist');
     }
   };
+
+  // 組件卸載時清理
+  useEffect(() => {
+    return () => {
+      cleanup();
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+    };
+  }, []);
 
   return (
     <div className={`${styles.container} ${fadeOut ? styles.fadeOut : ''}`}>
