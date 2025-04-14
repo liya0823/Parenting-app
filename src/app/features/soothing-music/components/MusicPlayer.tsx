@@ -24,39 +24,64 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   const [fadeOut, setFadeOut] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
   const [detectedSituation, setDetectedSituation] = useState<keyof typeof situationMusicMap | null>(null);
-  const detectionAudioRef = useRef<HTMLAudioElement | null>(null);
-  const alertAudioRef = useRef<HTMLAudioElement | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const detectionBufferRef = useRef<AudioBuffer | null>(null);
+  const alertBufferRef = useRef<AudioBuffer | null>(null);
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 預加載音頻
+  // 初始化 Web Audio API
   useEffect(() => {
-    // 創建並預加載偵測音效
-    const detectionAudio = new Audio('/audio/哭聲偵測中.mp3');
-    detectionAudio.volume = 1.0;
-    detectionAudio.preload = 'auto';
-    detectionAudioRef.current = detectionAudio;
+    const initAudio = async () => {
+      try {
+        // 創建音頻上下文
+        const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+        audioContextRef.current = new AudioContext();
 
-    // 創建並預加載提示音
-    const alertAudio = new Audio('/audio/提示音.mp3');
-    alertAudio.volume = 1.0;
-    alertAudio.preload = 'auto';
-    alertAudioRef.current = alertAudio;
+        // 加載偵測音效
+        const detectionResponse = await fetch('/audio/哭聲偵測中.mp3');
+        const detectionArrayBuffer = await detectionResponse.arrayBuffer();
+        detectionBufferRef.current = await audioContextRef.current.decodeAudioData(detectionArrayBuffer);
 
-    // 組件卸載時清理
-    return () => {
-      if (detectionAudioRef.current) {
-        detectionAudioRef.current.pause();
-        detectionAudioRef.current = null;
+        // 加載提示音
+        const alertResponse = await fetch('/audio/提示音.mp3');
+        const alertArrayBuffer = await alertResponse.arrayBuffer();
+        alertBufferRef.current = await audioContextRef.current.decodeAudioData(alertArrayBuffer);
+      } catch (error) {
+        console.error('初始化音頻失敗:', error);
       }
-      if (alertAudioRef.current) {
-        alertAudioRef.current.pause();
-        alertAudioRef.current = null;
+    };
+
+    initAudio();
+
+    return () => {
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
       }
       if (redirectTimerRef.current) {
         clearTimeout(redirectTimerRef.current);
       }
     };
   }, []);
+
+  const playAudioBuffer = async (buffer: AudioBuffer | null) => {
+    if (!buffer || !audioContextRef.current) return;
+
+    try {
+      // 確保音頻上下文是運行狀態
+      if (audioContextRef.current.state === 'suspended') {
+        await audioContextRef.current.resume();
+      }
+
+      // 創建音頻源
+      const source = audioContextRef.current.createBufferSource();
+      source.buffer = buffer;
+      source.connect(audioContextRef.current.destination);
+      source.start(0);
+      console.log('音頻播放成功');
+    } catch (error) {
+      console.error('音頻播放失敗:', error);
+    }
+  };
 
   const handleModeChange = (mode: string) => {
     setActiveMode(mode);
@@ -66,59 +91,36 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     }
   };
 
-  const playAudio = async (audio: HTMLAudioElement | null) => {
-    if (!audio) return;
-    
-    try {
-      // 重置音頻
-      audio.currentTime = 0;
-      await audio.play();
-      console.log('音頻播放成功');
-    } catch (error) {
-      console.error('音頻播放失敗:', error);
-      // 如果播放失敗，立即重試一次
-      try {
-        await audio.play();
-        console.log('重試播放成功');
-      } catch (retryError) {
-        console.error('重試播放失敗:', retryError);
-      }
-    }
-  };
-
-  const startDetection = () => {
+  const startDetection = async () => {
     if (!isDetecting) {
       setIsDetecting(true);
-      
-      // 播放偵測音效
-      playAudio(detectionAudioRef.current);
-      
-      // 設置計時器，4000毫秒後播放提示音並跳轉
-      redirectTimerRef.current = setTimeout(() => {
-        if (activeMode === 'auto') {
-          // 播放提示音
-          playAudio(alertAudioRef.current);
 
-          const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
-          const randomSituation = situations[Math.floor(Math.random() * situations.length)];
-          setDetectedSituation(randomSituation);
-          
-          const musicType = situationMusicMap[randomSituation];
-          console.log('準備跳轉到音樂播放頁面:', musicType);
-          
-          setFadeOut(true);
-          setTimeout(() => {
-            // 在跳轉前停止所有音頻播放
-            if (detectionAudioRef.current) {
-              detectionAudioRef.current.pause();
-            }
-            if (alertAudioRef.current) {
-              alertAudioRef.current.pause();
-            }
-            router.push(`/features/soothing-music/${musicType}?autoplay=true`);
-          }, 500);
-        }
-      }, 4000);
+      try {
+        // 播放偵測音效
+        await playAudioBuffer(detectionBufferRef.current);
+        
+        // 設置計時器，4000毫秒後播放提示音並跳轉
+        redirectTimerRef.current = setTimeout(async () => {
+          if (activeMode === 'auto') {
+            // 播放提示音
+            await playAudioBuffer(alertBufferRef.current);
+
+            const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
+            const randomSituation = situations[Math.floor(Math.random() * situations.length)];
+            setDetectedSituation(randomSituation);
+            
+            const musicType = situationMusicMap[randomSituation];
+            console.log('準備跳轉到音樂播放頁面:', musicType);
+            
+            setFadeOut(true);
+            setTimeout(() => {
+              router.push(`/features/soothing-music/${musicType}?autoplay=true`);
+            }, 500);
+          }
+        }, 4000);
+      } catch (error) {
+        console.error('播放過程中出錯:', error);
+      }
     }
   };
 
