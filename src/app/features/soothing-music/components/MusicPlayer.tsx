@@ -125,24 +125,6 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     }
   };
 
-  const handleRedirect = () => {
-    console.log('準備跳轉，當前模式:', activeMode);
-    
-    // 移除模式檢查，確保一定會跳轉
-    const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
-    const randomSituation = situations[Math.floor(Math.random() * situations.length)];
-    setDetectedSituation(randomSituation);
-    
-    const musicType = situationMusicMap[randomSituation];
-    console.log('即將跳轉到音樂播放頁面:', musicType);
-    
-    setFadeOut(true);
-    setTimeout(() => {
-      console.log('執行跳轉到:', `/features/soothing-music/${musicType}?autoplay=true`);
-      router.push(`/features/soothing-music/${musicType}?autoplay=true`);
-    }, 500);
-  };
-
   const startDetection = async () => {
     if (isDetecting) return;
     
@@ -157,8 +139,8 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       handleRedirect();
     }, 4000);
 
+    // 嘗試播放音效，但不影響跳轉
     try {
-      // 嘗試播放音效，但不影響跳轉
       if (!isAudioInitialized) {
         await initAudioContext();
       }
@@ -166,8 +148,27 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     } catch (error) {
       console.error('音效播放失敗，但會繼續跳轉:', error);
       // 不需要清理 redirectTimerRef，讓它繼續計時
-      setIsDetecting(false);
     }
+  };
+
+  const handleRedirect = () => {
+    console.log('準備跳轉，當前模式:', activeMode);
+    
+    // 確保一定會跳轉
+    const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
+    const randomSituation = situations[Math.floor(Math.random() * situations.length)];
+    setDetectedSituation(randomSituation);
+    
+    const musicType = situationMusicMap[randomSituation];
+    console.log('即將跳轉到音樂播放頁面:', musicType);
+    
+    setFadeOut(true);
+    
+    // 使用 window.location 直接跳轉，確保一定會跳轉
+    setTimeout(() => {
+      console.log('執行跳轉到:', `/features/soothing-music/${musicType}?autoplay=true`);
+      window.location.href = `/features/soothing-music/${musicType}?autoplay=true`;
+    }, 500);
   };
 
   const handleModeChange = (mode: string) => {
