@@ -308,61 +308,24 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     return loadPromise;
   };
 
-  // 播放音效的通用函數（改進版）
-  const playAudioWithRetry = async (audio: HTMLAudioElement, retryCount = 0): Promise<void> => {
+  // 播放音效的通用函數（簡化版）
+  const playAudioWithRetry = async (audio: HTMLAudioElement): Promise<void> => {
     try {
-      // 確保音效系統已初始化
-      if (!isAudioInitialized) {
-        await initializeAudioSystem();
-      }
-
       // 重置音效狀態
       audio.currentTime = 0;
       audio.volume = 1.0;
 
-      // 嘗試播放
-      await audio.play();
-      
-      return new Promise<void>((resolve) => {
-        const handleEnded = () => {
-          console.log('音效播放完成');
-          cleanup();
-          resolve();
-        };
-        
-        const handleError = async (error: Event) => {
-          console.error('音效播放出錯:', error);
-          cleanup();
-          
-          if (retryCount < maxRetries - 1) {
-            console.log('重試播放音效');
-            await playAudioWithRetry(audio, retryCount + 1);
-          }
-          resolve();
-        };
+      // 設置最大播放時間為 5 秒
+      const playPromise = audio.play();
+      const timeoutPromise = new Promise<void>((_, reject) => {
+        setTimeout(() => reject(new Error('播放超時')), 5000);
+      });
 
-        const cleanup = () => {
-          audio.removeEventListener('ended', handleEnded);
-          audio.removeEventListener('error', handleError);
-        };
-
-        audio.addEventListener('ended', handleEnded);
-        audio.addEventListener('error', handleError);
-
-        // 設置超時保護
-        setTimeout(() => {
-          cleanup();
-          console.log('音效播放超時，繼續執行');
-          resolve();
-        }, 10000);
+      await Promise.race([playPromise, timeoutPromise]).catch(() => {
+        console.log('音效播放中斷或超時，繼續執行');
       });
     } catch (error) {
-      console.error(`音效播放失敗 (嘗試 ${retryCount + 1}/${maxRetries}):`, error);
-      if (retryCount < maxRetries - 1) {
-        // 短暫延遲後重試
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        return playAudioWithRetry(audio, retryCount + 1);
-      }
+      console.error('音效播放失敗:', error);
     }
   };
 
@@ -415,29 +378,12 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     setIsDetecting(true);
 
     try {
-      // 確保音效系統已初始化
-      if (!isAudioInitialized) {
-        const initialized = await initializeAudioSystem();
-        if (!initialized) {
-          throw new Error('音效系統初始化失敗');
-        }
-      }
-
       console.log('開始偵測流程:', new Date().toISOString());
       
       // 播放偵測音效
       const detectionAudio = audioElementsRef.current['detection'];
       if (detectionAudio) {
         await playAudioWithRetry(detectionAudio);
-      } else {
-        console.log('偵測音效未就緒，重新加載');
-        const newDetectionAudio = await preloadSingleAudio('/audio/哭聲偵測中.mp3');
-        if (newDetectionAudio) {
-          audioElementsRef.current['detection'] = newDetectionAudio;
-          await playAudioWithRetry(newDetectionAudio);
-        } else {
-          throw new Error('無法加載偵測音效');
-        }
       }
       
       console.log('偵測音效播放完成:', new Date().toISOString());
@@ -458,26 +404,14 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
         setNotificationMessage(message);
         setShowNotification(true);
 
-        // 播放提示音
+        // 播放提示音（不等待完成）
         const audioPath = `/audio/${message.sound}`;
-        let notificationAudio = audioElementsRef.current[audioPath];
-        
-        if (!notificationAudio) {
-          console.log('提示音未就緒，重新加載');
-          const newNotificationAudio = await preloadSingleAudio(audioPath);
-          if (newNotificationAudio) {
-            audioElementsRef.current[audioPath] = newNotificationAudio;
-            notificationAudio = newNotificationAudio;
-          } else {
-            throw new Error('無法加載提示音');
-          }
+        const notificationAudio = audioElementsRef.current[audioPath];
+        if (notificationAudio) {
+          playAudioWithRetry(notificationAudio).catch(() => {});
         }
 
-        console.log('提示音開始播放:', new Date().toISOString());
-        await playAudioWithRetry(notificationAudio);
-        console.log('提示音播放完成:', new Date().toISOString());
-
-        // 開始淡出動畫
+        // 立即開始淡出動畫
         console.log('開始頁面淡出:', new Date().toISOString());
         setFadeOut(true);
 
@@ -490,10 +424,8 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
 
       } catch (error) {
         console.error('提示音播放過程發生錯誤:', error);
-        setFadeOut(true);
-        setTimeout(() => {
-          router.push(`/features/soothing-music/${musicType}?autoplay=true&start=${Date.now()}`);
-        }, 1000);
+        // 發生錯誤時立即跳轉
+        router.push(`/features/soothing-music/${musicType}?autoplay=true&start=${Date.now()}`);
       }
 
     } catch (error) {
