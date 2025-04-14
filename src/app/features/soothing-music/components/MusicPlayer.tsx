@@ -71,7 +71,25 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   const [notificationBufferRef, setNotificationBufferRef] = useState<AudioBuffer | null>(null);
   const audioElementsRef = useRef<{ [key: string]: HTMLAudioElement }>({});
   const loadingPromisesRef = useRef<{ [key: string]: Promise<void> }>({});
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
+  const [isAudioSupported, setIsAudioSupported] = useState(true);
+  const audioLoadRetryCount = useRef(0);
   const maxRetries = 3;
+
+  // 檢測是否為移動設備
+  useEffect(() => {
+    const checkMobileDevice = () => {
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      setIsMobileDevice(isMobile);
+    };
+    
+    checkMobileDevice();
+    window.addEventListener('resize', checkMobileDevice);
+    
+    return () => {
+      window.removeEventListener('resize', checkMobileDevice);
+    };
+  }, []);
 
   // 初始化 AudioContext
   const initAudioContext = async () => {
@@ -91,6 +109,7 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       return true;
     } catch (error) {
       console.error('初始化 AudioContext 失敗:', error);
+      setIsAudioSupported(false);
       return false;
     }
   };
@@ -148,7 +167,7 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       
       // 創建音量控制
       const gainNode = audioContextRef.current.createGain();
-      gainNode.gain.value = 1.0;
+      gainNode.gain.value = isMobileDevice ? 1.0 : 0.8; // 移動設備使用最大音量
 
       // 連接節點
       source.connect(gainNode);
@@ -299,7 +318,7 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       
       // 重置音效
       audio.currentTime = 0;
-      audio.volume = 1.0;
+      audio.volume = isMobileDevice ? 1.0 : 0.8;
       
       // 播放音效
       await audio.play();
