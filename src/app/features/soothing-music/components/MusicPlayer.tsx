@@ -189,17 +189,35 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     return new Promise<void>((resolve, reject) => {
       try {
         const audio = new Audio('/audio/哭聲偵測中.mp3');
+        audio.volume = 1.0;
+        
+        // 確保音頻已加載
+        audio.addEventListener('canplaythrough', () => {
+          const playPromise = audio.play();
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                console.log('偵測音效開始播放');
+              })
+              .catch(error => {
+                console.error('播放偵測音效失敗:', error);
+                reject(error);
+              });
+          }
+        });
+
         audio.onended = () => {
+          console.log('偵測音效播放完成');
           resolve();
         };
+
         audio.onerror = (error) => {
           console.error('播放偵測音效失敗:', error);
           reject(error);
         };
-        audio.play().catch(error => {
-          console.error('播放偵測音效失敗:', error);
-          reject(error);
-        });
+
+        // 開始加載音頻
+        audio.load();
       } catch (error) {
         console.error('播放偵測音效失敗:', error);
         reject(error);
@@ -232,58 +250,58 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     setIsDetecting(true);
 
     try {
-      // 先播放偵測音效
-      await playDetectionSound();
+      console.log('開始偵測流程:', new Date().toISOString());
       
-      // 等待 3 秒後顯示結果
-      redirectTimerRef.current = setTimeout(async () => {
-        const situations: SituationType[] = ['hungry', 'briefCry', 'longCry', 'morning', 'night', 'default'];
-        const randomSituation = situations[Math.floor(Math.random() * situations.length)];
-        setDetectedSituation(randomSituation);
-        
-        const musicType = situationMusicMap[randomSituation];
-        const message = notificationMessages[randomSituation];
-        setNotificationMessage(message);
-        setShowNotification(true);
-        
-        // 播放提示音，確保完整播放後再跳轉
-        const playNotificationAndRedirect = async () => {
-          try {
-            const audio = new Audio(`/audio/${message.sound}`);
-            
-            // 等待音頻加載完成
-            await new Promise((resolve) => {
-              audio.oncanplaythrough = resolve;
-              audio.load();
-            });
+      // 播放偵測音效（約 2 秒）
+      await playDetectionSound();
+      console.log('偵測音效播放完成:', new Date().toISOString());
 
-            // 播放音頻
-            await audio.play();
+      // 選擇情境和準備音效（1秒）
+      const situations: SituationType[] = ['hungry', 'briefCry', 'longCry', 'morning', 'night', 'default'];
+      const randomSituation = situations[Math.floor(Math.random() * situations.length)];
+      const musicType = situationMusicMap[randomSituation];
+      const message = notificationMessages[randomSituation];
+      
+      setDetectedSituation(randomSituation);
+      setNotificationMessage(message);
+      setShowNotification(true);
 
-            // 等待音頻播放完成
-            await new Promise((resolve) => {
-              audio.onended = resolve;
-            });
+      // 提前加載提示音
+      const notificationAudio = new Audio(`/audio/${message.sound}`);
+      notificationAudio.volume = 1.0;
 
-            // 音頻播放完成後，執行淡出動畫並跳轉
-            console.log('提示音播放完成，準備跳轉');
-            setFadeOut(true);
-            setTimeout(() => {
-              router.push(`/features/soothing-music/${musicType}?autoplay=true`);
-            }, 1000);
-          } catch (error) {
-            console.error('播放提示音失敗:', error);
-            // 如果播放失敗，也執行跳轉
-            setFadeOut(true);
-            setTimeout(() => {
-              router.push(`/features/soothing-music/${musicType}?autoplay=true`);
-            }, 1000);
-          }
-        };
+      // 等待提示音加載完成
+      await new Promise<void>((resolve) => {
+        notificationAudio.oncanplaythrough = () => resolve();
+        notificationAudio.load();
+      });
 
-        // 執行播放和跳轉
-        await playNotificationAndRedirect();
-      }, 3000);
+      console.log('提示音加載完成:', new Date().toISOString());
+
+      // 播放提示音並準備跳轉
+      try {
+        await notificationAudio.play();
+        console.log('提示音開始播放:', new Date().toISOString());
+
+        // 設定跳轉計時器（提示音播放 3 秒後）
+        setTimeout(() => {
+          console.log('開始頁面跳轉:', new Date().toISOString());
+          setFadeOut(true);
+          
+          // 預加載目標頁面的音樂（0.5秒淡出動畫）
+          setTimeout(() => {
+            router.push(`/features/soothing-music/${musicType}?autoplay=true&timestamp=${Date.now()}`);
+          }, 500);
+        }, 3000);
+
+      } catch (error) {
+        console.error('提示音播放失敗，直接跳轉:', error);
+        setFadeOut(true);
+        setTimeout(() => {
+          router.push(`/features/soothing-music/${musicType}?autoplay=true&timestamp=${Date.now()}`);
+        }, 500);
+      }
+
     } catch (error) {
       console.error('偵測過程發生錯誤:', error);
       cleanup();
@@ -301,27 +319,39 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     }
   };
 
-  // 預加載音效
+  // 預加載所有音效
   useEffect(() => {
-    const preloadAudio = async () => {
-      await loadDetectionSound();
-      // 預加載所有提示音
-      for (const situation of Object.values(notificationMessages)) {
+    const preloadAllAudio = async () => {
+      const audioFiles = [
+        '/audio/哭聲偵測中.mp3',
+        ...Object.values(notificationMessages).map(msg => `/audio/${msg.sound}`)
+      ];
+
+      for (const audioFile of audioFiles) {
         try {
-          const audio = new Audio(`/audio/${situation.sound}`);
+          const audio = new Audio(audioFile);
           audio.preload = 'auto';
-          await new Promise((resolve) => {
-            audio.oncanplaythrough = resolve;
+          
+          // 強制加載
+          await new Promise<void>((resolve) => {
+            audio.oncanplaythrough = () => resolve();
+            audio.onerror = () => {
+              console.error(`音效預加載失敗: ${audioFile}`);
+              resolve();
+            };
             audio.load();
           });
-          console.log(`預加載音效成功: ${situation.sound}`);
+          
+          console.log(`音效預加載成功: ${audioFile}`);
         } catch (error) {
-          console.error(`預加載音效失敗: ${situation.sound}`, error);
+          console.error(`音效預加載失敗: ${audioFile}`, error);
         }
       }
     };
+
+    // 立即開始預加載
+    preloadAllAudio();
     
-    preloadAudio();
     return cleanup;
   }, []);
 
