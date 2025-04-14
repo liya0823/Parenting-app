@@ -47,35 +47,67 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       // 只有在還沒有加載音頻時才加載
       if (!detectionBufferRef.current) {
         console.log('開始加載偵測音效...');
-        const detectionResponse = await fetch('/audio/哭聲偵測中.mp3');
-        const detectionArrayBuffer = await detectionResponse.arrayBuffer();
-        console.log('偵測音效 ArrayBuffer 大小:', detectionArrayBuffer.byteLength);
-        
-        detectionBufferRef.current = await audioContextRef.current.decodeAudioData(detectionArrayBuffer);
-        console.log('偵測音效解碼結果:', {
-          duration: detectionBufferRef.current?.duration,
-          numberOfChannels: detectionBufferRef.current?.numberOfChannels,
-          sampleRate: detectionBufferRef.current?.sampleRate,
-          length: detectionBufferRef.current?.length
-        });
+        try {
+          const detectionResponse = await fetch('/audio/detecting.mp3');
+          if (!detectionResponse.ok) {
+            throw new Error(`HTTP error! status: ${detectionResponse.status}`);
+          }
+          const detectionArrayBuffer = await detectionResponse.arrayBuffer();
+          console.log('偵測音效 ArrayBuffer 大小:', detectionArrayBuffer.byteLength);
+          
+          detectionBufferRef.current = await audioContextRef.current.decodeAudioData(
+            detectionArrayBuffer,
+            (buffer) => {
+              console.log('偵測音效解碼成功:', {
+                duration: buffer.duration,
+                numberOfChannels: buffer.numberOfChannels,
+                sampleRate: buffer.sampleRate,
+                length: buffer.length
+              });
+              return buffer;
+            },
+            (error) => {
+              console.error('偵測音效解碼失敗:', error);
+              return null;
+            }
+          );
+        } catch (error) {
+          console.error('加載偵測音效失敗:', error);
+        }
       }
 
       if (!alertBufferRef.current) {
         console.log('開始加載提示音...');
-        const alertResponse = await fetch('/audio/提示音.mp3');
-        const alertArrayBuffer = await alertResponse.arrayBuffer();
-        console.log('提示音 ArrayBuffer 大小:', alertArrayBuffer.byteLength);
-        
-        alertBufferRef.current = await audioContextRef.current.decodeAudioData(alertArrayBuffer);
-        console.log('提示音解碼結果:', {
-          duration: alertBufferRef.current?.duration,
-          numberOfChannels: alertBufferRef.current?.numberOfChannels,
-          sampleRate: alertBufferRef.current?.sampleRate,
-          length: alertBufferRef.current?.length
-        });
+        try {
+          const alertResponse = await fetch('/audio/alert.mp3');
+          if (!alertResponse.ok) {
+            throw new Error(`HTTP error! status: ${alertResponse.status}`);
+          }
+          const alertArrayBuffer = await alertResponse.arrayBuffer();
+          console.log('提示音 ArrayBuffer 大小:', alertArrayBuffer.byteLength);
+          
+          alertBufferRef.current = await audioContextRef.current.decodeAudioData(
+            alertArrayBuffer,
+            (buffer) => {
+              console.log('提示音解碼成功:', {
+                duration: buffer.duration,
+                numberOfChannels: buffer.numberOfChannels,
+                sampleRate: buffer.sampleRate,
+                length: buffer.length
+              });
+              return buffer;
+            },
+            (error) => {
+              console.error('提示音解碼失敗:', error);
+              return null;
+            }
+          );
+        } catch (error) {
+          console.error('加載提示音失敗:', error);
+        }
       }
 
-      return true;
+      return detectionBufferRef.current !== null || alertBufferRef.current !== null;
     } catch (error) {
       console.error('初始化音頻失敗:', error);
       return false;
