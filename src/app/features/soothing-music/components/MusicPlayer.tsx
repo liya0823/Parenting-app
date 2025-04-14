@@ -62,120 +62,48 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   const [isDetecting, setIsDetecting] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState<typeof notificationMessages[NotificationType] | null>(null);
-  const [isAudioInitialized, setIsAudioInitialized] = useState(false);
   
-  // 初始化音效系統
-  const initializeAudio = async () => {
-    if (isAudioInitialized) return;
-    
-    try {
-      // 創建一個短暫的音效來觸發音效系統
-      const silentAudio = new Audio();
-      silentAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
-      await silentAudio.play();
-      silentAudio.remove();
-      setIsAudioInitialized(true);
-      console.log('音效系統初始化成功');
-    } catch (error) {
-      console.error('音效系統初始化失敗:', error);
-    }
-  };
-  
-  // 音效播放函數（確保播放完成）
+  // 簡化的音效播放函數
   const playSound = async (soundFile: string): Promise<void> => {
     try {
-      // 確保音效系統已初始化
-      if (!isAudioInitialized) {
-        await initializeAudio();
-      }
-      
-      // 創建新的音效元素
-      const audio = new Audio();
+      const audio = new Audio(soundFile);
       audio.volume = 1.0;
       
-      // 等待音效播放完成
-      await new Promise<void>((resolve, reject) => {
-        // 設置事件監聽器
-        audio.oncanplaythrough = () => {
-          console.log(`音效已加載: ${soundFile}`);
-        };
-        
-        audio.onended = () => {
-          console.log(`音效播放完成: ${soundFile}`);
-          resolve();
-        };
-        
-        audio.onerror = (e) => {
-          console.error(`音效播放錯誤: ${soundFile}`, e);
-          reject(e);
-        };
-        
-        // 設置音源
-        audio.src = soundFile;
-        
-        // 開始播放
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(error => {
-            console.error('音效播放失敗:', error);
-            reject(error);
-          });
-        }
-        
-        // 設置超時保護（15秒）
+      // 設置超時保護（3秒）
+      const timeoutPromise = new Promise<void>((resolve) => {
         setTimeout(() => {
-          if (!audio.ended) {
-            console.log(`音效播放超時: ${soundFile}，繼續執行`);
-            resolve();
-          }
-        }, 15000);
+          console.log(`音效播放超時: ${soundFile}`);
+          resolve();
+        }, 3000);
       });
+      
+      // 播放音效
+      const playPromise = audio.play().then(() => {
+        return new Promise<void>((resolve) => {
+          audio.onended = () => resolve();
+        });
+      });
+      
+      // 使用 Promise.race 來處理超時
+      await Promise.race([playPromise, timeoutPromise]);
     } catch (error) {
-      console.error('音效播放過程發生錯誤:', error);
+      console.error('音效播放錯誤:', error);
       // 即使出錯也繼續執行
     }
   };
-
-  // 在組件掛載時初始化音效系統
-  useEffect(() => {
-    // 嘗試初始化音效系統
-    initializeAudio();
-    
-    // 添加用戶交互事件監聽器
-    const handleUserInteraction = () => {
-      if (!isAudioInitialized) {
-        initializeAudio();
-      }
-    };
-    
-    // 監聽多種用戶交互事件
-    document.addEventListener('click', handleUserInteraction);
-    document.addEventListener('touchstart', handleUserInteraction);
-    document.addEventListener('keydown', handleUserInteraction);
-    
-    return () => {
-      // 清理事件監聽器
-      document.removeEventListener('click', handleUserInteraction);
-      document.removeEventListener('touchstart', handleUserInteraction);
-      document.removeEventListener('keydown', handleUserInteraction);
-    };
-  }, [isAudioInitialized]);
 
   const startDetection = async () => {
     if (isDetecting) return;
     setIsDetecting(true);
 
     try {
-      // 確保音效系統已初始化
-      if (!isAudioInitialized) {
-        await initializeAudio();
-      }
+      // 播放偵測音效（不等待完成）
+      playSound('/audio/哭聲偵測中.mp3').catch(() => {
+        console.log('偵測音效播放失敗，繼續執行');
+      });
       
-      // 播放偵測音效並等待完成
-      await playSound('/audio/哭聲偵測中.mp3');
-      
-      // 等待 4 秒
-      await new Promise(resolve => setTimeout(resolve, 4000));
+      // 等待 2 秒（縮短等待時間）
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
       // 選擇情境
       const situations: SituationType[] = ['hungry', 'briefCry', 'longCry', 'morning', 'night', 'default'];
@@ -195,10 +123,10 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       // 立即開始淡出動畫
       setFadeOut(true);
 
-      // 1秒後跳轉
+      // 0.5秒後跳轉（縮短跳轉時間）
       setTimeout(() => {
         router.push(`/features/soothing-music/${musicType}?autoplay=true&start=${Date.now()}`);
-      }, 1000);
+      }, 500);
 
     } catch (error) {
       console.error('偵測過程發生錯誤:', error);
