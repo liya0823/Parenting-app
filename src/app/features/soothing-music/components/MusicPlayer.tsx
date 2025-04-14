@@ -27,26 +27,72 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   const detectionAudioRef = useRef<HTMLAudioElement | null>(null);
   const alertAudioRef = useRef<HTMLAudioElement | null>(null);
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isPlayingAlertRef = useRef(false);
 
   // 清理函數
   const cleanup = () => {
     if (detectionAudioRef.current) {
       detectionAudioRef.current.pause();
       detectionAudioRef.current.currentTime = 0;
+      detectionAudioRef.current = null;
     }
     if (alertAudioRef.current) {
       alertAudioRef.current.pause();
       alertAudioRef.current.currentTime = 0;
+      alertAudioRef.current = null;
     }
     if (redirectTimerRef.current) {
       clearTimeout(redirectTimerRef.current);
+      redirectTimerRef.current = null;
     }
+    isPlayingAlertRef.current = false;
   };
 
   // 組件卸載時清理
   useEffect(() => {
     return cleanup;
   }, []);
+
+  const playAlertAndRedirect = () => {
+    if (isPlayingAlertRef.current || activeMode !== 'auto') return;
+    
+    try {
+      isPlayingAlertRef.current = true;
+      
+      // 創建新的提示音元素
+      const alertAudio = new Audio('/audio/偵測提示.mp3');
+      alertAudio.volume = 1.0;
+      
+      // 設置播放結束事件
+      alertAudio.onended = () => {
+        isPlayingAlertRef.current = false;
+        alertAudio.onended = null;
+      };
+      
+      // 保存引用並播放
+      alertAudioRef.current = alertAudio;
+      alertAudio.play().catch(error => {
+        console.error('提示音播放失敗:', error);
+        isPlayingAlertRef.current = false;
+      });
+
+      // 準備跳轉
+      const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
+      const randomSituation = situations[Math.floor(Math.random() * situations.length)];
+      setDetectedSituation(randomSituation);
+      
+      const musicType = situationMusicMap[randomSituation];
+      console.log('準備跳轉到音樂播放頁面:', musicType);
+      
+      setFadeOut(true);
+      setTimeout(() => {
+        router.push(`/features/soothing-music/${musicType}?autoplay=true`);
+      }, 500);
+    } catch (error) {
+      console.error('播放提示音時發生錯誤:', error);
+      isPlayingAlertRef.current = false;
+    }
+  };
 
   const startDetection = () => {
     if (isDetecting) return;
@@ -55,42 +101,26 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     setIsDetecting(true);
     console.log('開始偵測流程');
 
-    // 創建新的音頻元素（每次都創建新的以避免 iOS 的緩存問題）
-    const detectionAudio = new Audio('/audio/哭聲偵測中.mp3');
-    detectionAudio.volume = 1.0;
-    detectionAudioRef.current = detectionAudio;
+    try {
+      // 創建新的音頻元素
+      const detectionAudio = new Audio('/audio/哭聲偵測中.mp3');
+      detectionAudio.volume = 1.0;
+      detectionAudioRef.current = detectionAudio;
 
-    // 播放偵測音效
-    detectionAudio.play().catch(error => {
-      console.error('偵測音效播放失敗:', error);
-    });
+      // 播放偵測音效
+      detectionAudio.play().catch(error => {
+        console.error('偵測音效播放失敗:', error);
+        cleanup();
+        setIsDetecting(false);
+      });
 
-    // 設置計時器
-    redirectTimerRef.current = setTimeout(() => {
-      if (activeMode === 'auto') {
-        // 創建新的提示音元素
-        const alertAudio = new Audio('/audio/偵測提示.mp3');
-        alertAudio.volume = 1.0;
-        alertAudioRef.current = alertAudio;
-
-        // 播放提示音
-        alertAudio.play().catch(error => {
-          console.error('提示音播放失敗:', error);
-        });
-
-        const situations = Object.keys(situationMusicMap) as Array<keyof typeof situationMusicMap>;
-        const randomSituation = situations[Math.floor(Math.random() * situations.length)];
-        setDetectedSituation(randomSituation);
-        
-        const musicType = situationMusicMap[randomSituation];
-        console.log('準備跳轉到音樂播放頁面:', musicType);
-        
-        setFadeOut(true);
-        setTimeout(() => {
-          router.push(`/features/soothing-music/${musicType}?autoplay=true`);
-        }, 500);
-      }
-    }, 4000);
+      // 設置計時器
+      redirectTimerRef.current = setTimeout(playAlertAndRedirect, 4000);
+    } catch (error) {
+      console.error('開始偵測時發生錯誤:', error);
+      cleanup();
+      setIsDetecting(false);
+    }
   };
 
   const handleModeChange = (mode: string) => {
