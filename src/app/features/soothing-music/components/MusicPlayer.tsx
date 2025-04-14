@@ -249,59 +249,29 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       const message = notificationMessages[randomSituation];
 
       try {
-        // 提前加載提示音
-        const notificationAudio = new Audio(`/audio/${message.sound}`);
-        notificationAudio.volume = 1.0;
+        // 使用 AudioContext 播放提示音
+        const notificationBuffer = await loadAudio(`/audio/${message.sound}`);
+        if (!notificationBuffer) {
+          throw new Error('提示音加載失敗');
+        }
 
-        // 等待提示音加載完成
-        await new Promise<void>((resolve, reject) => {
-          const loadTimeout = setTimeout(() => {
-            console.log('提示音加載超時，繼續執行');
-            resolve();
-          }, 5000);
-
-          notificationAudio.oncanplaythrough = () => {
-            clearTimeout(loadTimeout);
-            resolve();
-          };
-          notificationAudio.onerror = () => {
-            clearTimeout(loadTimeout);
-            console.error('提示音加載失敗');
-            reject();
-          };
-          notificationAudio.load();
-        });
-
-        // 同時顯示提示窗和播放提示音
+        // 顯示提示窗
         setDetectedSituation(randomSituation);
         setNotificationMessage(message);
         setShowNotification(true);
 
         console.log('提示音開始播放:', new Date().toISOString());
-        await notificationAudio.play();
+        await playAudio(notificationBuffer);
+        console.log('提示音播放完成:', new Date().toISOString());
 
-        // 等待提示音完整播放完成
-        await new Promise<void>((resolve) => {
-          const playTimeout = setTimeout(() => {
-            console.log('提示音播放超時，繼續執行');
-            resolve();
-          }, 10000); // 設置 10 秒超時
-
-          notificationAudio.onended = () => {
-            clearTimeout(playTimeout);
-            console.log('提示音播放完成:', new Date().toISOString());
-            resolve();
-          };
-        });
-
-        // 提示音播放完成後，開始淡出動畫
+        // 開始淡出動畫
         console.log('開始頁面淡出:', new Date().toISOString());
         setFadeOut(true);
 
         // 等待淡出動畫完成後跳轉（1秒）
         await new Promise<void>(resolve => setTimeout(resolve, 1000));
         
-        // 跳轉到音樂頁面，添加 autoplay 參數
+        // 跳轉到音樂頁面
         console.log('執行頁面跳轉:', new Date().toISOString());
         router.push(`/features/soothing-music/${musicType}?autoplay=true&start=${Date.now()}`);
 
