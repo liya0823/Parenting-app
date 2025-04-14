@@ -19,12 +19,18 @@ export default function BabyPage() {
     birthDate: '2025/07/10',
     image: '/44.png'
   });
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const savedProfile = localStorage.getItem('babyProfile');
     if (savedProfile) {
-      const parsedProfile = JSON.parse(savedProfile);
-      setProfile(parsedProfile);
+      try {
+        const parsedProfile = JSON.parse(savedProfile);
+        setProfile(parsedProfile);
+      } catch (error) {
+        console.error('Error parsing saved profile:', error);
+      }
     }
   }, []);
 
@@ -43,23 +49,39 @@ export default function BabyPage() {
           image: imageUrl
         };
         setProfile(updatedProfile);
-        localStorage.setItem('babyProfile', JSON.stringify(updatedProfile));
+        try {
+          localStorage.setItem('babyProfile', JSON.stringify(updatedProfile));
+        } catch (error) {
+          console.error('Error saving profile:', error);
+        }
       };
       reader.readAsDataURL(file);
     }
   };
 
+  if (!mounted) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.phoneContainer}>
+          <div className={styles.loading}>Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.phoneContainer}>
-        <Image
-          src="/Back3.png"
-          alt="返回"
-          width={55}
-          height={55}
-          className={styles.backIcon}
-          onClick={() => router.back()}
-        />
+        <div className={styles.backIcon}>
+          <Image
+            src="/Back3.png"
+            alt="返回"
+            width={55}
+            height={55}
+            onClick={() => router.back()}
+            priority
+          />
+        </div>
         
         <div className={styles.header}>
           <h1>寶寶檔案</h1>
@@ -68,19 +90,23 @@ export default function BabyPage() {
         <div className={styles.profileContent}>
           <div className={styles.avatarSection}>
             <div className={styles.avatarContainer} onClick={handleImageClick}>
-              <Image
-                src={profile.image}
-                alt="Baby Profile Picture"
-                width={130}
-                height={130}
-                className={styles.avatar}
-              />
+              <div className={styles.avatarWrapper}>
+                <Image
+                  src={profile.image}
+                  alt="Baby Profile Picture"
+                  width={130}
+                  height={130}
+                  className={styles.avatar}
+                  priority
+                />
+              </div>
               <div className={styles.addButton}>
                 <Image 
                   src="/Add Image.png"
-                  alt="Add Image photo"
+                  alt="Add Image"
                   width={30}
                   height={30}
+                  priority
                 />
               </div>
             </div>
@@ -106,17 +132,10 @@ export default function BabyPage() {
           </div>
         </div>
 
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleImageChange}
-          accept="image/*"
-          style={{ display: 'none' }}
-        />
-
-        <button 
+        <button
           className={styles.logoutButton}
           onClick={() => router.push('/welcome')}
+          aria-label="登出"
         >
           <Image
             src="/Logout.png"
@@ -127,6 +146,13 @@ export default function BabyPage() {
           />
         </button>
 
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleImageChange}
+          accept="image/*"
+          style={{ display: 'none' }}
+        />
       </div>
     </div>
   );
