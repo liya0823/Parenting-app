@@ -25,11 +25,15 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   const [isDetecting, setIsDetecting] = useState(false);
   const [detectedSituation, setDetectedSituation] = useState<keyof typeof situationMusicMap | null>(null);
   const [isAudioLoaded, setIsAudioLoaded] = useState(false);
-  const detectionAudio = useRef(new Audio('/audio/哭聲偵測中.mp3'));
-  const alertAudio = useRef(new Audio('/audio/偵測提示.mp3'));
+  const detectionAudio = useRef<HTMLAudioElement | null>(null);
+  const alertAudio = useRef<HTMLAudioElement | null>(null);
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    // 只在客戶端創建音頻元素
+    detectionAudio.current = new Audio('/audio/哭聲偵測中.mp3');
+    alertAudio.current = new Audio('/audio/偵測提示.mp3');
+
     const detection = detectionAudio.current;
     const alert = alertAudio.current;
 
@@ -54,7 +58,6 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       detection.removeEventListener('canplaythrough', handleLoaded);
       alert.removeEventListener('canplaythrough', handleLoaded);
       detection.pause();
-      alert.pause();
       if (redirectTimerRef.current) {
         clearTimeout(redirectTimerRef.current);
       }
@@ -62,7 +65,7 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   }, []);
 
   const startDetection = () => {
-    if (!isDetecting && isAudioLoaded) {
+    if (!isDetecting && isAudioLoaded && detectionAudio.current && alertAudio.current) {
       setIsDetecting(true);
       console.log('開始偵測流程');
 
@@ -74,7 +77,7 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
 
       // 設置計時器
       redirectTimerRef.current = setTimeout(() => {
-        if (activeMode === 'auto') {
+        if (activeMode === 'auto' && alertAudio.current) {
           // 播放提示音
           alertAudio.current.currentTime = 0;
           alertAudio.current.play().catch(error => {
