@@ -79,30 +79,82 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
     }
 
     try {
-      // 如果 AudioContext 被暫停，恢復它
+      // 如果 AudioContext 被暫停，嘗試恢復它
       if (audioContextRef.current.state === 'suspended') {
         await audioContextRef.current.resume();
+      }
+
+      // 確保之前的音頻源已經停止和斷開連接
+      if (sourceNodeRef.current) {
+        sourceNodeRef.current.stop();
+        sourceNodeRef.current.disconnect();
+        sourceNodeRef.current = null;
       }
 
       // 創建新的音頻源
       const source = audioContextRef.current.createBufferSource();
       source.buffer = audioBufferRef.current;
-      source.connect(audioContextRef.current.destination);
+      
+      // 創建增益節點來控制音量
+      const gainNode = audioContextRef.current.createGain();
+      gainNode.gain.value = 1.0; // 設置初始音量
+      
+      // 連接音頻節點
+      source.connect(gainNode);
+      gainNode.connect(audioContextRef.current.destination);
       sourceNodeRef.current = source;
-
-      // 播放音頻
-      source.start(0);
-      console.log('音效播放成功');
 
       // 監聽播放結束
       source.onended = () => {
         console.log('音效播放結束');
-        sourceNodeRef.current = null;
+        if (sourceNodeRef.current) {
+          sourceNodeRef.current.disconnect();
+          sourceNodeRef.current = null;
+        }
       };
+
+      // 使用 try-catch 來處理播放過程中的錯誤
+      try {
+        await source.start(0);
+        console.log('音效播放成功');
+      } catch (playError) {
+        console.error('音效播放過程中發生錯誤:', playError);
+        cleanup();
+        // 嘗試重新播放
+        setTimeout(() => {
+          console.log('嘗試重新播放音效');
+          playAudioBuffer().catch(console.error);
+        }, 1000);
+      }
+
     } catch (error) {
       console.error('音效播放失敗:', error);
       cleanup();
       setIsDetecting(false);
+      
+      // 如果是 iOS 設備，特別處理
+      if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+        console.log('檢測到 iOS 設備，使用特殊處理');
+        // 嘗試重新初始化 AudioContext
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        // 重新加載音效
+        const loadAudio = async () => {
+          try {
+            const response = await fetch('/audio/哭聲偵測中.mp3');
+            const arrayBuffer = await response.arrayBuffer();
+            const audioBuffer = await audioContextRef.current?.decodeAudioData(arrayBuffer);
+            if (audioBuffer) {
+              audioBufferRef.current = audioBuffer;
+              console.log('音效重新加載成功');
+              // 重新嘗試播放
+              await playAudioBuffer();
+            }
+          } catch (loadError) {
+            console.error('音效重新加載失敗:', loadError);
+          }
+        };
+        loadAudio();
+      }
     }
   };
 
