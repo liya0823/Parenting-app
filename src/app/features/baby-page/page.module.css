@@ -126,8 +126,8 @@
 
 .logoutButton {
   position: fixed;
-  bottom: 20px;
-  left: 20px;
+  bottom: 80px;
+  right: 20px;
   background: none;
   border: none;
   padding: 0;
@@ -210,5 +210,10 @@
 
   .buttonSection {
     gap: 14px;
+  }
+
+  .logoutButton {
+    bottom: 70px;
+    right: 15px;
   }
 } 
