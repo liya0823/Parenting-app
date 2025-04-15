@@ -24,6 +24,7 @@ export default function Tutorial() {
   const isListeningRef = useRef<boolean>(false);
   const isPlayingRef = useRef<boolean>(false);
   const [isPlayingNotification, setIsPlayingNotification] = useState(false);
+  const [threshold, setThreshold] = useState(55);
 
   // 初始化音頻處理
   useEffect(() => {
@@ -49,7 +50,7 @@ export default function Tutorial() {
         const dataArray = new Uint8Array(bufferLength);
         
         // 降低音量閾值，使檢測更靈敏
-        const volumeThreshold = 45;
+        const volumeThreshold = 55;
         
         // 初始化提示音
         if (notificationAudioRef.current) {
