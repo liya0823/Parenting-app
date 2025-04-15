@@ -76,7 +76,7 @@ export async function POST(req: Request) {
 3. 給予具體且實用的建議
 4. 適時表達關心和支持
 5. 使用繁體中文回答
-6. 回答要簡潔易懂
+6. 回答要簡潔易不要太長
 7. 重要重點可以用符號標示，如：💡、❤️、✨
 8. 在合適時機給予鼓勵，如：「你做得很好！」、「這個階段確實不容易，但你一定可以的！」`;
 
@@ -99,9 +99,17 @@ export async function POST(req: Request) {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        console.error('OpenAI API error:', errorData);
+        console.error('API Response Status:', response.status);
+        console.error('API Response Status Text:', response.statusText);
         
+        let errorText;
+        try {
+          errorText = await response.text();
+          console.error('API Error Response:', errorText);
+        } catch (e) {
+          console.error('Failed to read error response:', e);
+        }
+
         // 如果是 API 金鑰錯誤，返回特定錯誤信息
         if (response.status === 401) {
           return NextResponse.json(
@@ -112,18 +120,43 @@ export async function POST(req: Request) {
             { status: 401 }
           );
         }
+
+        // 如果是服務器錯誤，返回友好的錯誤信息
+        if (response.status >= 500) {
+          return NextResponse.json(
+            { 
+              error: '伺服器暫時無法回應',
+              details: '請稍後再試'
+            },
+            { status: 500 }
+          );
+        }
         
-        // 如果是其他錯誤，返回默認回覆
+        // 其他錯誤，返回默認回覆
         return NextResponse.json({
           message: getDefaultResponse(lastUserMessage)
         });
       }
 
-      const data = await response.json();
+      let data;
+      try {
+        const responseText = await response.text();
+        console.log('Raw API Response:', responseText);
+        data = JSON.parse(responseText);
+      } catch (e) {
+        console.error('Failed to parse API response:', e);
+        return NextResponse.json({
+          message: getDefaultResponse(lastUserMessage)
+        });
+      }
+
       console.log('API Response:', data);
 
       if (!data.choices?.[0]?.message?.content) {
-        throw new Error('Invalid response format from OpenAI API');
+        console.error('Invalid API response format:', data);
+        return NextResponse.json({
+          message: getDefaultResponse(lastUserMessage)
+        });
       }
 
       return NextResponse.json({
