@@ -84,13 +84,15 @@ export async function POST(req: Request) {
       console.log('Making API request to:', `${apiBaseUrl}/v1/chat/completions`);
       console.log('Request headers:', {
         'Content-Type': 'application/json',
-        'api-key': apiKey.substring(0, 10) + '...'
+        'Authorization': `Bearer ${apiKey}`,
+        'api-key': apiKey
       });
       
       const response = await fetch(`${apiBaseUrl}/v1/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
           'api-key': apiKey
         },
         body: JSON.stringify({
@@ -101,8 +103,7 @@ export async function POST(req: Request) {
           ],
           temperature: 0.7,
           max_tokens: 500,
-          stream: false,
-          key: apiKey
+          stream: false
         }),
       });
 
