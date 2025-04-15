@@ -4,6 +4,11 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import styles from './page.module.css';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Volume2, VolumeX, Play, Pause, RotateCcw } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function Tutorial() {
   const router = useRouter();
@@ -25,6 +30,10 @@ export default function Tutorial() {
   const isPlayingRef = useRef<boolean>(false);
   const [isPlayingNotification, setIsPlayingNotification] = useState(false);
   const [threshold, setThreshold] = useState(55);
+  const [progress, setProgress] = useState(0);
+  const musicAudioRef = useRef<HTMLAudioElement | null>(null);
+  const lastNotificationTimeRef = useRef<number>(0);
+  const notificationCooldownRef = useRef<number>(3000); // 3秒冷卻時間
 
   // 初始化音頻處理
   useEffect(() => {
@@ -255,6 +264,45 @@ export default function Tutorial() {
   };
 
   const tabs = ['背帶穿法', 'FAQ'];
+
+  // 修改 handleVolumeChange 函數
+  const handleVolumeChange = (newVolume: number) => {
+    setVolume(newVolume);
+    
+    // 降低音量閾值，使檢測更靈敏
+    const volumeThreshold = 45;
+    const detectionWindow = 10; // 檢測窗口大小
+    let detectionCount = 0; // 連續檢測計數
+    
+    // 如果音量超過閾值且不在冷卻期
+    if (newVolume > volumeThreshold && 
+        Date.now() - lastNotificationTimeRef.current > notificationCooldownRef.current) {
+        detectionCount++;
+        
+        // 如果連續檢測到多次，則觸發提示
+        if (detectionCount >= 3) {
+            // 播放提示音
+            if (notificationAudioRef.current) {
+                notificationAudioRef.current.currentTime = 0;
+                notificationAudioRef.current.play()
+                    .catch(error => console.error('播放提示音失敗:', error));
+            }
+            
+            // 更新最後提示時間
+            lastNotificationTimeRef.current = Date.now();
+            
+            // 顯示提示訊息
+            toast.info('檢測到寶寶哭聲！正在播放安撫音樂...', {
+                duration: 3000,
+            });
+            
+            // 導向安撫音樂頁面
+            router.push('/features/soothing-music');
+        }
+    } else {
+        detectionCount = 0;
+    }
+  };
 
   return (
     <div className={styles.phoneContainer}>
