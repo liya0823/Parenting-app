@@ -50,7 +50,7 @@ export default function Tutorial() {
         const dataArray = new Uint8Array(bufferLength);
         
         // 降低音量閾值，使檢測更靈敏
-        const volumeThreshold = 55;
+        const volumeThreshold = 45;
         
         // 初始化提示音
         if (notificationAudioRef.current) {
