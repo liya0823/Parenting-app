@@ -85,7 +85,7 @@ export async function POST(req: Request) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
+          'Authorization': apiKey,
           'api-key': apiKey
         },
         body: JSON.stringify({
