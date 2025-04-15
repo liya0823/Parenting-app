@@ -34,101 +34,35 @@ function getDefaultResponse(message: string): string {
   return defaultResponses.default[Math.floor(Math.random() * defaultResponses.default.length)];
 }
 
-// 重試函數
-async function fetchWithRetry(url: string, options: any, maxRetries = 5) {
-  const timeout = 30000; // 30 秒超時
-  
-  for (let i = 0; i < maxRetries; i++) {
-    try {
-      console.log(`Attempt ${i + 1} of ${maxRetries}`);
-      
-      // 使用 AbortController 來處理超時
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), timeout);
-      
-      const response = await fetch(url, {
-        ...options,
-        signal: controller.signal
-      }).finally(() => clearTimeout(timeoutId));
-      
-      let errorData;
-      try {
-        const text = await response.text();
-        console.log('Raw response:', text);
-        
-        try {
-          errorData = JSON.parse(text);
-        } catch (e) {
-          console.error('Failed to parse response as JSON:', e);
-          if (response.status === 504) {
-            throw new Error('伺服器回應超時，請稍後再試');
-          }
-          throw new Error(`Invalid response: ${text.substring(0, 100)}...`);
-        }
-      } catch (e: unknown) {
-        console.error('Failed to read response:', e);
-        if (e instanceof Error && e.name === 'AbortError') {
-          throw new Error('請求超時，請稍後再試');
-        }
-        throw e;
-      }
-      
-      if (!response.ok) {
-        console.log(`Error response:`, errorData);
-        
-        if (response.status === 504) {
-          throw new Error('伺服器回應超時，請稍後再試');
-        }
-        
-        if (errorData.error?.message?.includes('负载已饱和')) {
-          const waitTime = 2000 * (i + 1);
-          console.log(`Waiting ${waitTime}ms before retry...`);
-          await new Promise(resolve => setTimeout(resolve, waitTime));
-          continue;
-        }
-        
-        throw new Error(errorData.error?.message || `API request failed with status ${response.status}`);
-      }
-      
-      return errorData;
-    } catch (err: unknown) {
-      console.log(`Attempt ${i + 1} failed:`, err);
-      
-      // 如果是超時錯誤，直接返回友好的錯誤信息
-      if (err instanceof Error && 
-         (err.name === 'AbortError' || err.message.includes('超時'))) {
-        return NextResponse.json(
-          { 
-            error: '系統暫時較忙，請稍後再試',
-            details: err.message
-          },
-          { status: 504 }
-        );
-      }
-      
-      if (i === maxRetries - 1) {
-        let errorMessage = 'Unknown error occurred';
-        if (err instanceof Error) {
-          errorMessage = err.message;
-        } else if (typeof err === 'string') {
-          errorMessage = err;
-        } else if (err && typeof err === 'object' && 'message' in err) {
-          errorMessage = String(err.message);
-        }
-        throw new Error(errorMessage);
-      }
-      
-      const waitTime = 3000 * (i + 1);
-      console.log(`Waiting ${waitTime}ms before retry...`);
-      await new Promise(resolve => setTimeout(resolve, waitTime));
-    }
-  }
-  throw new Error('Max retries reached');
-}
-
 export async function POST(req: Request) {
   try {
+    // 檢查環境變量
+    const apiKey = process.env.OPENAI_API_KEY;
+    const apiBaseUrl = process.env.OPENAI_API_BASE_URL;
+
+    if (!apiKey || !apiBaseUrl) {
+      console.error('Missing OpenAI API configuration');
+      return NextResponse.json(
+        { 
+          error: '系統配置錯誤',
+          details: '請確保已設置 OpenAI API 金鑰和基礎 URL'
+        },
+        { status: 500 }
+      );
+    }
+
     const { messages } = await req.json();
+    
+    if (!messages || !Array.isArray(messages)) {
+      return NextResponse.json(
+        { 
+          error: '無效的請求格式',
+          details: '消息必須是一個數組'
+        },
+        { status: 400 }
+      );
+    }
+
     console.log('Sending messages:', messages);
 
     // 獲取用戶最後一條訊息
@@ -147,79 +81,69 @@ export async function POST(req: Request) {
 8. 在合適時機給予鼓勵，如：「你做得很好！」、「這個階段確實不容易，但你一定可以的！」`;
 
     try {
-      const data = await fetchWithRetry(
-        `${process.env.OPENAI_API_BASE_URL}/v1/chat/completions`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-          },
-          body: JSON.stringify({
-            model: "gpt-3.5-turbo",
-            messages: [
-              { role: "system", content: systemPrompt },
-              ...messages.map((msg: any) => ({
-                role: msg.role,
-                content: msg.content
-              }))
-            ],
-            temperature: 0.7,
-            max_tokens: 500,
-          }),
+      const response = await fetch(`${apiBaseUrl}/v1/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-3.5-turbo",
+          messages: [
+            { role: "system", content: systemPrompt },
+            ...messages
+          ],
+          temperature: 0.7,
+          max_tokens: 500,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.error('OpenAI API error:', errorData);
+        
+        // 如果是 API 金鑰錯誤，返回特定錯誤信息
+        if (response.status === 401) {
+          return NextResponse.json(
+            { 
+              error: 'API 認證錯誤',
+              details: '請檢查 API 金鑰是否正確'
+            },
+            { status: 401 }
+          );
         }
-      );
-
-      console.log('API Response:', data);
-
-      if (data.error) {
-        throw new Error(data.error.message || 'OpenAI API returned an error');
+        
+        // 如果是其他錯誤，返回默認回覆
+        return NextResponse.json({
+          message: getDefaultResponse(lastUserMessage)
+        });
       }
 
-      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      const data = await response.json();
+      console.log('API Response:', data);
+
+      if (!data.choices?.[0]?.message?.content) {
         throw new Error('Invalid response format from OpenAI API');
       }
 
       return NextResponse.json({
-        message: data.choices[0].message.content,
+        message: data.choices[0].message.content
       });
-    } catch (err: unknown) {
-      console.error('API call failed:', err);
-      let errorMessage = 'Unknown error occurred';
-      
-      if (err instanceof Error) {
-        errorMessage = err.message;
-      } else if (typeof err === 'string') {
-        errorMessage = err;
-      } else if (err && typeof err === 'object' && 'message' in err) {
-        errorMessage = String(err.message);
-      }
-      
-      return NextResponse.json(
-        { 
-          error: '與 AI 助手通信時發生錯誤',
-          details: errorMessage
-        },
-        { status: 500 }
-      );
+
+    } catch (error) {
+      console.error('API call failed:', error);
+      // 返回默認回覆
+      return NextResponse.json({
+        message: getDefaultResponse(lastUserMessage)
+      });
     }
 
-  } catch (err: unknown) {
-    console.error('Chat API Error:', err);
-    let errorMessage = 'Unknown error occurred';
-    
-    if (err instanceof Error) {
-      errorMessage = err.message;
-    } else if (typeof err === 'string') {
-      errorMessage = err;
-    } else if (err && typeof err === 'object' && 'message' in err) {
-      errorMessage = String(err.message);
-    }
-    
+  } catch (error) {
+    console.error('Request processing error:', error);
     return NextResponse.json(
       { 
-        error: '系統暫時無法回應，請稍後再試',
-        details: errorMessage
+        error: '系統錯誤',
+        details: error instanceof Error ? error.message : '未知錯誤'
       },
       { status: 500 }
     );
