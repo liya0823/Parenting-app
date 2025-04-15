@@ -41,21 +41,36 @@ async function fetchWithRetry(url: string, options: any, maxRetries = 5) {
       console.log(`Attempt ${i + 1} of ${maxRetries}`);
       const response = await fetch(url, options);
       
-      if (response.ok) {
-        return response;
+      let errorData;
+      try {
+        const text = await response.text(); // 先獲取原始文本
+        console.log('Raw response:', text);
+        
+        try {
+          errorData = JSON.parse(text); // 嘗試解析為 JSON
+        } catch (e) {
+          console.error('Failed to parse response as JSON:', e);
+          throw new Error(`Invalid response: ${text.substring(0, 100)}...`);
+        }
+      } catch (e) {
+        console.error('Failed to read response:', e);
+        throw e;
       }
       
-      const errorData = await response.json();
-      console.log(`Error response:`, errorData);
-      
-      if (errorData.error?.message?.includes('负载已饱和')) {
-        const waitTime = 2000 * (i + 1);
-        console.log(`Waiting ${waitTime}ms before retry...`);
-        await new Promise(resolve => setTimeout(resolve, waitTime));
-        continue;
+      if (!response.ok) {
+        console.log(`Error response:`, errorData);
+        
+        if (errorData.error?.message?.includes('负载已饱和')) {
+          const waitTime = 2000 * (i + 1);
+          console.log(`Waiting ${waitTime}ms before retry...`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+          continue;
+        }
+        
+        throw new Error(errorData.error?.message || 'API request failed');
       }
       
-      throw new Error(errorData.error?.message || 'API request failed');
+      return errorData; // 如果成功，返回已解析的數據
     } catch (error) {
       console.log(`Attempt ${i + 1} failed:`, error);
       if (i === maxRetries - 1) throw error;
@@ -89,7 +104,7 @@ export async function POST(req: Request) {
 8. 在合適時機給予鼓勵，如：「你做得很好！」、「這個階段確實不容易，但你一定可以的！」`;
 
     try {
-      const response = await fetchWithRetry(
+      const data = await fetchWithRetry(
         `${process.env.OPENAI_API_BASE_URL}/v1/chat/completions`,
         {
           method: 'POST',
@@ -112,7 +127,6 @@ export async function POST(req: Request) {
         }
       );
 
-      const data = await response.json();
       console.log('API Response:', data);
 
       if (data.error) {
@@ -132,7 +146,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { 
           error: '與 AI 助手通信時發生錯誤',
-          details: error.message 
+          details: error instanceof Error ? error.message : String(error)
         },
         { status: 500 }
       );
@@ -143,7 +157,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       { 
         error: '系統暫時無法回應，請稍後再試',
-        details: error.message 
+        details: error instanceof Error ? error.message : String(error)
       },
       { status: 500 }
     );
