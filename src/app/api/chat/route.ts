@@ -71,9 +71,19 @@ async function fetchWithRetry(url: string, options: any, maxRetries = 5) {
       }
       
       return errorData; // 如果成功，返回已解析的數據
-    } catch (error) {
-      console.log(`Attempt ${i + 1} failed:`, error);
-      if (i === maxRetries - 1) throw error;
+    } catch (err: unknown) {
+      console.log(`Attempt ${i + 1} failed:`, err);
+      if (i === maxRetries - 1) {
+        let errorMessage = 'Unknown error occurred';
+        if (err instanceof Error) {
+          errorMessage = err.message;
+        } else if (typeof err === 'string') {
+          errorMessage = err;
+        } else if (err && typeof err === 'object' && 'message' in err) {
+          errorMessage = String(err.message);
+        }
+        throw new Error(errorMessage);
+      }
       
       const waitTime = 3000 * (i + 1);
       console.log(`Waiting ${waitTime}ms before retry...`);
