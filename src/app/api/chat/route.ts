@@ -36,29 +36,49 @@ function getDefaultResponse(message: string): string {
 
 // 重試函數
 async function fetchWithRetry(url: string, options: any, maxRetries = 5) {
+  const timeout = 30000; // 30 秒超時
+  
   for (let i = 0; i < maxRetries; i++) {
     try {
       console.log(`Attempt ${i + 1} of ${maxRetries}`);
-      const response = await fetch(url, options);
+      
+      // 使用 AbortController 來處理超時
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
+      
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal
+      }).finally(() => clearTimeout(timeoutId));
       
       let errorData;
       try {
-        const text = await response.text(); // 先獲取原始文本
+        const text = await response.text();
         console.log('Raw response:', text);
         
         try {
-          errorData = JSON.parse(text); // 嘗試解析為 JSON
+          errorData = JSON.parse(text);
         } catch (e) {
           console.error('Failed to parse response as JSON:', e);
+          if (response.status === 504) {
+            throw new Error('伺服器回應超時，請稍後再試');
+          }
           throw new Error(`Invalid response: ${text.substring(0, 100)}...`);
         }
-      } catch (e) {
+      } catch (e: unknown) {
         console.error('Failed to read response:', e);
+        if (e instanceof Error && e.name === 'AbortError') {
+          throw new Error('請求超時，請稍後再試');
+        }
         throw e;
       }
       
       if (!response.ok) {
         console.log(`Error response:`, errorData);
+        
+        if (response.status === 504) {
+          throw new Error('伺服器回應超時，請稍後再試');
+        }
         
         if (errorData.error?.message?.includes('负载已饱和')) {
           const waitTime = 2000 * (i + 1);
@@ -67,12 +87,25 @@ async function fetchWithRetry(url: string, options: any, maxRetries = 5) {
           continue;
         }
         
-        throw new Error(errorData.error?.message || 'API request failed');
+        throw new Error(errorData.error?.message || `API request failed with status ${response.status}`);
       }
       
-      return errorData; // 如果成功，返回已解析的數據
+      return errorData;
     } catch (err: unknown) {
       console.log(`Attempt ${i + 1} failed:`, err);
+      
+      // 如果是超時錯誤，直接返回友好的錯誤信息
+      if (err instanceof Error && 
+         (err.name === 'AbortError' || err.message.includes('超時'))) {
+        return NextResponse.json(
+          { 
+            error: '系統暫時較忙，請稍後再試',
+            details: err.message
+          },
+          { status: 504 }
+        );
+      }
+      
       if (i === maxRetries - 1) {
         let errorMessage = 'Unknown error occurred';
         if (err instanceof Error) {
