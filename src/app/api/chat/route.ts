@@ -140,24 +140,43 @@ export async function POST(req: Request) {
       return NextResponse.json({
         message: data.choices[0].message.content,
       });
-    } catch (error) {
-      console.error('API call failed:', error);
-      // 返回錯誤信息而不是默認回覆
+    } catch (err: unknown) {
+      console.error('API call failed:', err);
+      let errorMessage = 'Unknown error occurred';
+      
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      } else if (typeof err === 'string') {
+        errorMessage = err;
+      } else if (err && typeof err === 'object' && 'message' in err) {
+        errorMessage = String(err.message);
+      }
+      
       return NextResponse.json(
         { 
           error: '與 AI 助手通信時發生錯誤',
-          details: error instanceof Error ? error.message : String(error)
+          details: errorMessage
         },
         { status: 500 }
       );
     }
 
-  } catch (error: any) {
-    console.error('Chat API Error:', error);
+  } catch (err: unknown) {
+    console.error('Chat API Error:', err);
+    let errorMessage = 'Unknown error occurred';
+    
+    if (err instanceof Error) {
+      errorMessage = err.message;
+    } else if (typeof err === 'string') {
+      errorMessage = err;
+    } else if (err && typeof err === 'object' && 'message' in err) {
+      errorMessage = String(err.message);
+    }
+    
     return NextResponse.json(
       { 
         error: '系統暫時無法回應，請稍後再試',
-        details: error instanceof Error ? error.message : String(error)
+        details: errorMessage
       },
       { status: 500 }
     );
