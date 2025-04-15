@@ -468,7 +468,21 @@ const Playlist = () => {
   return (
     <div className={styles.container}>
       {showSoundAlert && (
-        <div className={styles.soundAlert}>
+        <div className={styles.soundAlert} style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 9999,
+          width: '80%',
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          padding: '15px',
+          borderRadius: '12px',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}>
           <div className={styles.alertContent}>
             <span className={styles.alertIcon}>🍼</span>
             <span className={styles.alertText}>偵測到可能的寶寶哭聲，幫您確認中…</span>
