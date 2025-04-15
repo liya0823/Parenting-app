@@ -85,7 +85,7 @@ export async function POST(req: Request) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
+          'api-key': apiKey
         },
         body: JSON.stringify({
           model: "gpt-3.5-turbo",
@@ -95,7 +95,8 @@ export async function POST(req: Request) {
           ],
           temperature: 0.7,
           max_tokens: 500,
-          stream: false
+          stream: false,
+          key: apiKey
         }),
       });
 
