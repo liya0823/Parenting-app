@@ -81,6 +81,12 @@ export async function POST(req: Request) {
 8. 在合適時機給予鼓勵，如：「你做得很好！」、「這個階段確實不容易，但你一定可以的！」`;
 
     try {
+      console.log('Making API request to:', `${apiBaseUrl}/v1/chat/completions`);
+      console.log('Request headers:', {
+        'Content-Type': 'application/json',
+        'api-key': apiKey.substring(0, 10) + '...'
+      });
+      
       const response = await fetch(`${apiBaseUrl}/v1/chat/completions`, {
         method: 'POST',
         headers: {
@@ -101,17 +107,24 @@ export async function POST(req: Request) {
       });
 
       if (!response.ok) {
-        console.error('API Response Status:', response.status);
-        console.error('API Response Status Text:', response.statusText);
-        console.error('API URL:', `${apiBaseUrl}/v1/chat/completions`);
-        console.error('API Key (first 10 chars):', apiKey.substring(0, 10));
+        console.error('API Error Details:');
+        console.error('- Status:', response.status);
+        console.error('- Status Text:', response.statusText);
+        console.error('- URL:', `${apiBaseUrl}/v1/chat/completions`);
+        console.error('- Headers:', Object.fromEntries(response.headers.entries()));
         
         let errorText;
         try {
           errorText = await response.text();
-          console.error('API Error Response:', errorText);
+          console.error('- Error Response:', errorText);
+          try {
+            const errorJson = JSON.parse(errorText);
+            console.error('- Parsed Error:', errorJson);
+          } catch (e) {
+            console.error('- Failed to parse error as JSON');
+          }
         } catch (e) {
-          console.error('Failed to read error response:', e);
+          console.error('- Failed to read error response:', e);
         }
 
         // 如果是 API 金鑰錯誤，返回特定錯誤信息
