@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Message, ChatState } from './types';
 import ChatHistory from '../../../components/ChatHistory/ChatHistory';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
 
 export default function VoiceAssistantPage() {
   const [inputMessage, setInputMessage] = useState('');
@@ -283,7 +284,17 @@ export default function VoiceAssistantPage() {
       isPlayingRef.current = false;
       setIsPlayingNotification(false);
       
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+        .catch((error) => {
+          console.error('麥克風訪問錯誤:', error);
+          if (error.name === 'NotAllowedError') {
+            toast.error('請允許使用麥克風，以便檢測寶寶的哭聲。您可以點擊瀏覽器地址欄的麥克風圖標來開啟權限。');
+          } else {
+            toast.error('無法訪問麥克風，請確保您的設備有麥克風並且正常工作。');
+          }
+          throw error;
+        });
+      
       mediaStreamRef.current = stream;
       
       // 確保麥克風是啟用的
