@@ -685,7 +685,7 @@ export default function FriendlyNursingMap() {
         const dataArray = new Uint8Array(bufferLength);
         
         // 降低音量閾值，使檢測更靈敏
-        const volumeThreshold = 50;
+        const volumeThreshold = 45;
         const detectionWindow = 10; // 檢測窗口大小
         let detectionCount = 0; // 連續檢測計數
         
@@ -747,7 +747,7 @@ export default function FriendlyNursingMap() {
                           if (!isComponentMounted) return;
                           
                           // 播放完成後導航到 MusicPlayer 組件
-                          router.push('/features/soothing-music');
+                          router.push('/features/soothing-music/page');
                           
                           // 播放完成後恢復麥克風
                           resumeMicrophone();
