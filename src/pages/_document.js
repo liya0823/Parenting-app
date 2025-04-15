@@ -13,25 +13,25 @@ export default function Document() {
         <meta name="apple-mobile-web-app-title" content="安心衛" />
         
         {/* iOS 圖標 */}
-        <link rel="apple-touch-icon" href="/icons/icon-152x152.png" />
-        <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180x180.png" />
-        <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-167x167.png" />
+        <link rel="apple-touch-icon" href="/42.png" />
+        <link rel="apple-touch-icon" sizes="152x152" href="/42.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/42.png" />
+        <link rel="apple-touch-icon" sizes="167x167" href="/42.png" />
         
         {/* iOS 啟動畫面 */}
-        <link rel="apple-touch-startup-image" href="/screenshots/splash.png" />
+        <link rel="apple-touch-startup-image" href="/42.png" />
         
         {/* PWA manifest */}
         <link rel="manifest" href="/manifest.json" />
         
         {/* Favicon */}
-        <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
-        <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#4A90E2" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/42.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/42.png" />
+        <link rel="mask-icon" href="/42.png" color="#4A90E2" />
         
         {/* Microsoft Tiles */}
         <meta name="msapplication-TileColor" content="#4A90E2" />
-        <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
+        <meta name="msapplication-TileImage" content="/42.png" />
         
         {/* 其他 meta 標籤 */}
         <meta name="application-name" content="安心衛" />
