@@ -57,7 +57,9 @@ export default function Tutorial() {
         const dataArray = new Uint8Array(bufferLength);
         
         // 降低音量閾值，使檢測更靈敏
-        const volumeThreshold = 45;
+        const volumeThreshold = 45; // 設定閾值
+        const detectionWindow = 10; // 檢測窗口大小
+        let detectionCount = 0; // 連續檢測計數
         
         // 初始化提示音
         if (notificationAudioRef.current) {
@@ -137,7 +139,7 @@ export default function Tutorial() {
                         if (!isComponentMounted) return;
                         
                         // 播放完成後導航到 MusicPlayer 組件
-                        router.push('/features/soothing-music/playlist');
+                        router.push('/features/soothing-music/components/MusicPlayer');
                         
                         // 播放完成後恢復麥克風
                         resumeMicrophone();
