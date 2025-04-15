@@ -227,8 +227,8 @@ const Playlist = () => {
                         .then(() => {
                           if (!isComponentMounted) return;
                           
-                          // 播放完成後導航到 MusicPlayer 組件
-                          router.push('/features/soothing-music/components/MusicPlayer');
+                          // 播放完成後導航到安撫音樂頁面
+                          router.push('/features/soothing-music');
                           
                           // 播放完成後恢復麥克風
                           resumeMicrophone();

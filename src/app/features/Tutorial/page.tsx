@@ -136,8 +136,8 @@ export default function Tutorial() {
                         console.log('Audio finished playing');
                         if (!isComponentMounted) return;
                         
-                        // 播放完成後導航到 MusicPlayer 組件
-                        router.push('/features/soothing-music/components/MusicPlayer');
+                        // 播放完成後導航到安撫音樂頁面
+                        router.push('/features/soothing-music');
                         
                         // 播放完成後恢復麥克風
                         resumeMicrophone();
@@ -295,7 +295,7 @@ export default function Tutorial() {
             });
             
             // 導向安撫音樂頁面
-            router.push('/features/soothing-music/components/MusicPlayer');
+            router.push('/features/soothing-music');
         }
     } else {
         detectionCount = 0;
