@@ -86,6 +86,7 @@ export async function POST(req: Request) {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${apiKey}`,
+          'api-key': apiKey
         },
         body: JSON.stringify({
           model: "gpt-3.5-turbo",
@@ -95,12 +96,15 @@ export async function POST(req: Request) {
           ],
           temperature: 0.7,
           max_tokens: 500,
+          stream: false
         }),
       });
 
       if (!response.ok) {
         console.error('API Response Status:', response.status);
         console.error('API Response Status Text:', response.statusText);
+        console.error('API URL:', `${apiBaseUrl}/v1/chat/completions`);
+        console.error('API Key (first 10 chars):', apiKey.substring(0, 10));
         
         let errorText;
         try {
@@ -111,11 +115,11 @@ export async function POST(req: Request) {
         }
 
         // 如果是 API 金鑰錯誤，返回特定錯誤信息
-        if (response.status === 401) {
+        if (response.status === 401 || response.status === 403) {
           return NextResponse.json(
             { 
               error: 'API 認證錯誤',
-              details: '請檢查 API 金鑰是否正確'
+              details: '請檢查 API 金鑰是否正確設置'
             },
             { status: 401 }
           );
