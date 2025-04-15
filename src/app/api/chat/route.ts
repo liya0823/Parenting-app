@@ -88,12 +88,14 @@ export async function POST(req: Request) {
         'api-key': apiKey
       });
       
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 秒超時
+
       const response = await fetch(`${apiBaseUrl}/v1/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-          'api-key': apiKey
+          'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
           model: "gpt-3.5-turbo",
@@ -105,7 +107,10 @@ export async function POST(req: Request) {
           max_tokens: 500,
           stream: false
         }),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         console.error('API Error Details:');
