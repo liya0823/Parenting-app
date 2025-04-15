@@ -57,9 +57,7 @@ export default function Tutorial() {
         const dataArray = new Uint8Array(bufferLength);
         
         // 降低音量閾值，使檢測更靈敏
-        const volumeThreshold = 45; // 設定閾值
-        const detectionWindow = 10; // 檢測窗口大小
-        let detectionCount = 0; // 連續檢測計數
+        const volumeThreshold = 45;
         
         // 初始化提示音
         if (notificationAudioRef.current) {
@@ -297,7 +295,7 @@ export default function Tutorial() {
             });
             
             // 導向安撫音樂頁面
-            router.push('/features/soothing-music');
+            router.push('/features/soothing-music/components/MusicPlayer');
         }
     } else {
         detectionCount = 0;
