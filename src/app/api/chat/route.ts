@@ -115,15 +115,27 @@ export async function POST(req: Request) {
       const data = await response.json();
       console.log('API Response:', data);
 
+      if (data.error) {
+        throw new Error(data.error.message || 'OpenAI API returned an error');
+      }
+
+      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+        throw new Error('Invalid response format from OpenAI API');
+      }
+
       return NextResponse.json({
         message: data.choices[0].message.content,
       });
     } catch (error) {
-      console.log('API call failed, using default response');
-      // 如果 API 調用失敗，使用預設回覆
-      return NextResponse.json({
-        message: getDefaultResponse(lastUserMessage),
-      });
+      console.error('API call failed:', error);
+      // 返回錯誤信息而不是默認回覆
+      return NextResponse.json(
+        { 
+          error: '與 AI 助手通信時發生錯誤',
+          details: error.message 
+        },
+        { status: 500 }
+      );
     }
 
   } catch (error: any) {
