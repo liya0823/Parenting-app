@@ -4,8 +4,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import styles from './page.module.css';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Volume2, VolumeX, Play, Pause, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
