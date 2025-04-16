@@ -518,17 +518,17 @@
   }
   
   .suggestions {
-    gap: 8px;
-    padding: 4px 0;
+    gap: 10px;
+    padding: 8px 0;
     margin-bottom: 3px;
   }
   
   .suggestionButton {
     border-radius: 18px;
     padding: 10px 12px;
-    margin-top: 5px;
-    font-size: 14px;
-    box-shadow: 0 2px 8px rgba(186, 134, 107, 0.507);
+    margin-top: 4px;
+    font-size: 13px;
+    box-shadow: 0 2px 6px rgba(186, 134, 107, 0.3);
   }
   
   .inputArea {
@@ -680,7 +680,7 @@
     padding: 6px 10px;
     margin-top: 3px;
     font-size: 12px;
-    box-shadow: 0 2px 4px rgba(186, 134, 107, 0.3);
+    box-shadow: 0 2px 4px rgba(186, 134, 107, 0.2);
   }
 }
 
