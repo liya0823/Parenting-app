@@ -405,6 +405,45 @@
   z-index: 5;
   top: 20px;
 }
+
+/* 聲音檢測提示窗 */
+.soundAlert {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  animation: fadeInDown 0.5s ease-out;
+  width: 90%;
+  max-width: 500px;
+}
+
+
+.alertIcon {
+  animation: pulse 2s infinite;
+  font-size: 24px;
+}
+
+.alertText {
+  flex: 1;
+  font-size: 16px;
+  color: #7C695B;
+  font-weight: 500;
+}
+
+.alertTitle {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin: 0 0 5px 0;
+}
+
+.alertMessage {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
 /* iPhone 8 適配 (375x667) - 保持比例 */
 @media screen and (max-width: 375px) and (max-height: 667px) {
 .container {
@@ -524,51 +563,6 @@
 }
 }
 
-/* 聲音檢測提示窗 */
-.soundAlert {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  animation: fadeInDown 0.5s ease-out;
-  width: 90%;
-  max-width: 500px;
-}
-
-.alertContent {
-  background-color: white;
-  border-radius: 15px;
-  padding: 15px 20px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  min-width: 350px;
-  max-width: 90%;
-  pointer-events: auto;
-}
-
-.alertIcon {
-  animation: pulse 2s infinite;
-}
-
-.alertText {
-  flex: 1;
-}
-
-.alertTitle {
-  font-size: 18px;
-  font-weight: bold;
-  color: #333;
-  margin: 0 0 5px 0;
-}
-
-.alertMessage {
-  font-size: 14px;
-  color: #666;
-  margin: 0;
-}
 @keyframes fadeInDown {
   from {
     opacity: 0;

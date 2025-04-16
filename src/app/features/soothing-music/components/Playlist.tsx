@@ -159,38 +159,15 @@ const Playlist = () => {
         const source = audioContext.createMediaStreamSource(stream);
         const analyser = audioContext.createAnalyser();
         analyser.fftSize = 256;
-        analyser.smoothingTimeConstant = 0.8; // 增加平滑度
+        analyser.smoothingTimeConstant = 0.8;
         source.connect(analyser);
         
         const bufferLength = analyser.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);
         
-        // 降低音量閾值，使檢測更靈敏
-        const volumeThreshold = 45; // 設定閾值
-        const detectionWindow = 10; // 檢測窗口大小
-        let detectionCount = 0; // 連續檢測計數
-        
-        // 暫停麥克風的函數
-        const pauseMicrophone = () => {
-          if (mediaStreamRef.current && !isPlayingRef.current) {
-            mediaStreamRef.current.getTracks().forEach(track => {
-              track.enabled = false;
-            });
-            isListeningRef.current = false;
-            isPlayingRef.current = true;
-          }
-        };
-        
-        // 恢復麥克風的函數
-        const resumeMicrophone = () => {
-          if (mediaStreamRef.current && isPlayingRef.current) {
-            mediaStreamRef.current.getTracks().forEach(track => {
-              track.enabled = true;
-            });
-            isListeningRef.current = true;
-            isPlayingRef.current = false;
-          }
-        };
+        const volumeThreshold = 45;
+        const detectionWindow = 10;
+        let detectionCount = 0;
         
         const checkVolume = () => {
           if (!isListeningRef.current || !isComponentMounted) return;
@@ -198,11 +175,9 @@ const Playlist = () => {
           analyser.getByteFrequencyData(dataArray);
           const average = dataArray.reduce((a, b) => a + b) / bufferLength;
           
-          // 檢查是否超過閾值
           if (average > volumeThreshold) {
             detectionCount++;
             
-            // 如果連續多次檢測到聲音，則觸發提示
             if (detectionCount >= detectionWindow) {
               const now = Date.now();
               if (now - lastDetectionTime >= DETECTION_COOLDOWN) {
@@ -214,42 +189,27 @@ const Playlist = () => {
                   soundDetectionTimeoutRef.current = setTimeout(() => {
                     if (!isComponentMounted) return;
                     
-                    // 如果 1.5 秒後仍然在檢測中，則觸發提示
                     if (soundStartTimeRef.current !== null && !isPlayingNotification) {
                       setShowSoundAlert(true);
                       setIsPlayingNotification(true);
                       
-                      // 暫停麥克風
-                      pauseMicrophone();
-                      
-                      // 播放提示音
                       playSound('/audio/偵測提示.mp3')
                         .then(() => {
                           if (!isComponentMounted) return;
-                          
-                          // 播放完成後導航到安撫音樂頁面
-                          router.push('/features/soothing-music');
-                          
-                          // 播放完成後恢復麥克風
-                          resumeMicrophone();
+                          handleNavigation(); // 使用 handleNavigation 函數
                           setIsPlayingNotification(false);
                         })
                         .catch(error => {
                           console.error('播放提示音失敗:', error);
                           if (!isComponentMounted) return;
-                          
-                          // 發生錯誤時也要恢復麥克風
-                          resumeMicrophone();
                           setIsPlayingNotification(false);
                         });
                       
-                      // 5 秒後隱藏提示
                       setTimeout(() => {
                         if (!isComponentMounted) return;
                         setShowSoundAlert(false);
                       }, 5000);
                       
-                      // 重置檢測狀態
                       soundStartTimeRef.current = null;
                     }
                   }, 1500);
@@ -257,10 +217,8 @@ const Playlist = () => {
               }
             }
           } else {
-            // 如果聲音低於閾值，重置計數器
             detectionCount = Math.max(0, detectionCount - 1);
             
-            // 如果聲音持續低於閾值，重置計時器
             if (detectionCount === 0 && soundStartTimeRef.current !== null) {
               soundStartTimeRef.current = null;
               if (soundDetectionTimeoutRef.current) {
@@ -275,24 +233,20 @@ const Playlist = () => {
           }
         };
         
-        // 初始化麥克風狀態
         isListeningRef.current = true;
         isPlayingRef.current = false;
         checkVolume();
         
-        // 設置清理函數
         cleanupFunction = () => {
-          isComponentMounted = false; // 標記組件已卸載
-          isListeningRef.current = false; // 停止聲音檢測
+          isComponentMounted = false;
+          isListeningRef.current = false;
           
-          // 停止所有音頻相關的活動
           if (mediaStreamRef.current) {
             mediaStreamRef.current.getTracks().forEach(track => track.stop());
           }
           if (audioContext) {
             audioContext.close();
           }
-          // 清理計時器
           if (soundDetectionTimeoutRef.current) {
             clearTimeout(soundDetectionTimeoutRef.current);
           }
@@ -305,7 +259,6 @@ const Playlist = () => {
     
     initAudio();
     
-    // 確保在組件卸載時執行清理
     return () => {
       if (cleanupFunction) {
         cleanupFunction();
@@ -444,6 +397,10 @@ const Playlist = () => {
   const handleModeChange = (mode: string) => {
     setActiveMode(mode);
     if (mode === 'auto') {
+      // 當切換到自動模式時，立即導航到主頁面並啟用自動檢測
+      router.push('/features/soothing-music?autoDetect=true');
+    } else {
+      // 當切換到手動模式時，導航到主頁面但不啟用自動檢測
       router.push('/features/soothing-music');
     }
   };
@@ -465,23 +422,43 @@ const Playlist = () => {
         break;
     }
   };
+
+  const handleNavigation = () => {
+    // Clear any existing timeouts
+    if (soundDetectionTimeoutRef.current) {
+      clearTimeout(soundDetectionTimeoutRef.current);
+      soundDetectionTimeoutRef.current = null;
+    }
+    
+    // Reset sound detection state
+    soundStartTimeRef.current = null;
+    setIsPlayingNotification(false);
+    
+    // Navigate to the soothing-music page with fromDetection parameter
+    router.push('/features/soothing-music?fromDetection=true');
+  };
+
   return (
     <div className={styles.container}>
       {showSoundAlert && (
         <div className={styles.soundAlert} style={{
           position: 'fixed',
-          top: '50%',
+          top: '10%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
           zIndex: 9999,
           width: '80%',
           backgroundColor: 'rgba(255, 255, 255, 0.95)',
-          padding: '15px',
-          borderRadius: '12px',
+          padding: '15px 20px',
+          borderRadius: '15px',
           boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
           display: 'flex',
           justifyContent: 'center',
-          alignItems: 'center'
+          alignItems: 'center',
+          gap: '15px',
+          minWidth: '350px',
+          maxWidth: '90%',
+          pointerEvents: 'auto'
         }}>
           <div className={styles.alertContent}>
             <span className={styles.alertIcon}>🍼</span>
@@ -489,7 +466,8 @@ const Playlist = () => {
           </div>
         </div>
       )}
-      
+
+ 
       <div className={styles.header}>
         <div className={styles.logoWrapper}>
           <span className={styles.anxinwei}>安撫音樂</span>
