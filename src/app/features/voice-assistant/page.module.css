@@ -216,20 +216,20 @@
   padding: 5px 0;
   overflow-x: auto;
   user-select: none;
-  margin-bottom: 5px; /* 固定與輸入框的間距為 5px */
+  margin-bottom: 5px;
 }
 
 .suggestionButton {
   background-color: #FEF7EC;
   border: none;
   border-radius: 20px;
-  padding: 12px 15px; /* 稍微減小按鈕的內邊距 */
+  padding: 12px 15px;
   color: #C8A99A;
   font-size: 15px;
   transition: all 0.2s ease;
   white-space: nowrap;
   box-shadow: 0 2px 8px rgba(186, 134, 107, 0.507);
-  margin-top: 5px; /* 添加頂部間距 */
+  margin-top: 5px;
 }
 
 .inputArea {
@@ -526,9 +526,9 @@
   .suggestionButton {
     border-radius: 18px;
     padding: 10px 12px;
-    margin-top: 4px;
-    font-size: 13px;
-    box-shadow: 0 2px 6px rgba(186, 134, 107, 0.3);
+    margin-top: 5px;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(186, 134, 107, 0.507);
   }
   
   .inputArea {
@@ -667,20 +667,6 @@
 
   .voiceButton, .sendButton {
     margin-top: 0;
-  }
-
-  .suggestions {
-    gap: 6px;
-    padding: 3px 0;
-    margin-bottom: 3px;
-  }
-  
-  .suggestionButton {
-    border-radius: 14px;
-    padding: 6px 10px;
-    margin-top: 3px;
-    font-size: 12px;
-    box-shadow: 0 2px 4px rgba(186, 134, 107, 0.2);
   }
 }
 
