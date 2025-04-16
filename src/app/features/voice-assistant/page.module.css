@@ -520,7 +520,7 @@
   .suggestions {
     gap: 8px;
     padding: 4px 0;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
   }
   
   .suggestionButton {
