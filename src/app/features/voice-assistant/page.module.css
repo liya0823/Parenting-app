@@ -636,10 +636,6 @@
     font-size: 14px;
   }
 
-  .bottomSection {
-    margin-bottom: 110px;
-  }
-
   .inputArea {
     padding-bottom: 10px;
   }
@@ -674,9 +670,6 @@
     width: 260px !important;
   }
 
-  .bottomSection {
-    margin-bottom: 165px;
-  }
 
   .phoneContainer .inputArea .input {
     height: 50px;
@@ -707,9 +700,6 @@
     font-size: 20px;
   }
 
-  .bottomSection {
-    margin-bottom: 170px;
-  }
 
   .phoneContainer .inputArea .input {
     height: 55px;
@@ -741,10 +731,6 @@
     width: 230px !important;
   }
 
-  .bottomSection {
-    margin-bottom: 165px;
-  }
-
   .phoneContainer .inputArea .input {
     height: 48px;
     max-width: 340px;
@@ -769,9 +755,6 @@
     font-size: 19px;
   }
 
-  .bottomSection {
-    margin-bottom: 180px;
-  }
 
   .phoneContainer .inputArea .input {
     height: 52px;
