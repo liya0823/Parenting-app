@@ -72,6 +72,19 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
   const audioElementsRef = useRef<{ [key: string]: HTMLAudioElement }>({});
   const maxRetries = 3;
 
+  // 添加哭聲檢測相關的狀態和引用
+  const [volume, setVolume] = useState(0);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const microphoneRef = useRef<MediaStreamAudioSourceNode | null>(null);
+  const animationFrameRef = useRef<number>();
+  const lastTriggerTimeRef = useRef<number>(0);
+  const soundStartTimeRef = useRef<number | null>(null);
+  const soundDetectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const isListeningRef = useRef<boolean>(false);
+  const isPlayingRef = useRef<boolean>(false);
+  const [isPlayingNotification, setIsPlayingNotification] = useState(false);
+
   // 初始化 AudioContext
   const initAudioContext = async () => {
     try {
@@ -422,6 +435,127 @@ const MusicPlayer = ({ onModeChange }: MusicPlayerProps) => {
       router.push('/features/soothing-music/playlist');
     }
   };
+
+  // 初始化音頻處理
+  useEffect(() => {
+    let cleanupFunction: (() => void) | undefined;
+    let isComponentMounted = true;
+    let lastDetectionTime = 0;
+    const DETECTION_COOLDOWN = 30000; // 增加冷卻時間到 30 秒
+    let isNavigating = false; // 添加導航鎖
+    
+    const initAudio = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        if (!isComponentMounted) {
+          stream.getTracks().forEach(track => track.stop());
+          return;
+        }
+        
+        mediaStreamRef.current = stream;
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const source = audioContext.createMediaStreamSource(stream);
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        analyser.smoothingTimeConstant = 0.8;
+        source.connect(analyser);
+        analyserRef.current = analyser;
+        
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        
+        const volumeThreshold = 55;
+        const detectionWindow = 10;
+        let detectionCount = 0;
+        
+        const checkVolume = () => {
+          if (!isListeningRef.current || !isComponentMounted || isNavigating) return;
+          
+          analyser.getByteFrequencyData(dataArray);
+          const average = dataArray.reduce((a, b) => a + b) / bufferLength;
+          
+          if (average > volumeThreshold) {
+            detectionCount++;
+            
+            if (detectionCount >= detectionWindow) {
+              const now = Date.now();
+              if (now - lastDetectionTime >= DETECTION_COOLDOWN && !isNavigating) {
+                lastDetectionTime = now;
+                
+                if (soundStartTimeRef.current === null && !isPlayingNotification) {
+                  soundStartTimeRef.current = now;
+                  
+                  soundDetectionTimeoutRef.current = setTimeout(() => {
+                    if (!isComponentMounted || isNavigating) return;
+                    
+                    if (soundStartTimeRef.current !== null && !isPlayingNotification) {
+                      isNavigating = true; // 設置導航鎖
+                      setIsPlayingNotification(true);
+                      startDetection(); // 直接調用檢測函數，不顯示提示窗
+                      soundStartTimeRef.current = null;
+                      
+                      // 30 秒後重置導航鎖
+                      setTimeout(() => {
+                        isNavigating = false;
+                      }, DETECTION_COOLDOWN);
+                    }
+                  }, 1500);
+                }
+              }
+            }
+          } else {
+            detectionCount = Math.max(0, detectionCount - 1);
+            
+            if (detectionCount === 0 && soundStartTimeRef.current !== null) {
+              soundStartTimeRef.current = null;
+              if (soundDetectionTimeoutRef.current) {
+                clearTimeout(soundDetectionTimeoutRef.current);
+                soundDetectionTimeoutRef.current = null;
+              }
+            }
+          }
+          
+          if (isListeningRef.current && isComponentMounted && !isNavigating) {
+            animationFrameRef.current = requestAnimationFrame(checkVolume);
+          }
+        };
+        
+        isListeningRef.current = true;
+        isPlayingRef.current = false;
+        checkVolume();
+        
+        cleanupFunction = () => {
+          isComponentMounted = false;
+          isListeningRef.current = false;
+          isNavigating = false;
+          
+          if (mediaStreamRef.current) {
+            mediaStreamRef.current.getTracks().forEach(track => track.stop());
+          }
+          if (audioContext) {
+            audioContext.close();
+          }
+          if (soundDetectionTimeoutRef.current) {
+            clearTimeout(soundDetectionTimeoutRef.current);
+          }
+          if (animationFrameRef.current) {
+            cancelAnimationFrame(animationFrameRef.current);
+          }
+          setIsPlayingNotification(false);
+        };
+      } catch (error) {
+        console.error('Error accessing microphone:', error);
+      }
+    };
+    
+    initAudio();
+    
+    return () => {
+      if (cleanupFunction) {
+        cleanupFunction();
+      }
+    };
+  }, []);
 
   return (
     <div className={`${styles.container} ${fadeOut ? styles.fadeOut : ''}`}>
